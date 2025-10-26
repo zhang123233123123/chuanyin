@@ -1,7 +1,6 @@
-import { getApiKey } from './api-key';
+import { getAiSettings } from './api-key';
 
 const OPENAI_CHAT_COMPLETIONS = 'https://api.openai.com/v1/chat/completions';
-const DEFAULT_MODEL = 'gpt-4o-mini';
 
 type SummaryResponse = {
   items: string[];
@@ -28,23 +27,38 @@ const parseSummary = (content: string): string[] => {
     .filter(Boolean);
 };
 
-export async function summarizeExperience(raw: string): Promise<string[]> {
+export async function summarizeExperience(
+  raw: string,
+  feature: string,
+  model: string // Add model as a parameter
+): Promise<string[]> {
   if (!raw || !raw.trim()) {
     throw new Error('没有可供总结的内容');
   }
 
-  const key = getApiKey();
-  if (!key) {
-    throw new Error('缺少 API Key，请先前往“API 设置”页面配置密钥。');
+  const settings = getAiSettings();
+
+  if (!settings || !settings.models) {
+    throw new Error('AI 配置不完整，请先前往“API 设置”页面');
+  }
+
+  // Use the model passed as a parameter to get the config
+  const modelConfig = settings.models[model];
+  if (!modelConfig || !modelConfig.apiKey) {
+    throw new Error(`模型“${model}”缺少 API Key，请前往“API 设置”页面配置`);
+  }
+
+  const systemPrompt = settings.prompts?.[feature];
+  if (!systemPrompt) {
+    throw new Error(`缺少“${feature}”功能的 Prompt，请前往“API 设置”页面配置`);
   }
 
   const payload = {
-    model: DEFAULT_MODEL,
+    model: model, // Use the model from the parameter
     messages: [
       {
         role: 'system',
-        content:
-          '你是一名资深的职业规划顾问，擅长把实际经历提炼为要点列表。请针对输入文本提炼不超过 8 条的经历 bullet，每条 20 字以内，保留关键信息与行动成果。以 JSON 形式返回，例如 {"items": ["...", "..."]}。',
+        content: systemPrompt,
       },
       {
         role: 'user',
@@ -55,11 +69,13 @@ export async function summarizeExperience(raw: string): Promise<string[]> {
     response_format: { type: 'json_object' },
   };
 
-  const response = await fetch(OPENAI_CHAT_COMPLETIONS, {
+  const endpoint = modelConfig.endpoint || OPENAI_CHAT_COMPLETIONS;
+
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${key}`,
+      Authorization: `Bearer ${modelConfig.apiKey}`,
     },
     body: JSON.stringify(payload),
   });
@@ -71,7 +87,7 @@ export async function summarizeExperience(raw: string): Promise<string[]> {
       const parsed = JSON.parse(text);
       reason = parsed?.error?.message || parsed?.message || reason;
     } catch (err) {
-      reason = text || reason;
+      // ignore
     }
     throw new Error(`生成失败：${reason}`);
   }

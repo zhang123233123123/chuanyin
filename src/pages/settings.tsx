@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { IntlProvider } from 'react-intl';
-import { Button, Input, message, Typography, Tabs } from 'antd';
+import { Button, Input, message, Typography, Tabs, Divider } from 'antd';
 import Header from '@/layout/header';
 import Footer from '@/layout/footer';
 import { getLanguage, registerLocale, getLocale } from '@/i18n';
@@ -11,7 +11,8 @@ import {
   setAiSettings,
   clearAiSettings,
   AiSettings,
-  ModelConfig,
+  getDefaultSettings,
+  AI_MODELS,
 } from '@/helpers/api-key';
 import './settings.less';
 
@@ -20,21 +21,12 @@ registerLocale('en-US', EN_US_LOCALE);
 const { Paragraph, Text } = Typography;
 const { TabPane } = Tabs;
 
-const AI_MODELS = ['Gemini', 'DeepSeek', 'Qwen'];
-
-const DEFAULT_PROMPT =
-  'You are an expert in HTML and CSS. Please refine the following HTML to be more professional. Use the provided CSS classes: section-title, section-header, section-detail, profile-list. Return only raw HTML. Base HTML to refine: --- {html} ---';
-
-const getDefaultSettings = (): AiSettings => ({
-  activeModel: AI_MODELS[0],
-  models: AI_MODELS.reduce(
-    (acc, model) => ({
-      ...acc,
-      [model]: { apiKey: '', prompt: DEFAULT_PROMPT },
-    }),
-    {} as { [modelName: string]: ModelConfig }
-  ),
-});
+// UI-specific mapping for prompt feature names
+const PROMPT_FEATURES = {
+  summarize: '总结个人经历',
+  match_jd: '匹配职位描述 (JD)',
+  optimize: '优化经历描述',
+};
 
 const SettingsPage: React.FC = () => {
   const lang = getLanguage();
@@ -44,10 +36,8 @@ const SettingsPage: React.FC = () => {
   const [isDirty, setDirty] = useState(false);
 
   useEffect(() => {
-    const stored = getAiSettings();
-    if (stored) {
-      setAiSettingsValue(stored);
-    }
+    // getAiSettings now returns a safe, merged object.
+    setAiSettingsValue(getAiSettings());
   }, []);
 
   const handleSave = () => {
@@ -72,10 +62,18 @@ const SettingsPage: React.FC = () => {
       ...prev,
       models: {
         ...prev.models,
-        [model]: {
-          ...prev.models[model],
-          [key]: value,
-        },
+        [model]: { ...prev.models[model], [key]: value },
+      },
+    }));
+    setDirty(true);
+  };
+
+  const handlePromptChange = (feature: string, value: string) => {
+    setAiSettingsValue(prev => ({
+      ...prev,
+      prompts: {
+        ...prev.prompts,
+        [feature]: value,
       },
     }));
     setDirty(true);
@@ -96,10 +94,9 @@ const SettingsPage: React.FC = () => {
         <main className="settings-content">
           <section className="settings-card">
             <header className="settings-card__header">
-              <h1>AI 解析设置</h1>
+              <h1>AI 模型设置</h1>
               <Text className="subtitle">
-                为不同的大语言模型配置独立的 API Key 和
-                Prompt，以辅助解析简历模版。
+                选择一个激活模型，并为其配置 API Key。
               </Text>
             </header>
 
@@ -110,33 +107,61 @@ const SettingsPage: React.FC = () => {
               {AI_MODELS.map(model => (
                 <TabPane tab={model} key={model}>
                   <div className="settings-form">
+                    <label htmlFor={`${model}-endpoint-input`}>
+                      Endpoint 地址
+                    </label>
+                    <Input
+                      id={`${model}-endpoint-input`}
+                      value={aiSettings.models[model]?.endpoint || ''}
+                      placeholder="例如: https://api.deepseek.com/v1"
+                      onChange={e =>
+                        handleModelConfigChange(
+                          model,
+                          'endpoint',
+                          e.target.value
+                        )
+                      }
+                    />
                     <label htmlFor={`${model}-apikey-input`}>API Key</label>
                     <Input.Password
                       id={`${model}-apikey-input`}
-                      value={aiSettings.models[model]?.apiKey}
+                      value={aiSettings.models[model]?.apiKey || ''}
                       placeholder={`请输入你的 ${model} API Key`}
                       onChange={e =>
                         handleModelConfigChange(model, 'apiKey', e.target.value)
                       }
                       visibilityToggle
                     />
-
-                    <label htmlFor={`${model}-prompt-input`}>
-                      Prompt (提示词)
-                    </label>
-                    <Input.TextArea
-                      id={`${model}-prompt-input`}
-                      value={aiSettings.models[model]?.prompt}
-                      placeholder={`请输入用于 ${model} 的提示词`}
-                      rows={10}
-                      onChange={e =>
-                        handleModelConfigChange(model, 'prompt', e.target.value)
-                      }
-                    />
                   </div>
                 </TabPane>
               ))}
             </Tabs>
+
+            <Divider />
+
+            <header className="settings-card__header">
+              <h1>Prompt 管理</h1>
+              <Text className="subtitle">
+                为不同的 AI 功能配置独立的 Prompt (提示词)。
+              </Text>
+            </header>
+
+            <div className="settings-form prompt-management">
+              {Object.entries(PROMPT_FEATURES).map(([key, name]) => (
+                <React.Fragment key={key}>
+                  <label htmlFor={`${key}-prompt-input`}>{name}</label>
+                  <Input.TextArea
+                    id={`${key}-prompt-input`}
+                    value={aiSettings.prompts[key] || ''}
+                    placeholder={`请输入用于“${name}”功能的提示词`}
+                    rows={8}
+                    onChange={e => handlePromptChange(key, e.target.value)}
+                  />
+                </React.Fragment>
+              ))}
+            </div>
+
+            <Divider />
 
             <div className="settings-actions">
               <Button type="primary" onClick={handleSave} disabled={!isDirty}>

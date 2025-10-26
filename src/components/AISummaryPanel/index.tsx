@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Upload, message, Spin, Empty, Typography } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Button, Upload, message, Spin, Empty, Typography, Select } from 'antd';
 import type { UploadProps } from 'antd';
 import {
   PaperClipOutlined,
@@ -10,6 +10,7 @@ import {
 import { readExperienceFile } from '@/helpers/doc-reader';
 import { summarizeExperience } from '@/helpers/ai';
 import { copyToClipboard } from '@/helpers/copy-to-board';
+import { getAiSettings, AI_MODELS } from '@/helpers/api-key';
 import './index.less';
 
 const { Paragraph } = Typography;
@@ -20,6 +21,15 @@ export const AISummaryPanel: React.FC = () => {
   const [summaries, setSummaries] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>();
+  const [model, setModel] = useState<string>('');
+
+  useEffect(() => {
+    // Load the default active model on initial render
+    const settings = getAiSettings();
+    if (settings.activeModel) {
+      setModel(settings.activeModel);
+    }
+  }, []);
 
   const resetState = () => {
     setSummaries([]);
@@ -36,7 +46,7 @@ export const AISummaryPanel: React.FC = () => {
       }
       setFileName(file.name);
       setRawContent(text);
-      message.success('文档已解析，点击“生成要点”即可调用 AI');
+      message.success('文档已解析，选择模型后即可生成要点');
     } catch (err) {
       const reason = err instanceof Error ? err.message : '文档解析失败';
       setRawContent('');
@@ -50,10 +60,14 @@ export const AISummaryPanel: React.FC = () => {
       message.warning('请先上传包含经历的文档');
       return;
     }
+    if (!model) {
+      message.warning('请选择一个 AI 模型');
+      return;
+    }
     setLoading(true);
     setError(undefined);
     try {
-      const items = await summarizeExperience(rawContent);
+      const items = await summarizeExperience(rawContent, 'summarize', model);
       setSummaries(items);
       if (!items.length) {
         message.info('模型未返回内容，尝试调整文档或稍后重试');
@@ -108,6 +122,18 @@ export const AISummaryPanel: React.FC = () => {
       )}
 
       <div className="ai-summary-panel__actions">
+        <Select
+          value={model}
+          onChange={setModel}
+          style={{ width: 150 }}
+          placeholder="选择模型"
+        >
+          {AI_MODELS.map(m => (
+            <Select.Option key={m} value={m}>
+              {m}
+            </Select.Option>
+          ))}
+        </Select>
         <Button
           type="primary"
           onClick={handleSummarize}
