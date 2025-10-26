@@ -1,0 +1,115 @@
+.ai-summary-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(7, 16, 36, 0.92), rgba(9, 22, 48, 0.68));
+  border: 1px solid rgba(91, 157, 255, 0.22);
+  box-shadow: 0 18px 40px rgba(3, 12, 32, 0.65), inset 0 0 0 1px rgba(102, 224, 255, 0.08);
+  color: var(--space-text);
+
+  &__header {
+    h2 {
+      margin: 0 0 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--space-primary-strong);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ant-typography {
+      margin: 0;
+      color: rgba(214, 225, 255, 0.75);
+      font-size: 13px;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  &__uploader {
+    background: rgba(7, 16, 36, 0.65);
+    border: 1px dashed rgba(102, 224, 255, 0.4);
+    border-radius: 14px;
+    color: rgba(214, 225, 255, 0.75);
+
+    .ant-upload-drag-icon {
+      color: var(--space-primary-strong);
+    }
+
+    &:hover,
+    &.ant-upload-drag-hover {
+      border-color: rgba(102, 224, 255, 0.8);
+      background: rgba(7, 16, 36, 0.82);
+    }
+  }
+
+  &__file-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: rgba(214, 225, 255, 0.8);
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  &__result {
+    min-height: 160px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(7, 16, 36, 0.65);
+    border: 1px solid rgba(91, 157, 255, 0.16);
+    overflow-y: auto;
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      li {
+        padding-left: 16px;
+        position: relative;
+        font-size: 13px;
+        line-height: 1.6;
+        color: rgba(222, 232, 255, 0.88);
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 8px;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--space-primary-strong);
+          box-shadow: 0 0 8px rgba(102, 224, 255, 0.55);
+        }
+      }
+    }
+
+    .error-text {
+      color: #ff8f8f;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .ai-summary-panel {
+    width: 100%;
+  }
+}

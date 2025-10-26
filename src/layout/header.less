@@ -1,18 +1,103 @@
 header {
   display: flex;
   justify-content: space-between;
-  padding: 8px 12px;
+  align-items: center;
+  padding: 16px 28px;
+  margin: 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(10, 24, 55, 0.9), rgba(10, 32, 70, 0.65));
+  border: 1px solid rgba(91, 157, 255, 0.22);
+  box-shadow: 0 18px 44px rgba(3, 12, 32, 0.55), inset 0 0 0 1px rgba(102, 224, 255, 0.08);
+  color: var(--space-text);
+  position: relative;
+  overflow: hidden;
 
-  background: rgb(39, 63, 117);
-  color: rgba(255, 255, 255, 0.85);
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -80% 35% auto -40%;
+    height: 240px;
+    background: radial-gradient(circle, rgba(91, 157, 255, 0.24) 0%, rgba(91, 157, 255, 0) 70%);
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    .nav-link {
+      position: relative;
+      color: rgba(214, 225, 255, 0.66);
+      font-size: 15px;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding-bottom: 4px;
+
+      &:hover {
+        color: #fff;
+      }
+
+      &.active {
+        color: var(--space-primary-strong);
+      }
+
+      &.active::after,
+      &:hover::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -4px;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(102, 224, 255, 0.95), rgba(183, 140, 255, 0.8));
+        box-shadow: 0 0 10px rgba(102, 224, 255, 0.65);
+      }
+    }
+  }
+
+  span:last-of-type {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
   .action-link {
     margin: 0 4px;
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    font-family: 'Orbitron', sans-serif;
+    color: rgba(214, 225, 255, 0.75);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 
     &:hover {
       cursor: pointer;
+      color: var(--space-primary-strong);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    margin: 16px;
+    padding: 18px 20px;
+
+    .nav {
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    span:last-of-type {
+      align-self: stretch;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
     }
   }
 }

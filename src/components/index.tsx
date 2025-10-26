@@ -17,6 +17,7 @@ import { getConfig, saveToLocalStorage } from '@/helpers/store-to-local';
 import { fetchResume } from '@/helpers/fetch-resume';
 import { Drawer } from './Drawer';
 import { Resume } from './Resume';
+import { AISummaryPanel } from './AISummaryPanel';
 import type { ResumeConfig, ThemeConfig } from './types';
 
 import './index.less';
@@ -278,41 +279,44 @@ export const Page: React.FC = () => {
             />
           )}
           {mode === 'edit' && (
-            <React.Fragment>
-              <Affix offsetTop={0}>
-                <Button.Group className="btn-group">
-                  <Drawer
-                    value={config}
-                    onValueChange={onConfigChange}
-                    theme={theme}
-                    onThemeChange={onThemeChange}
-                    // @ts-ignore
-                    template={query.template || 'template1'}
-                    onTemplateChange={updateTemplate}
-                  />
-                  <Button type="primary" onClick={copyConfig}>
-                    <FormattedMessage id="复制配置" />
-                  </Button>
-                  <Button type="primary" onClick={exportConfig}>
-                    <FormattedMessage id="保存简历" />
-                  </Button>
-                  <Upload
-                    accept=".json"
-                    showUploadList={false}
-                    beforeUpload={importConfig}
-                  >
-                    <Button className="btn-upload">
-                      <FormattedMessage id="导入配置" />
+            <>
+              <div className="page-sidebar">
+                <Affix offsetTop={0}>
+                  <Button.Group className="btn-group">
+                    <Drawer
+                      value={config}
+                      onValueChange={onConfigChange}
+                      theme={theme}
+                      onThemeChange={onThemeChange}
+                      // @ts-ignore
+                      template={query.template || 'template1'}
+                      onTemplateChange={updateTemplate}
+                    />
+                    <Button type="primary" onClick={copyConfig}>
+                      <FormattedMessage id="复制配置" />
                     </Button>
-                  </Upload>
-                  <Button type="primary" onClick={() => window.print()}>
-                    <FormattedMessage id="下载 PDF" />
-                  </Button>
-                  <Button type="primary" onClick={handleSharing}>
-                    <FormattedMessage id="分享" />
-                  </Button>
-                </Button.Group>
-              </Affix>
+                    <Button type="primary" onClick={exportConfig}>
+                      <FormattedMessage id="保存简历" />
+                    </Button>
+                    <Upload
+                      accept=".json"
+                      showUploadList={false}
+                      beforeUpload={importConfig}
+                    >
+                      <Button className="btn-upload">
+                        <FormattedMessage id="导入配置" />
+                      </Button>
+                    </Upload>
+                    <Button type="primary" onClick={() => window.print()}>
+                      <FormattedMessage id="下载 PDF" />
+                    </Button>
+                    <Button type="primary" onClick={handleSharing}>
+                      <FormattedMessage id="分享" />
+                    </Button>
+                  </Button.Group>
+                </Affix>
+                <AISummaryPanel />
+              </div>
               <div
                 className="box-size-info"
                 style={{
@@ -322,7 +326,7 @@ export const Page: React.FC = () => {
               >
                 ({box.width}, {box.height})
               </div>
-            </React.Fragment>
+            </>
           )}
         </div>
       </Spin>

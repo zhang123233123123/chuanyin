@@ -1,90 +1,186 @@
-/*
-* 全局变量
-*/
-@font-face {
-  font-family: 'roboto-regular';
-  src: url('https://dasstatic.alicdn.com/alisis3/fonts/Roboto-Regular.ttf');
-}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Rajdhani:wght@300;400;500;600&display=swap');
 
-@font-face {
-  font-family: 'roboto-medium';
-  src: url('https://dasstatic.alicdn.com/alisis3/fonts/Roboto-Medium.ttf');
-}
-
-@font-face {
-  font-family: 'roboto-light';
-  src: url('https://dasstatic.alicdn.com/alisis3/fonts/Roboto-Light.ttf');
+:root {
+  --space-bg: #050b1d;
+  --space-bg-alt: rgba(12, 20, 42, 0.78);
+  --space-primary: #5b9dff;
+  --space-primary-strong: #66e0ff;
+  --space-secondary: #b78cff;
+  --space-surface: rgba(10, 18, 40, 0.64);
+  --space-border: rgba(91, 157, 255, 0.45);
+  --space-text: #d7e0ff;
+  --space-muted: #8ca4d9;
+  --space-glow: 0 0 18px rgba(102, 224, 255, 0.35);
 }
 
 body {
-  font-family: roboto-regular;
-  font-size: 14px; // normal-font-size
-
   margin: 0 !important;
+  font-family: 'Rajdhani', 'Roboto', sans-serif;
+  font-size: 15px;
+  color: var(--space-text);
+  background: radial-gradient(circle at 15% 20%, rgba(58, 113, 255, 0.18), transparent 55%),
+    radial-gradient(circle at 80% 0%, rgba(183, 140, 255, 0.18), transparent 50%),
+    var(--space-bg);
+  background-attachment: fixed;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 20px 40px, rgba(255, 255, 255, 0.6), transparent),
+      radial-gradient(1px 1px at 60px 80px, rgba(91, 157, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 120px 20px, rgba(183, 140, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 200px 120px, rgba(255, 255, 255, 0.35), transparent);
+    background-size: 240px 240px;
+    opacity: 0.45;
+    z-index: -1;
+  }
 
   .page {
     display: flex;
-    padding: 12px;
     justify-content: center;
+    align-items: flex-start;
+    gap: 32px;
+    padding: 40px 24px;
+    backdrop-filter: blur(14px);
+    background: linear-gradient(135deg, rgba(15, 28, 58, 0.82), rgba(10, 22, 45, 0.58));
+    border-radius: 18px;
+    box-shadow: 0 20px 45px rgba(3, 10, 28, 0.65), inset 0 0 0 1px rgba(102, 224, 255, 0.08);
+    border: 1px solid rgba(91, 157, 255, 0.15);
 
-    .btn-group {
-      margin-left: 12px;
-      display: block;
-
-      .ant-btn {
-        display: block;
-        margin-top: 8px;
-        padding: 4px 8px;
-        width: 106px;
-        border-radius: 0 !important;
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    .page {
-      flex-direction: column-reverse;
+    .page-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
 
       .btn-group {
-        margin-left: 0px;
+        display: block;
 
         .ant-btn {
-          margin-top: 0;
-          margin-bottom: 8px;
-          margin-right: 8px;
-          display: inline-block;
+          display: block;
+          margin-top: 12px;
+          padding: 8px 18px;
+          width: 188px;
+          border-radius: 999px !important;
+          font-family: 'Orbitron', sans-serif;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          background: linear-gradient(135deg, rgba(91, 157, 255, 0.16), rgba(102, 224, 255, 0.08));
+          color: var(--space-text);
+          border: 1px solid rgba(91, 157, 255, 0.35) !important;
+          box-shadow: var(--space-glow);
 
-          &:not(.btn-upload):last-of-type {
-            margin-right: 0px;
+          &:hover,
+          &:focus {
+            background: linear-gradient(135deg, rgba(91, 157, 255, 0.35), rgba(102, 224, 255, 0.25));
+            border-color: rgba(102, 224, 255, 0.65) !important;
+            color: #fff;
           }
         }
       }
     }
   }
 
-  // 移动端不给编辑
-  @media (max-width: 414px) {
+  @media (max-width: 1024px) {
     .page {
-      padding: 0;
-      .btn-group,
-      .box-size-info {
-        display: none;
+      flex-direction: column-reverse;
+      padding: 24px;
+
+      .page-sidebar {
+        width: 100%;
+        align-items: stretch;
+
+        .btn-group {
+          margin: 0 0 24px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+
+          .ant-btn {
+            margin: 0;
+            width: auto;
+          }
+        }
+
+        .ai-summary-panel {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 560px) {
+    .page {
+      padding: 16px;
+      border-radius: 12px;
+
+      .page-sidebar {
+        width: 100%;
+
+        .btn-group {
+          display: none;
+        }
       }
     }
   }
 
   .box-size-info {
     position: absolute;
-    transform: translate(-100%, 50%);
+    transform: translate(-90%, 40%);
     font-size: 12px;
     line-height: 15px;
-    background: rgba(139, 195, 74, 0.39);
-    color: #009688;
-    letter-spacing: 1.2px;
-    border-radius: 2px;
-    padding: 2px 4px;
-    margin: 4px 0px;
+    background: rgba(102, 224, 255, 0.12);
+    color: var(--space-primary-strong);
+    border: 1px solid rgba(102, 224, 255, 0.45);
+    letter-spacing: 0.18em;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 4px 0;
+    box-shadow: var(--space-glow);
   }
+}
+
+.ant-btn-primary {
+  background: linear-gradient(135deg, rgba(91, 157, 255, 0.45), rgba(102, 224, 255, 0.28));
+  border-color: rgba(102, 224, 255, 0.6);
+
+  &:hover,
+  &:focus {
+    background: linear-gradient(135deg, rgba(91, 157, 255, 0.8), rgba(102, 224, 255, 0.55));
+    border-color: rgba(102, 224, 255, 0.8);
+    box-shadow: var(--space-glow);
+  }
+}
+
+.ant-modal-content {
+  background: linear-gradient(135deg, rgba(7, 16, 36, 0.92), rgba(16, 33, 68, 0.88));
+  border: 1px solid rgba(91, 157, 255, 0.25);
+  box-shadow: 0 24px 55px rgba(4, 12, 30, 0.75);
+  color: var(--space-text);
+}
+
+.ant-modal-header {
+  background: transparent;
+  border-bottom: 1px solid rgba(91, 157, 255, 0.18);
+  color: var(--space-text);
+}
+
+.ant-modal-title,
+.ant-popover-inner,
+.ant-popover-title {
+  color: var(--space-text);
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.ant-popover-inner {
+  background: rgba(7, 16, 36, 0.92);
+  border: 1px solid rgba(91, 157, 255, 0.2);
+  box-shadow: var(--space-glow);
 }
 
 // 打印时的样式
@@ -97,6 +193,8 @@ body {
   body .page {
     padding: 0;
     margin: 0;
+    background: #fff;
+    box-shadow: none;
   }
 
   .resume-alert,

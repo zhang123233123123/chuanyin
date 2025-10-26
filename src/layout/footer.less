@@ -1,40 +1,92 @@
 footer {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding-top: 24px;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: min(720px, calc(100% - 48px));
+  backdrop-filter: blur(14px);
+  background: linear-gradient(135deg, rgba(10, 24, 55, 0.75), rgba(7, 18, 40, 0.55));
+  border: 1px solid rgba(91, 157, 255, 0.18);
+  box-shadow: 0 18px 45px rgba(3, 12, 30, 0.52), inset 0 0 0 1px rgba(102, 224, 255, 0.08);
+  border-radius: 16px;
+  color: var(--space-text);
 
-  > div {
+  .footer-content {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    padding: 12px;
-    background: rgb(39, 63, 117);
-    color: rgba(255, 255, 255, 0.85);
+    padding: 12px 18px;
+    gap: 16px;
   }
 
-  a {
-    color: rgba(255, 255, 255, 0.85);
-
-    &:hover {
-      color: rgba(255, 255, 255, 1);
-    }
+  .footer-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 
-  .action-link {
-    margin: 0 4px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  .action-link:first-of-type {
-    margin-left: 12px;
+  .tagline {
+    color: rgba(214, 225, 255, 0.7);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 12px;
   }
 
   .author {
-    margin: 0 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: rgba(214, 225, 255, 0.85);
+  }
+
+  .author-link {
+    margin-left: 4px;
+    cursor: pointer;
+    color: var(--space-primary-strong);
+
+    &:hover {
+      text-shadow: 0 0 10px rgba(102, 224, 255, 0.55);
+    }
+  }
+
+  .repo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(214, 225, 255, 0.75);
+    text-decoration: none;
+    font-size: 13px;
+
+    .anticon {
+      color: var(--space-primary-strong);
+    }
+
+    &:hover {
+      color: var(--space-primary-strong);
+    }
+  }
+
+  a {
+    color: rgba(214, 225, 255, 0.8);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--space-primary-strong);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  footer {
+    width: calc(100% - 32px);
+    bottom: 12px;
+
+    .footer-content {
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px 14px;
+    }
   }
 }

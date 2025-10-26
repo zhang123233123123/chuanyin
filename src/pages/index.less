@@ -8,22 +8,306 @@
   }
 }
 
-// 默认的样式
 #___gatsby,
 #gatsby-focus-wrapper {
   min-height: 100vh;
 }
 
-// loading 样式
 #gatsby-focus-wrapper > .ant-spin-nested-loading {
   height: calc(100vh - 46px /** header */ - 46px /** footer */);
 }
 
-// 全局样式复写
 .ant-popover-inner-content {
   padding: 4px 8px;
   font-size: 12px;
 }
+
 .ant-row {
   margin-bottom: 12px;
+}
+
+.experience-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 24px 120px;
+  position: relative;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  &::before {
+    background: radial-gradient(circle at 20% 0%, rgba(91, 157, 255, 0.25), transparent 55%),
+      radial-gradient(circle at 85% 10%, rgba(183, 140, 255, 0.2), transparent 60%);
+  }
+
+  &::after {
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255, 255, 255, 0.6), transparent),
+      radial-gradient(1px 1px at 35% 85%, rgba(91, 157, 255, 0.45), transparent),
+      radial-gradient(1px 1px at 75% 35%, rgba(102, 224, 255, 0.45), transparent),
+      radial-gradient(1px 1px at 55% 65%, rgba(255, 255, 255, 0.4), transparent);
+    background-size: 200px 200px;
+    opacity: 0.35;
+  }
+}
+
+.experience-content {
+  flex: 1;
+  width: 100%;
+  max-width: 980px;
+  margin: 32px auto 0;
+  padding: 40px 44px;
+  background: linear-gradient(135deg, rgba(8, 20, 45, 0.86), rgba(6, 16, 36, 0.78));
+  border-radius: 20px;
+  border: 1px solid rgba(91, 157, 255, 0.16);
+  box-shadow: 0 28px 45px rgba(3, 12, 34, 0.75), inset 0 0 0 1px rgba(102, 224, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(102, 224, 255, 0.25), transparent 70%);
+    opacity: 0.4;
+  }
+}
+
+.experience-hero {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 12px;
+  margin-bottom: 32px;
+  position: relative;
+
+  .identity {
+    font-size: 36px;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.12em;
+    color: var(--space-primary-strong);
+    text-transform: uppercase;
+    text-shadow: 0 0 16px rgba(102, 224, 255, 0.55);
+  }
+
+  .meta {
+    font-size: 15px;
+    color: var(--space-muted);
+    line-height: 1.9;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+
+    span {
+      background: linear-gradient(90deg, rgba(91, 157, 255, 0.1), rgba(183, 140, 255, 0.05));
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(91, 157, 255, 0.18);
+      margin-bottom: 6px;
+    }
+  }
+}
+
+.experience-ai {
+  display: flex;
+  gap: 32px;
+  padding: 28px 32px;
+  margin-bottom: 40px;
+  border-radius: 18px;
+  border: 1px solid rgba(91, 157, 255, 0.2);
+  background: linear-gradient(135deg, rgba(9, 20, 48, 0.9), rgba(6, 16, 36, 0.72));
+  box-shadow: 0 22px 45px rgba(3, 10, 28, 0.6), inset 0 0 0 1px rgba(102, 224, 255, 0.08);
+
+  &__intro {
+    flex: 1;
+  }
+
+  &__panel {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    border: 1px solid rgba(102, 224, 255, 0.35);
+    color: var(--space-primary-strong);
+    background: rgba(102, 224, 255, 0.08);
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    margin: 0 0 12px;
+  }
+
+  &__description {
+    color: var(--space-text);
+    margin-bottom: 20px;
+  }
+
+  &__steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  &__step {
+    padding: 16px;
+    border-radius: 14px;
+    background: rgba(5, 12, 28, 0.6);
+    border: 1px solid rgba(91, 157, 255, 0.2);
+    box-shadow: inset 0 0 0 1px rgba(102, 224, 255, 0.05);
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: var(--space-primary-strong);
+      letter-spacing: 0.08em;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--space-text);
+      line-height: 1.6;
+    }
+  }
+
+  &__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--space-muted);
+
+    .ant-btn {
+      border-radius: 999px;
+    }
+  }
+}
+
+.experience-section {
+  margin-bottom: 36px;
+  position: relative;
+
+  h2 {
+    margin-bottom: 18px;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--space-primary);
+    display: inline-flex;
+    align-items: center;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 36px;
+      height: 2px;
+      margin-right: 12px;
+      background: linear-gradient(90deg, rgba(102, 224, 255, 0.85), rgba(183, 140, 255, 0.65));
+      box-shadow: 0 0 12px rgba(102, 224, 255, 0.45);
+    }
+  }
+
+  ul {
+    padding-left: 18px;
+    margin: 0;
+    color: var(--space-text);
+    line-height: 1.8;
+  }
+
+  li + li {
+    margin-top: 10px;
+  }
+}
+
+.experience-card {
+  border-left: 3px solid rgba(102, 224, 255, 0.45);
+  padding: 0 16px 12px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(7, 16, 38, 0.6), rgba(13, 24, 52, 0.4));
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(91, 157, 255, 0.16);
+
+  .title {
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--space-primary-strong);
+    letter-spacing: 0.06em;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--space-muted);
+    margin-top: 4px;
+  }
+
+  .timeline {
+    font-size: 13px;
+    color: rgba(214, 225, 255, 0.66);
+    margin-top: 6px;
+    letter-spacing: 0.12em;
+  }
+
+  ul {
+    margin-top: 10px;
+  }
+}
+
+.experience-section:last-of-type {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .experience-page {
+    padding: 16px 16px 120px;
+  }
+
+  .experience-content {
+    margin-top: 16px;
+    padding: 32px 24px;
+  }
+
+  .experience-ai {
+    flex-direction: column;
+    padding: 24px;
+
+    &__panel {
+      width: 100%;
+    }
+  }
+
+  .experience-hero {
+    .meta {
+      width: 100%;
+      text-align: left;
+
+      span {
+        display: inline-flex;
+        margin-right: 8px;
+      }
+    }
+  }
 }
