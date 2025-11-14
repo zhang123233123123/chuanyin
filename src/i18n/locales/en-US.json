@@ -77,11 +77,17 @@
   "默认模板(适用于单页)": "Default template, apply to single page",
   "简易模板": "Simple template",
   "简易模板(适用于多页)": "Simple template, apply to multiple page",
+  "experience.title": "Experience Planner",
   "locale": "en-US",
   "个人技能": "Personal skills",
   "编辑模式下, 切换国际化会导致配置内容丢失，请及时保存": "",
   "确定": "Ok",
   "无用户信息模式下，不允许预览": "",
   "Github": "Github",
-  "编辑之后，请及时存储个人信息到个人仓库中。": "编辑之后，请及时存储个人信息到个人仓库中。"
+  "编辑之后，请及时存储个人信息到个人仓库中。": "编辑之后，请及时存储个人信息到个人仓库中。",
+  "自我评价": "About Me",
+  "技能与证书": "Skills & Certifications",
+  "实习经历": "Internship Experience",
+  "社会实践": "Social Practice",
+  "荣誉奖励": "Honors & Awards"
 }

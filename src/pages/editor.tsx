@@ -6,10 +6,12 @@ import Header from '@/layout/header';
 import Footer from '@/layout/footer';
 import Content from '@/components';
 import EN_US_LOCALE from '@/i18n/locales/en-US.json';
+import ZH_CN_LOCALE from '@/i18n/locales/zh-CN.json';
 import { getLanguage, registerLocale, getLocale } from '@/i18n';
 import './index.less';
 
 registerLocale('en-US', EN_US_LOCALE);
+registerLocale('zh-CN', ZH_CN_LOCALE);
 
 const EditorPage: React.FC = () => {
   const lang = getLanguage();

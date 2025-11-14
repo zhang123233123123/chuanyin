@@ -27,7 +27,7 @@ const codec = jsonUrl('lzma');
 export const Page: React.FC = () => {
   const lang = getLanguage();
   const intl = useIntl();
-  const user = getSearchObj().user || 'visiky';
+  const user = getSearchObj().user || 'zhanghj';
 
   const [, mode, changeMode] = useModeSwitcher({});
 
@@ -252,15 +252,15 @@ export const Page: React.FC = () => {
                       cursor: 'pointer',
                     }}
                     onClick={() => {
-                      const user = query.user || 'visiky';
+                      const user = query.user || 'zhanghj';
                       window.open(`https://github.com/${user}/${user}`);
                     }}
                   >
-                    {`${query.user || 'visiky'}'s resumeInfo`}
+                    {`${query.user || 'zhanghj'}'s resumeInfo`}
                   </span>
                   <span>
-                    {`（https://github.com/${query.user || 'visiky'}/${
-                      query.user || 'visiky'
+                    {`（https://github.com/${query.user || 'zhanghj'}/${
+                      query.user || 'zhanghj'
                     }/blob/${query.branch || 'master'}/resume.json）`}
                   </span>
                 </span>

@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ showModeSwitcher = false }) => {
   function gotoOnlineVersion() {
     const query = getSearchObj();
     if (typeof window !== 'undefined') {
-      window.open(`https://visiky.github.io/resume/?user=${query.user}`);
+      window.open(`https://zhanghj.github.io/resume/?user=${query.user}`);
     }
   }
 

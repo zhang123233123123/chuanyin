@@ -7,10 +7,12 @@ import { RESUME_INFO } from '@/data/resume';
 import { Resume } from '@/components/Resume';
 import { getLanguage, registerLocale, getLocale } from '@/i18n';
 import EN_US_LOCALE from '@/i18n/locales/en-US.json';
+import ZH_CN_LOCALE from '@/i18n/locales/zh-CN.json';
 import type { ThemeConfig } from '@/components/types';
 import './resume.less';
 
 registerLocale('en-US', EN_US_LOCALE);
+registerLocale('zh-CN', ZH_CN_LOCALE);
 
 const DEFAULT_THEME: ThemeConfig = {
   color: '#2f5785',

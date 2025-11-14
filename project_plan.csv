@@ -1,0 +1,19 @@
+﻿id,module,task_name,description,output_files,status
+1,core,init_project,初始化 Vite + React + Tailwind + Zustand 项目结构,src/,todo
+2,core,routing_setup,配置 react-router-dom 路由：/、/editor、/resume、/settings,src/App.tsx; src/pages/,todo
+3,home,upload_section_ui,设计主页“个人经历上传”UI：左侧上传框、右侧AI提示区域,src/pages/Home.tsx; src/components/UploadBox.tsx,todo
+4,home,local_parse_resume,实现前端解析 docx/txt 简历文件并显示表格数据（不上传服务器）,src/utils/parser.ts; src/pages/Home.tsx,todo
+5,ai,ai_invoke_logic,构建 AI 请求模块，使用 localStorage 中的 API Key 和模型配置,src/hooks/useAI.ts; src/store/aiStore.ts,todo
+6,editor,editor_base_ui,创建在线编辑页面（左侧编辑器，右侧AI面板）,src/pages/Editor.tsx; src/components/EditorPanel.tsx,todo
+7,editor,ai_edit_assistant,实现 AI 优化区块：选中文本→AI优化→替换结果,src/components/AIAssistant.tsx,todo
+8,resume,resume_preview,根据 resume.json 渲染模块化简历预览，支持 PDF 导出,src/pages/Resume.tsx; src/components/ResumeCard.tsx,todo
+9,settings,settings_page,构建 API 设置页：模型选择、Key输入、Prompt管理,src/pages/Settings.tsx; src/store/settingsStore.ts,todo
+10,data,sync_to_github,支持将 resume.json 推送至 GitHub 仓库（本地 token 模拟）,src/utils/githubSync.ts,todo
+11,core,global_state,创建全局状态管理（Zustand），统一管理 resumeData / aiConfig / editorState,src/store/globalStore.ts,todo
+12,core,theme_and_style,定义基础配色、字体与布局风格，统一 UI 基础,src/styles/globals.css; tailwind.config.js,todo
+13,ai,prompt_schema,定义统一的 AI Prompt 模板与 resume.json schema,src/ai/prompts.ts; src/ai/schema.ts,todo
+14,resume,resume_template_switch,支持切换不同模板风格（如 Classic / Modern / Tech）,src/components/ResumeTemplateSelector.tsx,todo
+15,settings,prompt_manager,增加 Prompt 管理器：可添加/删除/测试提示词,src/components/PromptManager.tsx,todo
+16,core,pdf_export,实现简历 PDF 导出功能（基于 html2canvas + jsPDF）,src/utils/exportPDF.ts,todo
+17,ai,jd_matcher,支持从 JD 自动提炼关键词匹配用户简历,src/ai/jdMatcher.ts,todo
+18,core,deployment_config,配置项目打包与部署（Vercel/GitHub Pages）,vite.config.ts; package.json,todo

@@ -6,6 +6,7 @@ import Header from '@/layout/header';
 import Footer from '@/layout/footer';
 import { getLanguage, registerLocale, getLocale } from '@/i18n';
 import EN_US_LOCALE from '@/i18n/locales/en-US.json';
+import ZH_CN_LOCALE from '@/i18n/locales/zh-CN.json';
 import {
   getAiSettings,
   setAiSettings,
@@ -17,6 +18,7 @@ import {
 import './settings.less';
 
 registerLocale('en-US', EN_US_LOCALE);
+registerLocale('zh-CN', ZH_CN_LOCALE);
 
 const { Paragraph, Text } = Typography;
 const { TabPane } = Tabs;
