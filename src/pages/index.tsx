@@ -9,6 +9,8 @@ import { ExperienceItem } from '../helpers/ai';
 import EN_US_LOCALE from '@/i18n/locales/en-US.json';
 import ZH_CN_LOCALE from '@/i18n/locales/zh-CN.json';
 import { getLanguage, registerLocale, getLocale } from '@/i18n';
+// 引入全局组件样式，提供 :root 颜色变量等全局主题
+import '../components/index.less';
 import './index.less';
 
 registerLocale('en-US', EN_US_LOCALE);

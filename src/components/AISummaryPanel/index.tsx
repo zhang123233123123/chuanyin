@@ -24,6 +24,11 @@ import { summarizeExperience, parseExperienceDraft } from '@/helpers/ai';
 import type { ExperienceItem } from '@/helpers/ai';
 import { copyToClipboard } from '@/helpers/copy-to-board';
 import { getAiSettings, AI_MODELS } from '@/helpers/api-key';
+import {
+  loadStoredExperiences,
+  saveStoredExperiences,
+  clearStoredExperiences,
+} from '@/helpers/experience-storage';
 import './index.less';
 
 const { Paragraph } = Typography;
@@ -45,11 +50,19 @@ const deriveTitleFromText = (text: string, index: number): string => {
   return text.slice(0, 30) || `经历 ${index + 1}`;
 };
 
+const isGarbageLine = (text: string): boolean => {
+  const trimmed = text.trim();
+  if (!trimmed) return true;
+  if (!/[\w\u4e00-\u9fa5]/.test(trimmed)) return true;
+  if (/^[{}\[\],:"']+$/.test(trimmed)) return true;
+  return false;
+};
+
 const buildFallbackExperiences = (items: string[]): ExperienceItem[] =>
   items
     .map((raw, index) => {
       const clean = normalizeSummaryText(raw);
-      if (!clean) return null;
+      if (!clean || isGarbageLine(clean)) return null;
       const isProject =
         PROJECT_KEYWORDS.test(clean) && !WORK_KEYWORDS.test(clean);
       const title = deriveTitleFromText(clean, index);
@@ -99,6 +112,18 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const cached = loadStoredExperiences();
+    if (!cached) return;
+    setFileName(cached.fileName || '');
+    setRawContent(cached.rawContent || '');
+    if (Array.isArray(cached.experiences) && cached.experiences.length) {
+      setExperienceItems(cached.experiences);
+      onExperiencesGenerated?.(cached.experiences);
+    }
+  }, [onExperiencesGenerated]);
+
+  useEffect(() => {
     if (!experienceItems.length) {
       setDraftContent('');
       return;
@@ -106,12 +131,27 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
     setDraftContent(JSON.stringify(experienceItems, null, 2));
   }, [experienceItems]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!fileName && !rawContent && !experienceItems.length) {
+      clearStoredExperiences();
+      return;
+    }
+    saveStoredExperiences({
+      fileName,
+      rawContent,
+      experiences: experienceItems,
+    });
+  }, [fileName, rawContent, experienceItems]);
+
   const resetState = () => {
     setSummaries([]);
     setExperienceItems([]);
     setError(undefined);
     setDraftError(undefined);
     setDraftContent('');
+    setFileName('');
+    setRawContent('');
   };
 
   const handleFile: UploadProps['beforeUpload'] = async file => {
@@ -169,6 +209,16 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
       } else {
         // 是文本摘要
         const items = result as string[];
+        const reconstructed = parseExperienceDraft(items.join('\n'));
+        if (reconstructed.length) {
+          setSummaries([]);
+          setExperienceItems(reconstructed);
+          setDraftError(undefined);
+          onExperiencesGenerated?.(reconstructed);
+          message.success('识别到结构化 JSON 片段，已自动解析');
+          return;
+        }
+
         setSummaries(items);
         const fallbackExperiences = buildFallbackExperiences(items);
         setExperienceItems(fallbackExperiences);
@@ -180,7 +230,9 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
           onExperiencesGenerated?.(fallbackExperiences);
           message.success('已根据文本结果，自动生成结构化经历');
         } else {
-          message.info('模型返回了文本摘要，可在右侧查看并手动整理');
+          message.warning(
+            '模型输出疑似损坏的 JSON，请调整文档或 Prompt 后重试'
+          );
         }
       }
     } catch (err) {
