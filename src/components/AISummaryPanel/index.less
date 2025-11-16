@@ -74,12 +74,13 @@
 
   &__actions {
     display: flex;
-    gap: 12px;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-top: 12px;
 
     .ant-btn {
       flex: 1;
+      min-width: 0;
       height: 40px;
       border-radius: 8px;
       font-weight: 500;
@@ -93,6 +94,18 @@
           border-color: var(--space-primary);
         }
       }
+    }
+  }
+
+  &__model-select {
+    flex: 1 1 100%;
+    width: 100%;
+
+    .ant-select-selector {
+      height: 40px !important;
+      border-radius: 8px !important;
+      display: flex;
+      align-items: center;
     }
   }
 

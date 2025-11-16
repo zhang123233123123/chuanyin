@@ -257,6 +257,14 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
     }
   };
 
+  const handleClearAll = () => {
+    try {
+      clearStoredExperiences();
+    } catch {}
+    resetState();
+    message.success('已清除本地保存的数据');
+  };
+
   const handleDraftChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDraftContent(event.target.value);
     setDraftError(undefined);
@@ -335,7 +343,7 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
         <Select
           value={model}
           onChange={setModel}
-          style={{ width: 150 }}
+          className="ai-summary-panel__model-select"
           placeholder="选择模型"
         >
           {availableModels.map(m => (
@@ -358,6 +366,9 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
           disabled={!summaries.length && !experienceItems.length}
         >
           复制结果
+        </Button>
+        <Button danger onClick={handleClearAll}>
+          清除保存
         </Button>
       </div>
 
