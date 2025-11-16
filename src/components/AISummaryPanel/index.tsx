@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Button,
-  Upload,
-  message,
-  Spin,
-  Empty,
-  Typography,
-  Select,
-  Input,
-} from 'antd';
+import { Button, Upload, message, Spin, Empty, Typography, Select } from 'antd';
 import type { UploadProps } from 'antd';
 import {
   PaperClipOutlined,
@@ -16,7 +7,6 @@ import {
   CopyOutlined,
   TableOutlined,
   UploadOutlined,
-  DeleteOutlined,
 } from '@ant-design/icons';
 import { readExperienceFile } from '@/helpers/doc-reader';
 // 把上面那一行删掉，换成这两行：
@@ -83,10 +73,12 @@ const buildFallbackExperiences = (items: string[]): ExperienceItem[] =>
     .filter((item): item is ExperienceItem => Boolean(item));
 
 type AISummaryPanelProps = {
+  experiences?: ExperienceItem[];
   onExperiencesGenerated?: (experiences: ExperienceItem[]) => void;
 };
 
 export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
+  experiences,
   onExperiencesGenerated,
 }) => {
   const [fileName, setFileName] = useState<string>('');
@@ -97,8 +89,6 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
   const [error, setError] = useState<string | undefined>();
   const [model, setModel] = useState<string>('');
   const [availableModels, setAvailableModels] = useState<string[]>(AI_MODELS);
-  const [draftContent, setDraftContent] = useState<string>('');
-  const [draftError, setDraftError] = useState<string | undefined>();
 
   useEffect(() => {
     // Load the default active model on initial render
@@ -124,12 +114,9 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
   }, [onExperiencesGenerated]);
 
   useEffect(() => {
-    if (!experienceItems.length) {
-      setDraftContent('');
-      return;
-    }
-    setDraftContent(JSON.stringify(experienceItems, null, 2));
-  }, [experienceItems]);
+    if (!experiences) return;
+    setExperienceItems(experiences);
+  }, [experiences]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -148,8 +135,6 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
     setSummaries([]);
     setExperienceItems([]);
     setError(undefined);
-    setDraftError(undefined);
-    setDraftContent('');
     setFileName('');
     setRawContent('');
   };
@@ -198,7 +183,6 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
         const items = result as ExperienceItem[];
         setExperienceItems(items);
         setSummaries([]); // 清空文本摘要
-        setDraftError(undefined);
 
         // 调用父组件的回调函数
         if (onExperiencesGenerated) {
@@ -213,7 +197,6 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
         if (reconstructed.length) {
           setSummaries([]);
           setExperienceItems(reconstructed);
-          setDraftError(undefined);
           onExperiencesGenerated?.(reconstructed);
           message.success('识别到结构化 JSON 片段，已自动解析');
           return;
@@ -222,7 +205,6 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
         setSummaries(items);
         const fallbackExperiences = buildFallbackExperiences(items);
         setExperienceItems(fallbackExperiences);
-        setDraftError(undefined);
 
         if (!items.length) {
           message.info('模型未返回内容，尝试调整文档或稍后重试');
@@ -263,47 +245,6 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
     } catch {}
     resetState();
     message.success('已清除本地保存的数据');
-  };
-
-  const handleDraftChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDraftContent(event.target.value);
-    setDraftError(undefined);
-  };
-
-  const handleApplyDraft = () => {
-    if (!draftContent.trim()) {
-      setExperienceItems([]);
-      onExperiencesGenerated?.([]);
-      message.info('已清空经历列表');
-      return;
-    }
-    const parsed = parseExperienceDraft(draftContent);
-    if (!parsed.length) {
-      setDraftError('未识别到有效的结构化经历，请检查 JSON 格式或字段');
-      message.error('应用失败，请检查草稿内容');
-      return;
-    }
-    setExperienceItems(parsed);
-    onExperiencesGenerated?.(parsed);
-    setDraftError(undefined);
-    message.success('已应用自定义内容');
-  };
-
-  const handleResetDraft = () => {
-    if (!experienceItems.length) {
-      setDraftContent('');
-      return;
-    }
-    setDraftContent(JSON.stringify(experienceItems, null, 2));
-    setDraftError(undefined);
-  };
-
-  const handleDeleteExperience = (index: number) => {
-    setExperienceItems(prev => {
-      const next = prev.filter((_, idx) => idx !== index);
-      onExperiencesGenerated?.(next);
-      return next;
-    });
   };
 
   return (
@@ -377,109 +318,10 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
           {error && <div className="error-text">{error}</div>}
 
           {!error && experienceItems.length > 0 && (
-            <div className="ai-summary-panel__preview">
-              <Paragraph className="ai-summary-panel__preview-title">
-                <TableOutlined /> 已提炼 {experienceItems.length} 条核心经历
-              </Paragraph>
-              <div className="ai-summary-panel__preview-cards">
-                {experienceItems.slice(0, 3).map((item, index) => {
-                  const title =
-                    item.type === 'workExp'
-                      ? item.company_name
-                      : item.project_name;
-                  const role =
-                    item.type === 'workExp'
-                      ? item.department_name
-                      : item.project_role;
-                  const timeline =
-                    item.type === 'workExp'
-                      ? item.work_time?.join(' - ')
-                      : item.project_time;
-                  const lines = (
-                    item.work_desc ||
-                    item.project_content ||
-                    item.project_desc ||
-                    ''
-                  )
-                    .split('\n')
-                    .filter(Boolean)
-                    .slice(0, 3);
-
-                  return (
-                    <div
-                      key={`${title || index}-${index}`}
-                      className="preview-card"
-                    >
-                      <div className="preview-card__meta">
-                        <span className="preview-card__tag">
-                          {item.type === 'workExp' ? '工作' : '项目'}
-                        </span>
-                        {timeline && (
-                          <span className="preview-card__time">{timeline}</span>
-                        )}
-                      </div>
-                      <div className="preview-card__title">
-                        {title || '未命名经历'}
-                      </div>
-                      {role && <div className="preview-card__role">{role}</div>}
-                      {lines.length > 0 && (
-                        <ul>
-                          {lines.map((line, idx) => (
-                            <li key={`${index}-${idx}`}>{line}</li>
-                          ))}
-                        </ul>
-                      )}
-                      <div className="preview-card__actions">
-                        <Button
-                          type="text"
-                          size="small"
-                          icon={<DeleteOutlined />}
-                          onClick={() => handleDeleteExperience(index)}
-                        >
-                          删除
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {experienceItems.length > 3 && (
-                <Paragraph
-                  type="secondary"
-                  className="ai-summary-panel__preview-tip"
-                >
-                  更多内容已同步到左侧“工作内容”表格
-                </Paragraph>
-              )}
-              <div className="ai-summary-panel__editor">
-                <Paragraph className="ai-summary-panel__preview-title">
-                  可编辑 JSON（高级用户）
-                </Paragraph>
-                <Input.TextArea
-                  autoSize={{ minRows: 6, maxRows: 12 }}
-                  value={draftContent}
-                  onChange={handleDraftChange}
-                  placeholder="在此编辑或粘贴经历 JSON，点击应用后左侧会同步"
-                />
-                <div className="ai-summary-panel__editor-actions">
-                  <Button onClick={handleResetDraft} size="small">
-                    还原
-                  </Button>
-                  <Button
-                    type="primary"
-                    size="small"
-                    onClick={handleApplyDraft}
-                  >
-                    应用修改
-                  </Button>
-                </div>
-                {draftError && (
-                  <div className="error-text error-text--inline">
-                    {draftError}
-                  </div>
-                )}
-              </div>
-            </div>
+            <Paragraph className="ai-summary-panel__preview-tip">
+              <TableOutlined /> 已提炼 {experienceItems.length} 条核心经历，
+              详细内容已同步到左侧“工作内容”表格，可直接编辑或删减。
+            </Paragraph>
           )}
 
           {!error &&

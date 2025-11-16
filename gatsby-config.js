@@ -1,7 +1,7 @@
 module.exports = {
   pathPrefix: '/resume',
   siteMetadata: {
-    title: 'Resume Generator',
+    title: '星邻履历智造（StarLink Resume Maker）',
     githubUrl: 'https://github.com/zhanghj/resume.git',
     author: 'zhanghj',
     contact: 'https://github.com/zhanghj',

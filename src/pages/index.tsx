@@ -31,7 +31,7 @@ const HomePageContent = () => {
         <title>
           {intl.formatMessage({
             id: 'experience.title',
-            defaultMessage: '个人经历规划器',
+            defaultMessage: '星邻履历智造（StarLink Resume Maker）',
           })}
         </title>
       </Helmet>
@@ -39,10 +39,14 @@ const HomePageContent = () => {
       <main className="experience-content">
         <div className="experience-layout">
           <div className="experience-layout__table">
-            <ExperienceTable experiences={experiences} />
+            <ExperienceTable
+              experiences={experiences}
+              onChange={handleExperiencesGenerated}
+            />
           </div>
           <div className="experience-layout__ai">
             <AISummaryPanel
+              experiences={experiences}
               onExperiencesGenerated={handleExperiencesGenerated}
             />
           </div>

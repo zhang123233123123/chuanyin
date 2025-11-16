@@ -1,5 +1,13 @@
-import React from 'react';
-import { Table, Typography } from 'antd';
+import React, { useMemo, useState } from 'react';
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  Popconfirm,
+  Space,
+  Typography,
+} from 'antd';
 import {
   CalendarOutlined,
   BankOutlined,
@@ -10,25 +18,118 @@ import './index.less';
 
 type ExperienceTableProps = {
   experiences: ExperienceItem[];
+  onChange?: (experiences: ExperienceItem[]) => void;
 };
 
 const { Title, Paragraph, Text } = Typography;
 
 export const ExperienceTable: React.FC<ExperienceTableProps> = ({
   experiences,
+  onChange,
 }) => {
-  if (!experiences || experiences.length === 0) {
-    return (
-      <div className="experience-table-empty">
-        <Paragraph>上传您的个人经历文档，AI 将帮您生成专业的经历表格</Paragraph>
-      </div>
-    );
-  }
+  const [form] = Form.useForm();
+  const [editorType, setEditorType] = useState<ExperienceItem['type']>(
+    'workExp'
+  );
+  const [editorIndex, setEditorIndex] = useState<number | null>(null);
+  const [editorVisible, setEditorVisible] = useState(false);
+  const list = experiences ?? [];
+  const hasExperiences = list.length > 0;
 
   // 分离工作经历和项目经历
-  const workExperiences = experiences.filter(exp => exp.type === 'workExp');
-  const projectExperiences = experiences.filter(exp => exp.type === 'project');
-  const totalCount = experiences.length;
+  const workExperiences = useMemo(
+    () =>
+      list
+        .map((exp, idx) => ({ exp, idx }))
+        .filter(item => item.exp.type === 'workExp'),
+    [experiences]
+  );
+  const projectExperiences = useMemo(
+    () =>
+      list
+        .map((exp, idx) => ({ exp, idx }))
+        .filter(item => item.exp.type === 'project'),
+    [experiences]
+  );
+  const totalCount = list.length;
+
+  const openEditor = (type: ExperienceItem['type'], index: number | null) => {
+    form.resetFields();
+    setEditorType(type);
+    setEditorIndex(index);
+    if (index != null) {
+      const target = list[index];
+      if (type === 'workExp') {
+        form.setFieldsValue({
+          company_name: target.company_name,
+          department_name: target.department_name,
+          work_time_start: target.work_time?.[0],
+          work_time_end: target.work_time?.[1],
+          work_desc: target.work_desc,
+        });
+      } else {
+        form.setFieldsValue({
+          project_name: target.project_name,
+          project_role: target.project_role,
+          project_time: target.project_time,
+          project_desc: target.project_desc,
+          project_content: target.project_content,
+        });
+      }
+    } else {
+      form.resetFields();
+    }
+    setEditorVisible(true);
+  };
+
+  const closeEditor = () => {
+    setEditorVisible(false);
+    setEditorIndex(null);
+    form.resetFields();
+  };
+
+  const handleDelete = (index: number) => {
+    const next = list.filter((_, idx) => idx !== index);
+    onChange?.(next);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      let nextItem: ExperienceItem;
+      if (editorType === 'workExp') {
+        nextItem = {
+          type: 'workExp',
+          company_name: values.company_name?.trim() || '未命名企业',
+          department_name: values.department_name?.trim(),
+          work_time: [
+            values.work_time_start?.trim() || '',
+            values.work_time_end?.trim() || '',
+          ],
+          work_desc: values.work_desc || '',
+        };
+      } else {
+        nextItem = {
+          type: 'project',
+          project_name: values.project_name?.trim() || '未命名项目',
+          project_role: values.project_role?.trim(),
+          project_time: values.project_time?.trim() || '',
+          project_desc: values.project_desc || '',
+          project_content: values.project_content || '',
+        };
+      }
+      const next = [...list];
+      if (editorIndex == null) {
+        next.push(nextItem);
+      } else {
+        next[editorIndex] = nextItem;
+      }
+      onChange?.(next);
+      closeEditor();
+    } catch (err) {
+      // ant form already displays validation errors
+    }
+  };
 
   return (
     <div className="experience-table">
@@ -40,36 +141,69 @@ export const ExperienceTable: React.FC<ExperienceTableProps> = ({
             项目自动分组，可直接复制到简历
           </Paragraph>
         </div>
+        <Space className="experience-table__intro-actions">
+          <Button size="small" onClick={() => openEditor('workExp', null)}>
+            新增工作
+          </Button>
+          <Button size="small" onClick={() => openEditor('project', null)}>
+            新增项目
+          </Button>
+        </Space>
       </div>
+
+      {!hasExperiences && (
+        <div className="experience-table-empty experience-table-empty--inline">
+          <Paragraph>
+            上传文档快速生成，或点击右上角按钮手动新增工作 / 项目经历
+          </Paragraph>
+        </div>
+      )}
 
       {workExperiences.length > 0 && (
         <div className="experience-section">
           <Title level={4} className="section-title">
             工作经历
           </Title>
-          {workExperiences.map((exp, index) => (
-            <div key={`work-${index}`} className="experience-item">
+          {workExperiences.map(({ exp: item, idx }) => (
+            <div key={`work-${idx}`} className="experience-item">
               <div className="experience-header">
                 <div className="experience-title">
                   <BankOutlined className="icon" />
-                  <Text strong>{exp.company_name}</Text>
-                  {exp.department_name && (
-                    <Text type="secondary"> - {exp.department_name}</Text>
+                  <Text strong>{item.company_name}</Text>
+                  {item.department_name && (
+                    <Text type="secondary"> - {item.department_name}</Text>
                   )}
                 </div>
-                {exp.work_time && (
+                {item.work_time && (
                   <div className="experience-time">
                     <CalendarOutlined className="icon" />
-                    <Text>{`${exp.work_time[0]} - ${exp.work_time[1]}`}</Text>
+                    <Text>{`${item.work_time?.[0] || ''} - ${
+                      item.work_time?.[1] || ''
+                    }`}</Text>
                   </div>
                 )}
+                <Space className="experience-actions" size={8}>
+                  <Button
+                    size="small"
+                    onClick={() => openEditor('workExp', idx)}
+                  >
+                    编辑
+                  </Button>
+                  <Popconfirm
+                    title="确认删除这条经历？"
+                    placement="left"
+                    onConfirm={() => handleDelete(idx)}
+                  >
+                    <Button size="small" danger>
+                      删除
+                    </Button>
+                  </Popconfirm>
+                </Space>
               </div>
-              {exp.work_desc && (
+              {item.work_desc && (
                 <div className="experience-content">
-                  {exp.work_desc.split('\n').map((line, i) => (
-                    <Paragraph key={`work-desc-${index}-${i}`}>
-                      {line}
-                    </Paragraph>
+                  {item.work_desc.split('\n').map((line, i) => (
+                    <Paragraph key={`work-desc-${idx}-${i}`}>{line}</Paragraph>
                   ))}
                 </div>
               )}
@@ -83,32 +217,49 @@ export const ExperienceTable: React.FC<ExperienceTableProps> = ({
           <Title level={4} className="section-title">
             项目经历
           </Title>
-          {projectExperiences.map((exp, index) => (
-            <div key={`project-${index}`} className="experience-item">
+          {projectExperiences.map(({ exp: item, idx }) => (
+            <div key={`project-${idx}`} className="experience-item">
               <div className="experience-header">
                 <div className="experience-title">
                   <TeamOutlined className="icon" />
-                  <Text strong>{exp.project_name}</Text>
-                  {exp.project_role && (
-                    <Text type="secondary"> - {exp.project_role}</Text>
+                  <Text strong>{item.project_name}</Text>
+                  {item.project_role && (
+                    <Text type="secondary"> - {item.project_role}</Text>
                   )}
                 </div>
-                {exp.project_time && (
+                {item.project_time && (
                   <div className="experience-time">
                     <CalendarOutlined className="icon" />
-                    <Text>{exp.project_time}</Text>
+                    <Text>{item.project_time}</Text>
                   </div>
                 )}
+                <Space className="experience-actions" size={8}>
+                  <Button
+                    size="small"
+                    onClick={() => openEditor('project', idx)}
+                  >
+                    编辑
+                  </Button>
+                  <Popconfirm
+                    title="确认删除这条经历？"
+                    placement="left"
+                    onConfirm={() => handleDelete(idx)}
+                  >
+                    <Button size="small" danger>
+                      删除
+                    </Button>
+                  </Popconfirm>
+                </Space>
               </div>
-              {exp.project_desc && (
+              {item.project_desc && (
                 <div className="experience-brief">
-                  <Paragraph>{exp.project_desc}</Paragraph>
+                  <Paragraph>{item.project_desc}</Paragraph>
                 </div>
               )}
-              {exp.project_content && (
+              {item.project_content && (
                 <div className="experience-content">
-                  {exp.project_content.split('\n').map((line, i) => (
-                    <Paragraph key={`project-content-${index}-${i}`}>
+                  {item.project_content.split('\n').map((line, i) => (
+                    <Paragraph key={`project-content-${idx}-${i}`}>
                       {line}
                     </Paragraph>
                   ))}
@@ -118,6 +269,75 @@ export const ExperienceTable: React.FC<ExperienceTableProps> = ({
           ))}
         </div>
       )}
+      <Modal
+        className="experience-modal"
+        open={editorVisible}
+        onCancel={closeEditor}
+        onOk={handleSubmit}
+        okText={editorIndex == null ? '新增' : '保存'}
+        title={editorType === 'workExp' ? '工作经历' : '项目经历'}
+        width={520}
+      >
+        <Form form={form} layout="vertical">
+          {editorType === 'workExp' ? (
+            <>
+              <Form.Item
+                label="公司 / 机构"
+                name="company_name"
+                rules={[{ required: true, message: '请输入公司名称' }]}
+              >
+                <Input placeholder="例如：XX 科技公司" />
+              </Form.Item>
+              <Form.Item label="部门 / 岗位" name="department_name">
+                <Input placeholder="产品部 / 实习岗位" />
+              </Form.Item>
+              <Form.Item label="起止时间">
+                <Input.Group compact>
+                  <Form.Item name="work_time_start" noStyle>
+                    <Input style={{ width: '50%' }} placeholder="2024.03" />
+                  </Form.Item>
+                  <Form.Item name="work_time_end" noStyle>
+                    <Input style={{ width: '50%' }} placeholder="2024.06" />
+                  </Form.Item>
+                </Input.Group>
+              </Form.Item>
+              <Form.Item
+                label="工作内容"
+                name="work_desc"
+                rules={[{ required: true, message: '请描述主要工作内容' }]}
+              >
+                <Input.TextArea rows={6} placeholder="每行一条要点" />
+              </Form.Item>
+            </>
+          ) : (
+            <>
+              <Form.Item
+                label="项目名称"
+                name="project_name"
+                rules={[{ required: true, message: '请输入项目名称' }]}
+              >
+                <Input placeholder="毕业设计 / 竞赛项目" />
+              </Form.Item>
+              <Form.Item label="角色" name="project_role">
+                <Input placeholder="产品负责人 / 开发" />
+              </Form.Item>
+              <Form.Item label="时间" name="project_time">
+                <Input placeholder="2024.03 - 2024.06" />
+              </Form.Item>
+              <Form.Item label="项目概述" name="project_desc">
+                <Input.TextArea rows={3} placeholder="一句话总结" />
+              </Form.Item>
+              <Form.Item
+                label="项目内容"
+                name="project_content"
+                rules={[{ required: true, message: '请描述主要贡献' }]}
+              >
+                <Input.TextArea rows={6} placeholder="每行一条要点" />
+              </Form.Item>
+            </>
+          )}
+        </Form>
+      </Modal>
     </div>
   );
 };

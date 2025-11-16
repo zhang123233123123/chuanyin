@@ -1,6 +1,6 @@
-## 🧾 Resume Generator
+## 🧾 星邻履历智造（StarLink Resume Maker）
 
-在线简历生成器。无须 fork 仓库，即可在线预览、编辑和下载 PDF 简历。✨ [在线编辑](https://zhanghj.github.io/resume)
+星邻履历智造（StarLink Resume Maker）是一款在线简历生成器，无须 fork 仓库，即可在线预览、编辑和下载 PDF 简历。✨ [在线编辑](https://zhanghj.github.io/resume)
 
 内置 3 套模板，支持**自定义主题颜色**、**自定义模块标题**、**国际化(中/英)** 等.
 
