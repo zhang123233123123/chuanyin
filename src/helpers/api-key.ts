@@ -19,13 +19,7 @@ export type AiSettings = {
 };
 
 // --- 默认值定义 ---
-export const AI_MODELS = [
-  'gemini-2.5-flash',
-  'gpt-4o-mini',
-  'Gemini',
-  'deepseek-chat',
-  'Qwen',
-];
+export const AI_MODELS = ['deepseek-chat'];
 
 export const DEFAULT_PROMPTS = {
   summarize:
@@ -37,7 +31,7 @@ export const DEFAULT_PROMPTS = {
 };
 
 export const getDefaultSettings = (): AiSettings => ({
-  activeModel: 'gemini-2.5-flash',
+  activeModel: 'deepseek-chat',
   models: AI_MODELS.reduce((acc, model) => {
     let endpoint = '';
     const lower = model.toLowerCase();
