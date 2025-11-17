@@ -7,8 +7,14 @@ import {
   Radio,
   Popover,
   Input,
+  List,
+  Form,
 } from 'antd';
-import { DeleteFilled, InfoCircleFilled } from '@ant-design/icons';
+import {
+  DeleteFilled,
+  InfoCircleFilled,
+  EditOutlined,
+} from '@ant-design/icons';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import _ from 'lodash-es';
@@ -24,6 +30,7 @@ import './index.less';
 import useThrottle from '@/hooks/useThrottle';
 
 const { Panel } = Collapse;
+const { TextArea } = Input;
 
 type Props = {
   value: ResumeConfig;
@@ -105,6 +112,10 @@ export const Drawer: React.FC<Props> = props => {
   );
 
   const [type, setType] = useState('template');
+  const [moduleModalVisible, setModuleModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editingModule, setEditingModule] = useState<any>(null);
+  const [form] = Form.useForm();
 
   const throttledSwapItems = useThrottle(
     (moduleKey: string, oldIdx: number, newIdx: number) => {
@@ -316,14 +327,22 @@ export const Drawer: React.FC<Props> = props => {
       </Button>
       <AntdDrawer
         title={
-          <Radio.Group value={type} onChange={e => setType(e.target.value)}>
-            <Radio.Button value="template">
-              <FormattedMessage id="选择模板" />
-            </Radio.Button>
-            <Radio.Button value="module">
-              <FormattedMessage id="配置简历" />
-            </Radio.Button>
-          </Radio.Group>
+          <>
+            <Radio.Group value={type} onChange={e => setType(e.target.value)}>
+              <Radio.Button value="template">
+                <FormattedMessage id="选择模板" />
+              </Radio.Button>
+              <Radio.Button value="module">
+                <FormattedMessage id="配置简历" />
+              </Radio.Button>
+            </Radio.Group>
+            <Button
+              onClick={() => setModuleModalVisible(true)}
+              style={{ marginLeft: '16px' }}
+            >
+              <FormattedMessage id="管理模块" />
+            </Button>
+          </>
         }
         width={480}
         closable={false}
@@ -346,6 +365,64 @@ export const Drawer: React.FC<Props> = props => {
           </>
         )}
       </AntdDrawer>
+      <Modal
+        title={<FormattedMessage id="管理自定义模块" />}
+        open={moduleModalVisible}
+        onCancel={() => setModuleModalVisible(false)}
+        footer={[
+          <Button
+            key="add"
+            type="primary"
+            onClick={() => {
+              setEditingModule(null);
+              form.resetFields();
+              setIsEditModalVisible(true);
+            }}
+          >
+            <FormattedMessage id="新增模块" />
+          </Button>,
+        ]}
+      >
+        <List
+          dataSource={[
+            { name: '工作经历', description: '过往的正式工作或实习经历' },
+            { name: '项目经历', description: '在校或业余时间完成的项目' },
+          ]}
+          renderItem={(item: any) => (
+            <List.Item
+              actions={[
+                <Button type="link" icon={<EditOutlined />} />,
+                <Button type="link" danger icon={<DeleteFilled />} />,
+              ]}
+            >
+              <List.Item.Meta
+                title={item.name}
+                description={item.description}
+              />
+            </List.Item>
+          )}
+        />
+      </Modal>
+      <Modal
+        title={editingModule ? '编辑模块' : '新增模块'}
+        open={isEditModalVisible}
+        onCancel={() => setIsEditModalVisible(false)}
+        onOk={() => form.submit()}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical" initialValues={editingModule || {}}>
+          <Form.Item
+            name="name"
+            label="模块名称"
+            rules={[{ required: true, message: '请输入模块名称' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="description" label="模块说明">
+            <TextArea rows={3} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };
