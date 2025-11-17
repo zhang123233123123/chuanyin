@@ -14,6 +14,8 @@ export type AiSettings = {
   prompts: {
     [featureName: string]: string;
   };
+  // Optional proxy endpoint to offload AI calls from the browser.
+  proxyEndpoint?: string;
 };
 
 // --- 默认值定义 ---
@@ -56,6 +58,7 @@ export const getDefaultSettings = (): AiSettings => ({
     };
   }, {}),
   prompts: DEFAULT_PROMPTS,
+  proxyEndpoint: '',
 });
 
 // --- 本地存储读写 ---
@@ -85,6 +88,7 @@ export function getAiSettings(): AiSettings {
         ...defaults.prompts,
         ...(stored.prompts || {}),
       },
+      proxyEndpoint: stored.proxyEndpoint || defaults.proxyEndpoint,
     };
     return mergedSettings;
   } catch (err) {

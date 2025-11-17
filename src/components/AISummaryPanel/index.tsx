@@ -111,7 +111,7 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
       setExperienceItems(cached.experiences);
       onExperiencesGenerated?.(cached.experiences);
     }
-  }, [onExperiencesGenerated]);
+  }, []);
 
   useEffect(() => {
     if (!experiences) return;

@@ -6,6 +6,10 @@ import Footer from '../layout/footer';
 import { AISummaryPanel } from '../components/AISummaryPanel';
 import { ExperienceTable } from '../components/ExperienceTable';
 import { ExperienceItem } from '../helpers/ai';
+import {
+  loadExperiencesFromServer,
+  saveExperiencesToServer,
+} from '../helpers/experience-api';
 import EN_US_LOCALE from '@/i18n/locales/en-US.json';
 import ZH_CN_LOCALE from '@/i18n/locales/zh-CN.json';
 import { getLanguage, registerLocale, getLocale } from '@/i18n';
@@ -20,9 +24,24 @@ const HomePageContent = () => {
   const intl = useIntl();
   const [experiences, setExperiences] = useState<ExperienceItem[]>([]);
 
+  React.useEffect(() => {
+    loadExperiencesFromServer()
+      .then(data => {
+        if (Array.isArray(data) && data.length) {
+          setExperiences(data);
+        }
+      })
+      .catch(err => {
+        console.warn('[experience] load server data failed', err);
+      });
+  }, []);
+
   // 处理AI生成的经历数据
   const handleExperiencesGenerated = (items: ExperienceItem[]) => {
     setExperiences(items);
+    saveExperiencesToServer(items).catch(err => {
+      console.warn('[experience] save server data failed', err);
+    });
   };
 
   return (

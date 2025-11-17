@@ -56,6 +56,7 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "clean": "gatsby clean",
     "deploy": "npm run clean && gatsby build --prefix-paths && gh-pages -d public",
+    "api": "node server/local-api.js",
     "prepare": "husky install",
     "lint-staged": "lint-staged",
     "i18n-pick": "node ./scripts/i18n-pick.js",

@@ -322,43 +322,81 @@ const extractJsonCandidate = (raw: string): string => {
   return trimmed;
 };
 
+const TRAILING_COMMA_REG = /,\s*([}\]])/g;
+const ADJACENT_OBJECT_REG = /}\s*{/g;
+
+const normalizeLooseJsonStructure = (raw: string): string => {
+  const trimmed = raw.trim();
+  if (!trimmed) return trimmed;
+  const withoutTrailingCommas = trimmed.replace(TRAILING_COMMA_REG, '$1');
+  const patchedAdjacent = withoutTrailingCommas.replace(
+    ADJACENT_OBJECT_REG,
+    '},{'
+  );
+  if (patchedAdjacent.startsWith('[')) {
+    return patchedAdjacent;
+  }
+  if (patchedAdjacent.startsWith('{')) {
+    return `[${patchedAdjacent}]`;
+  }
+  return patchedAdjacent;
+};
+
 const parseSummary = (content: string): string[] | ExperienceItem[] => {
   if (!content) return [];
   const trimmed = content.trim();
   try {
     const candidate = extractJsonCandidate(trimmed);
-    const parsed = JSON.parse(candidate);
-
-    const directExperiences = extractExperiencesFrom(parsed);
-    if (directExperiences) {
-      return directExperiences;
-    }
+    const normalizedJson = normalizeLooseJsonStructure(candidate);
+    const parsed = JSON.parse(normalizedJson);
 
     if (parsed && typeof parsed === 'object') {
+      let potentialStar: unknown = null;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        potentialStar = parsed[0];
+      } else if (!Array.isArray(parsed)) {
+        potentialStar = parsed;
+      }
+
+      if (potentialStar && typeof potentialStar === 'object') {
+        const star = potentialStar as {
+          Action?: string;
+          Result?: string;
+          action?: string;
+          result?: string;
+        };
+        const action = star.Action || star.action;
+        const result = star.Result || star.result;
+        if (action && result) {
+          return [`${action} ${result}`];
+        }
+      }
+
+      const directExperiences = extractExperiencesFrom(parsed);
+      if (directExperiences) {
+        return directExperiences;
+      }
+
       for (const key of EXPERIENCE_NESTED_KEYS) {
         const experiences = extractExperiencesFrom((parsed as any)[key]);
         if (experiences) {
           return experiences;
         }
       }
+
+      return [JSON.stringify(parsed, null, 2)];
     }
 
     if (Array.isArray(parsed)) {
       return parsed.map(item => String(item)).filter(Boolean);
     }
-
-    if (Array.isArray((parsed as any)?.items)) {
-      return (parsed as any).items.map(item => String(item)).filter(Boolean);
-    }
   } catch (err) {
-    // fallthrough, try to parse bullet text
     console.warn('JSON解析失败，尝试解析文本格式', err);
   }
 
   const normalized = trimmed.replace(/-\s+/g, '\n- ');
-
   return normalized
-    .split(/\r?\n/) // split to lines
+    .split(/\r?\n/)
     .map(line => line.replace(/^[\s•\-*\d.]+/, '').trim())
     .filter(Boolean);
 };
@@ -369,7 +407,9 @@ const isExperienceArray = (value: unknown): value is ExperienceItem[] =>
 export function parseExperienceDraft(raw: string): ExperienceItem[] {
   if (!raw || !raw.trim()) return [];
   try {
-    const parsed = JSON.parse(raw);
+    const candidate = extractJsonCandidate(raw);
+    const normalizedJson = normalizeLooseJsonStructure(candidate);
+    const parsed = JSON.parse(normalizedJson);
     const normalized = extractExperiencesFrom(parsed);
     if (normalized) return normalized;
   } catch (err) {
@@ -394,6 +434,38 @@ export async function summarizeExperience(
 
   const settings = getAiSettings();
 
+  const tryProxy = async () => {
+    const envProxy =
+      typeof process !== 'undefined'
+        ? (process as any).env?.GATSBY_AI_PROXY
+        : undefined;
+    const proxyEndpoint = settings.proxyEndpoint || envProxy;
+    if (!proxyEndpoint) return null;
+    try {
+      const resp = await fetch(proxyEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw, feature, model, settings }),
+      });
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(text || resp.statusText);
+      }
+
+      const data = await resp.json();
+      const content =
+        data?.content || data?.data?.content || data?.result || data?.text;
+      if (!content || typeof content !== 'string') {
+        throw new Error('代理未返回有效内容');
+      }
+      return parseSummary(content);
+    } catch (err) {
+      console.warn('[AI] proxy 调用失败，降级为直接调用', err);
+      return null;
+    }
+  };
+
   if (!settings || !settings.models) {
     throw new Error('AI 配置不完整，请先前往“API 设置”页面');
   }
@@ -408,6 +480,9 @@ export async function summarizeExperience(
   if (!systemPrompt) {
     throw new Error(`缺少“${feature}”功能的 Prompt，请前往“API 设置”页面配置`);
   }
+
+  const proxyResult = await tryProxy();
+  if (proxyResult) return proxyResult;
 
   const endpoint = modelConfig.endpoint || OPENAI_CHAT_COMPLETIONS;
   const lowerEndpoint = (endpoint || '').toLowerCase();

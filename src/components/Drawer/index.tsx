@@ -106,12 +106,16 @@ export const Drawer: React.FC<Props> = props => {
 
   const [type, setType] = useState('template');
 
-  const swapItems = (moduleKey: string, oldIdx: number, newIdx: number) => {
-    const newValues = _.clone(_.get(props.value, moduleKey, []));
-    props.onValueChange({
-      [moduleKey]: arrayMove(newValues, newIdx, oldIdx),
-    });
-  };
+  const throttledSwapItems = useThrottle(
+    (moduleKey: string, oldIdx: number, newIdx: number) => {
+      const newValues = _.clone(_.get(props.value, moduleKey, []));
+      props.onValueChange({
+        [moduleKey]: arrayMove(newValues, newIdx, oldIdx),
+      });
+    },
+    [props.value],
+    200
+  );
 
   const deleteItem = (moduleKey: string, idx: number) => {
     const newValues = _.get(props.value, moduleKey, []);
@@ -166,7 +170,7 @@ export const Drawer: React.FC<Props> = props => {
       <DragableRow
         key={`${idx}`}
         index={idx}
-        moveRow={(oldIdx, newIdx) => swapItems(key, oldIdx, newIdx)}
+        moveRow={(oldIdx, newIdx) => throttledSwapItems(key, oldIdx, newIdx)}
       >
         <div
           onClick={() => {

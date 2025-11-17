@@ -1,0 +1,360 @@
+{
+  "experiences": [
+    {
+      "type": "project",
+      "project_name": "三下乡活动 - 托口镇杨梅基地经济措施",
+      "project_role": "参与者",
+      "project_time": "2022年暑假",
+      "project_desc": "参观杨梅基地，分析当地经济问题，提出发展措施并撰写稿件。",
+      "project_content": "- 与当地政府联系，参观杨梅基地，识别经济问题。\n- 系统提出经济发展措施，撰写稿件并创建微信公众号。\n- 向相关网站投递稿件，提升当地经济宣传效果。"
+    },
+    {
+      "type": "workExp",
+      "company_name": "高途",
+      "department_name": "校园大使",
+      "work_time": [
+        "2022.01",
+        "2022.02"
+      ],
+      "work_desc": "[object Object]"
+    },
+    {
+      "type": "project",
+      "project_name": "辅学义工 - 大学物理电磁知识讲解",
+      "project_role": "主讲",
+      "project_time": "2023年3月",
+      "project_desc": "为补考同学讲解大学物理电磁知识，基于个人高分成绩。",
+      "project_content": "- 基于学院期末考试高分，准备并讲解电磁知识内容。\n- 帮助同学理解难点，提升补考通过率。"
+    },
+    {
+      "type": "project",
+      "project_name": "中南大学2022年迎新志愿者活动",
+      "project_role": "志愿者",
+      "project_time": "2022年",
+      "project_desc": "负责新生引导和行李搬运，协助迎新工作顺利进行。",
+      "project_content": "- 为新生提供引路服务，确保顺利报到。\n- 协助搬运行李，提升迎新效率。"
+    },
+    {
+      "type": "project",
+      "project_name": "中南大学基地部优秀队员",
+      "project_role": "队员",
+      "project_time": "2021年",
+      "project_desc": "基于积极态度和高效完成任务，获得优秀队员称号。",
+      "project_content": "- 展示积极工作态度，高效完成部门任务。\n- 获得优秀队员荣誉，体现团队贡献。"
+    },
+    {
+      "type": "project",
+      "project_name": "心理剧话剧表演院系二等奖",
+      "project_role": "参与者",
+      "project_time": "2021年",
+      "project_desc": "参与心理剧表演，获得院系二等奖。",
+      "project_content": "- 参与心理剧排练和表演，传达心理健康主题。\n- 获得院系二等奖，提升团队协作能力。"
+    },
+    {
+      "type": "project",
+      "project_name": "全国大学生数学竞赛三等奖",
+      "project_role": "参赛者",
+      "project_time": "2022年12月",
+      "project_desc": "参加全国大学生数学竞赛，获得三等奖。",
+      "project_content": "- 准备并参加数学竞赛，展示计算能力。\n- 获得全国三等奖，证明数学水平。"
+    },
+    {
+      "type": "project",
+      "project_name": "全国大学生数学竞赛二等奖",
+      "project_role": "参赛者",
+      "project_time": "2023年12月",
+      "project_desc": "参加全国大学生数学竞赛，获得二等奖。",
+      "project_content": "- 再次参赛，提升数学技能和竞赛表现。\n- 获得全国二等奖，体现持续进步。"
+    },
+    {
+      "type": "project",
+      "project_name": "互联网+校级三等奖 - 固体废弃物的回收利用",
+      "project_role": "项目成员",
+      "project_time": "2023年",
+      "project_desc": "参与互联网+项目，专注于固体废弃物回收，获得校级三等奖。",
+      "project_content": "- 参与项目策划和执行，聚焦固体废弃物回收。\n- 获得校级三等奖，展示创新和团队合作。"
+    },
+    {
+      "type": "project",
+      "project_name": "大创项目 - 固体废弃物的回收利用",
+      "project_role": "项目成员",
+      "project_time": "2023年-2024年",
+      "project_desc": "校级大创项目，进行实验操作和论文撰写，使用多种工具分析数据。",
+      "project_content": "- 操作实验，收集和分析数据使用Web of Science、EndNote等工具。\n- 绘制分析图形，编辑论文内容，项目于2024年6月结束。"
+    },
+    {
+      "type": "workExp",
+      "company_name": "黄沙坪矿场",
+      "department_name": "实习",
+      "work_time": [
+        "2023.06",
+        "2023.06"
+      ],
+      "work_desc": "你好"
+    },
+    {
+      "type": "project",
+      "project_name": "中南大学一等奖学金",
+      "project_role": "获奖者",
+      "project_time": "2023年10月10日",
+      "project_desc": "基于专业前5%成绩获得一等奖学金。",
+      "project_content": "- 学业成绩优异，专业排名前5%。\n- 获得一等奖学金，体现学术能力。"
+    },
+    {
+      "type": "project",
+      "project_name": "中南大学三等奖学金",
+      "project_role": "获奖者",
+      "project_time": "2022年9月28日",
+      "project_desc": "基于专业前24%成绩获得三等奖学金。",
+      "project_content": "- 学业成绩良好，专业排名前24%。\n- 获得三等奖学金，展示学习进步。"
+    },
+    {
+      "type": "project",
+      "project_name": "星火计划政府实习（未成行）",
+      "project_role": "参与者",
+      "project_time": "2023年暑假",
+      "project_desc": "获得政府部门实习机会，但因住宿问题未实际参与。",
+      "project_content": "- 通过星火计划获得实习机会，涉及政府类工作。\n- 因校方和政府沟通问题，未能解决住宿而未参与。"
+    },
+    {
+      "type": "project",
+      "project_name": "中南大学优秀学生",
+      "project_role": "获奖者",
+      "project_time": "2023年11月8日",
+      "project_desc": "基于学院前10%成绩和综合素质获得优秀学生称号。",
+      "project_content": "- 学业和综合素质优异，学院排名前10%。\n- 获得优秀学生荣誉，体现全面发展。"
+    },
+    {
+      "type": "project",
+      "project_name": "中南大学铜冠奖学金",
+      "project_role": "获奖者",
+      "project_time": "2023年10月10日",
+      "project_desc": "企业奖学金，基于专业前10%成绩获得。",
+      "project_content": "- 专业成绩前10%，获得唯一名额奖学金。\n- 体现学术卓越和企业认可。"
+    },
+    {
+      "type": "project",
+      "project_name": "采矿建模大赛",
+      "project_role": "参与者",
+      "project_time": "2023年9月",
+      "project_desc": "参与采矿建模大赛，负责建模部分，未获奖。",
+      "project_content": "- 参与建模工作，应用采矿相关知识。\n- 未获奖，但积累实践经验。"
+    },
+    {
+      "type": "workExp",
+      "company_name": "中南大学网络宣传部门",
+      "department_name": "副部长",
+      "work_time": [
+        "2022",
+        "2023"
+      ],
+      "work_desc": "[object Object]"
+    },
+    {
+      "type": "workExp",
+      "company_name": "中南大学班级",
+      "department_name": "身心委员",
+      "work_time": [
+        "2022",
+        "2023"
+      ],
+      "work_desc": "[object Object]"
+    },
+    {
+      "type": "project",
+      "project_name": "动漫制作三等奖 - 安全教育动画",
+      "project_role": "制作者",
+      "project_time": "2023年11月",
+      "project_desc": "使用AI和绘图软件制作安全教育动画视频，获得三等奖。",
+      "project_content": "- 应用AI和绘图软件，设计并制作动画视频。\n- 获得三等奖，传达安全教育信息。"
+    },
+    {
+      "type": "workExp",
+      "company_name": "广州市动景计算机科技有限公司",
+      "department_name": "数学答疑服务",
+      "work_desc": "[object Object]"
+    },
+    {
+      "type": "workExp",
+      "company_name": "天津阿里巴巴文化娱乐有限公司",
+      "department_name": "数据收集",
+      "work_desc": "[object Object]"
+    },
+    {
+      "type": "workExp",
+      "company_name": "湖南爱优网络技术有限公司",
+      "department_name": "数据分析部门",
+      "work_time": [
+        "2022.07",
+        "2022.08"
+      ],
+      "work_desc": "进行了深入的实体店实地考察，详细分析现有通信布局和客户设备使用模式；运用数据分析工具识别关键瓶颈和优化机会，提出并实施改进方案，包括调整设备物理位置、优化通信协议，并协调团队执行变更。 成功优化了客户设备安排，系统通信效率提升30%，运营中断事件减少25%，客户满意度提高15%，并直接支持了整体零售业绩增长10%。"
+    },
+    {
+      "type": "workExp",
+      "company_name": "中联重科",
+      "department_name": "技术中心/人工智能室",
+      "work_time": [
+        "2024.10",
+        "2024.12"
+      ],
+      "work_desc": "系统性地收集和处理机器人相关数据，分析数据质量并优化处理流程；同时，深入研究国内外前沿技术文献，总结关键发现，并与团队分享以指导项目开发。 通过数据处理和文献调研，显著提升了具身机器人项目的技术应用能力，数据准确性提高约20%，并引入多项创新技术，加速了项目进展，增强了团队的整体竞争力。"
+    },
+    {
+      "type": "project",
+      "project_name": "阿里天池大赛 - AI在金融营销中的应用",
+      "project_role": "参赛者",
+      "project_time": "2024年9月",
+      "project_desc": "参加时序预测学习赛，应用Python进行程序设计。",
+      "project_content": "- 参与AI金融营销竞赛，使用Python进行时序预测。\n- 提升编程和数据分析技能。"
+    },
+    {
+      "type": "project",
+      "project_name": "基于岩爆的机器学习预测",
+      "project_role": "项目成员",
+      "project_time": "2024年12月-2025年6月",
+      "project_desc": "应用机器学习预测岩爆等级，进行数据分析和模型构建。",
+      "project_content": "- 收集岩爆数据，使用机器学习算法进行预测。\n- 构建预测模型，提升安全工程应用。"
+    },
+    {
+      "type": "project",
+      "project_name": "夸克大模型模型修改参数",
+      "project_role": "参与者",
+      "project_time": "2024年8月-10月",
+      "project_desc": "参与大模型参数修改，优化模型性能。",
+      "project_content": "- 修改大模型参数，提升模型准确性和效率。\n- 积累深度学习和模型调优经验。"
+    },
+    {
+      "type": "workExp",
+      "company_name": "中国石油分化公司",
+      "department_name": "实习",
+      "work_time": [
+        "2024.07",
+        "2024.08"
+      ],
+      "work_desc": "我积极参与现场操作和流程模拟，主动与经验丰富的同事交流，并利用公司资源进行系统学习，以确保对关键流程的深入理解。 通过这次实习，我成功提升了行业知识水平，能够独立解释基本操作流程，并为未来职业发展奠定了坚实基础。"
+    },
+    {
+      "type": "project",
+      "project_name": "中南大学三等奖学金2024",
+      "project_role": "获奖者",
+      "project_time": "2024年",
+      "project_desc": "基于学业成绩获得三等奖学金。",
+      "project_content": "- 学业表现良好，获得三等奖学金。\n- 体现持续学术努力。"
+    },
+    {
+      "type": "project",
+      "project_name": "中南大学飞翼奖学金二等奖",
+      "project_role": "获奖者",
+      "project_time": "2024年",
+      "project_desc": "获得飞翼奖学金二等奖，基于综合表现。",
+      "project_content": "- 综合表现优异，获得二等奖学金。\n- 展示学术和个人发展。"
+    },
+    {
+      "type": "project",
+      "project_name": "超市收银数据处理",
+      "project_role": "数据处理者",
+      "project_desc": "处理超市收银数据，进行分析和优化。",
+      "project_content": "- 收集和分析收银数据，识别销售模式。\n- 优化数据处理流程，提升效率。"
+    },
+    {
+      "type": "project",
+      "project_name": "闲鱼自营账号",
+      "project_role": "运营者",
+      "project_desc": "运营闲鱼账号，实现收入破30000，日常流量过1000。",
+      "project_content": "- 管理自营账号，优化商品列表和营销策略。\n- 达成高收入和流量，展示电商运营能力。"
+    },
+    {
+      "type": "project",
+      "project_name": "大创新创业经历 - 固体废弃物的回收",
+      "project_role": "项目成员",
+      "project_desc": "参与大创新创业项目，专注于固体废弃物回收利用。",
+      "project_content": "- 进行创新实验和数据分析，推动回收技术。\n- 积累创业和环保项目经验。"
+    },
+    {
+      "type": "project",
+      "project_name": "撰写相关论文",
+      "project_role": "作者",
+      "project_desc": "撰写学术论文，基于研究和数据分析。",
+      "project_content": "- 基于项目数据，撰写和编辑论文内容。\n- 提升学术写作和研究能力。"
+    },
+    {
+      "type": "project",
+      "project_name": "保研招生协助",
+      "project_role": "协助者",
+      "project_desc": "协助老师进行保研招生工作，支持学生选拔。",
+      "project_content": "- 参与招生流程，帮助筛选和评估候选人。\n- 积累教育和行政经验。"
+    },
+    {
+      "type": "project",
+      "project_name": "数据收集团队建立",
+      "project_role": "创始人",
+      "project_desc": "建立个人数据收集团队，进行数据采集和分析。",
+      "project_content": "- 组建团队，制定数据收集策略和执行计划。\n- 提升团队管理和数据分析技能。"
+    },
+    {
+      "type": "project",
+      "project_name": "商品特价团队",
+      "project_role": "创始人",
+      "project_desc": "建立商品特价团队，分析数据并在价格低点购入商品。",
+      "project_content": "- 分析商品价格数据，识别最佳购买时机。\n- 运营团队，实现成本优化和利润增长。"
+    },
+    {
+      "type": "project",
+      "project_name": "数码店铺运营",
+      "project_role": "店主",
+      "project_desc": "运营个人数码店铺，进行商品销售和管理。",
+      "project_content": "- 管理店铺库存和销售，优化客户服务。\n- 实现稳定运营和收入。"
+    },
+    {
+      "type": "project",
+      "project_name": "代码代做服务",
+      "project_role": "提供者",
+      "project_desc": "提供代码代做服务，帮助客户解决编程问题。",
+      "project_content": "- 接受客户需求，编写和调试代码。\n- 提升编程技能和客户服务能力。"
+    },
+    {
+      "type": "project",
+      "project_name": "北京旅游景点信息爬取",
+      "project_role": "数据爬取者",
+      "project_desc": "爬取北京旅游景点信息，进行数据收集和分析。",
+      "project_content": "- 使用爬虫技术，收集景点数据并整理。\n- 应用数据分析，支持旅游规划。"
+    },
+    {
+      "type": "project",
+      "project_name": "超市数据处理",
+      "project_role": "数据处理者",
+      "project_desc": "处理超市数据，进行销售分析和优化。",
+      "project_content": "- 分析销售数据，识别趋势和问题。\n- 优化库存和营销策略。"
+    },
+    {
+      "type": "project",
+      "project_name": "金融守护赛 - 金融风险预测赛",
+      "project_role": "参赛者",
+      "project_desc": "参加金融风险预测赛，获得排名第一。",
+      "project_content": "- 应用预测模型，分析金融风险数据。\n- 获得满分5分，展示风险分析能力。"
+    },
+    {
+      "type": "project",
+      "project_name": "与甲方谈价格",
+      "project_role": "谈判者",
+      "project_desc": "参与商业谈判，与甲方讨论价格和合作条款。",
+      "project_content": "- 准备谈判策略，与甲方沟通价格细节。\n- 达成有利协议，提升商业技能。"
+    },
+    {
+      "type": "project",
+      "project_name": "学生宿舍管理系统",
+      "project_role": "开发者",
+      "project_desc": "开发学生宿舍管理系统，优化管理流程。",
+      "project_content": "- 设计并实现系统功能，支持宿舍分配和维护。\n- 提升软件开发和项目管理能力。"
+    },
+    {
+      "type": "project",
+      "project_name": "金融风险预测",
+      "project_role": "分析者",
+      "project_desc": "进行金融风险预测分析，应用统计和机器学习方法。",
+      "project_content": "- 收集金融数据，构建预测模型评估风险。\n- 提供决策支持，降低金融损失。"
+    }
+  ],
+  "savedAt": "2025-11-17T11:59:37.936Z"
+}

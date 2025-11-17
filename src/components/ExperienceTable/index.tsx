@@ -7,6 +7,7 @@ import {
   Popconfirm,
   Space,
   Typography,
+  message,
 } from 'antd';
 import {
   CalendarOutlined,
@@ -14,6 +15,8 @@ import {
   TeamOutlined,
 } from '@ant-design/icons';
 import type { ExperienceItem } from '@/helpers/ai';
+import { summarizeExperience } from '@/helpers/ai';
+import { getAiSettings } from '@/helpers/api-key';
 import './index.less';
 
 type ExperienceTableProps = {
@@ -33,6 +36,7 @@ export const ExperienceTable: React.FC<ExperienceTableProps> = ({
   );
   const [editorIndex, setEditorIndex] = useState<number | null>(null);
   const [editorVisible, setEditorVisible] = useState(false);
+  const [optimizingIndex, setOptimizingIndex] = useState<number | null>(null);
   const list = experiences ?? [];
   const hasExperiences = list.length > 0;
 
@@ -91,6 +95,99 @@ export const ExperienceTable: React.FC<ExperienceTableProps> = ({
   const handleDelete = (index: number) => {
     const next = list.filter((_, idx) => idx !== index);
     onChange?.(next);
+  };
+
+  // Only send the description block for refinements to avoid changing meta fields.
+  const buildRawFromItem = (item: ExperienceItem): string => {
+    if (item.type === 'workExp') {
+      return item.work_desc || '';
+    }
+    return item.project_content || item.project_desc || '';
+  };
+
+  const updateItemInList = (index: number, nextItem: ExperienceItem) => {
+    const next = [...list];
+    next[index] = nextItem;
+    onChange?.(next);
+  };
+
+  const handleOptimize = async (index: number, item: ExperienceItem) => {
+    const settings = getAiSettings();
+    const model =
+      settings.activeModel || Object.keys(settings.models || {})[0] || '';
+    if (!model) {
+      message.warning('请先在“API 设置”里配置模型');
+      return;
+    }
+
+    setOptimizingIndex(index);
+    const raw = buildRawFromItem(item);
+    if (!raw) {
+      message.info('暂无可优化的内容');
+      setOptimizingIndex(null);
+      return;
+    }
+
+    const formatAiResponse = (value: unknown): string => {
+      if (typeof value === 'string') {
+        return value;
+      }
+      if (typeof value === 'object' && value !== null) {
+        const star = value as {
+          Action?: string;
+          Result?: string;
+          action?: string;
+          result?: string;
+        };
+        const action = star.Action || star.action;
+        const result = star.Result || star.result;
+
+        if (action && result) {
+          return `${action} ${result}`;
+        }
+      }
+      return JSON.stringify(value, null, 2);
+    };
+
+    try {
+      const result = await summarizeExperience(raw, 'optimize', model);
+      let nextItem = { ...item } as ExperienceItem;
+
+      if (
+        Array.isArray(result) &&
+        result.length &&
+        typeof result[0] === 'object'
+      ) {
+        const refined = result[0] as ExperienceItem;
+
+        if (item.type === 'workExp' && refined.work_desc) {
+          nextItem.work_desc = formatAiResponse(refined.work_desc);
+        }
+        if (item.type === 'project') {
+          if (refined.project_content) {
+            nextItem.project_content = formatAiResponse(
+              refined.project_content
+            );
+          } else if (refined.project_desc) {
+            nextItem.project_desc = formatAiResponse(refined.project_desc);
+          }
+        }
+      } else if (Array.isArray(result) && result.length) {
+        const lines = (result as string[]).filter(Boolean).join('\n');
+        if (item.type === 'workExp') {
+          nextItem.work_desc = lines;
+        } else {
+          nextItem.project_content = lines;
+        }
+      }
+      updateItemInList(index, nextItem);
+      message.success('AI 已优化该条经历');
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : '优化失败';
+      message.error(reason);
+    } finally {
+      setOptimizingIndex(null);
+    }
   };
 
   const handleSubmit = async () => {
@@ -185,7 +282,16 @@ export const ExperienceTable: React.FC<ExperienceTableProps> = ({
                 <Space className="experience-actions" size={8}>
                   <Button
                     size="small"
-                    onClick={() => openEditor('workExp', idx)}
+                    onClick={() => handleOptimize(idx, item)}
+                    loading={optimizingIndex === idx}
+                  >
+                    AI优化
+                  </Button>
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      setTimeout(() => openEditor('workExp', idx), 0)
+                    }
                   >
                     编辑
                   </Button>
@@ -236,7 +342,16 @@ export const ExperienceTable: React.FC<ExperienceTableProps> = ({
                 <Space className="experience-actions" size={8}>
                   <Button
                     size="small"
-                    onClick={() => openEditor('project', idx)}
+                    onClick={() => handleOptimize(idx, item)}
+                    loading={optimizingIndex === idx}
+                  >
+                    AI优化
+                  </Button>
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      setTimeout(() => openEditor('project', idx), 0)
+                    }
                   >
                     编辑
                   </Button>
