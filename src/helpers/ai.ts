@@ -599,29 +599,28 @@ export async function streamAiResponse(
 ): Promise<Response> {
   if (!raw || !raw.trim()) {
     throw new Error('没有可供总结的内容');
-    [cite_start]; // [cite: 1]
   }
 
   const settings = getAiSettings();
-  [cite_start]; // [cite: 1]
 
   if (!settings || !settings.models) {
     throw new Error('AI 配置不完整，请先前往“API 设置”页面');
-    [cite_start]; // [cite: 1]
   }
 
   const modelConfig = settings.models[model];
-  [cite_start]; // [cite: 1]
   if (!modelConfig || !modelConfig.apiKey) {
     throw new Error(`模型“${model}”缺少 API Key，请前往“API 设置”页面配置`);
-    [cite_start]; // [cite: 1]
   }
 
-  const systemPrompt = settings.prompts?.[feature];
-  [cite_start]; // [cite: 1]
+  const defaultSystemPrompts: Record<string, string> = {
+    'resume-restore':
+      'You are a resume extraction assistant. Normalize user-provided resume content into a JSON object with keys: profile, educationList, workExpList, projectList, skillList, awardList, workList, aboutme. Lists should contain objects with names, titles/roles, descriptions (arrays allowed), links, tags, and time ranges (YYYY-MM when possible). Only output strict JSON.',
+  };
+
+  const systemPrompt =
+    settings.prompts?.[feature] || defaultSystemPrompts[feature] || '';
   if (!systemPrompt) {
     throw new Error(`缺少“${feature}”功能的 Prompt，请前往“API 设置”页面配置`);
-    [cite_start]; // [cite: 1]
   }
 
   // 注意：此处省略了 tryProxy 逻辑，因为流式传输的代理逻辑通常更复杂。
