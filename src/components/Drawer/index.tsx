@@ -222,11 +222,6 @@ const UploadTemplateModal: React.FC<{
   const [error, setError] = useState<string | null>(null);
 
   const handleUpload = async (file: File) => {
-    if (!file.name.endsWith('.tsx')) {
-      setError('Please upload a .tsx file.');
-      return false;
-    }
-
     const templateName = prompt(
       'Please enter a name for your new template (e.g., MyTemplate):'
     );
@@ -239,31 +234,513 @@ const UploadTemplateModal: React.FC<{
 
     const reader = new FileReader();
     reader.onload = async e => {
-      const tsxContent = e.target?.result as string;
+      const exampleTsx = `import React from 'react';
+import { Rate, Tag } from 'antd';
+import {
+  MobileFilled,
+  MailFilled,
+  GithubFilled,
+  ZhihuCircleFilled,
+  TrophyFilled,
+  CheckCircleFilled,
+  ScheduleFilled,
+  CrownFilled,
+  EnvironmentFilled,
+  HeartFilled,
+} from '@ant-design/icons';
+import _ from 'lodash-es';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { getDefaultTitleNameMap } from '@/data/constant';
+import { Avatar } from '../../Avatar';
+import type { ResumeConfig, ThemeConfig } from '../../types';
+import './index.less';
+
+type Props = {
+  value: ResumeConfig;
+  theme: ThemeConfig;
+};
+
+/**
+ * @description 简历内容区
+ */
+const Template1: React.FC<Props> = props => {
+  const intl = useIntl();
+  const { value, theme } = props;
+
+  /** 个人基础信息 */
+  const profile = _.get(value, 'profile');
+
+  const titleNameMap = _.get(
+    value,
+    'titleNameMap',
+    getDefaultTitleNameMap({ intl })
+  );
+
+  /** 教育背景 */
+  const educationList = _.get(value, 'educationList');
+
+  /** 工作经历 */
+  const workExpList = _.get(value, 'workExpList');
+
+  /** 项目经验 */
+  const projectList = _.get(value, 'projectList');
+
+  /** 个人技能 */
+  const skillList = _.get(value, 'skillList');
+
+  /** 更多信息 */
+  const awardList = _.get(value, 'awardList');
+
+  /** 作品 */
+  const workList = _.get(value, 'workList');
+
+  /** 自我介绍 */
+  const aboutme = _.split(_.get(value, ['aboutme', 'aboutme_desc']), '\n');
+
+  return (
+    <div className="template1-resume resume-content">
+      {/* Avatar */}
+      {!value?.avatar?.hidden && (
+        <Avatar
+          avatarSrc={value?.avatar?.src}
+          className="avatar"
+          shape={value?.avatar?.shape}
+          size={value?.avatar?.size}
+        />
+      )}
+
+      {/* All content is now in a single column */}
+      <div className="content-area">
+        {/* 个人信息 */}
+        <div className="profile">
+          {profile?.name && <div className="name">{profile.name}</div>}
+          <div className="profile-list">
+            {profile?.mobile && (
+              <div className="email">
+                <MobileFilled style={{ color: theme.color, opacity: 0.85 }} />
+                {profile.mobile}
+              </div>
+            )}
+            {profile?.email && (
+              <div className="email">
+                <MailFilled style={{ color: theme.color, opacity: 0.85 }} />
+                {profile.email}
+              </div>
+            )}
+            {profile?.github && (
+              <div className="github">
+                <GithubFilled style={{ color: theme.color, opacity: 0.85 }} />
+                <span
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    window.open(profile.github);
+                  }}
+                >
+                  {profile.github}
+                </span>
+              </div>
+            )}
+            {profile?.zhihu && (
+              <div className="github">
+                <ZhihuCircleFilled
+                  style={{ color: theme.color, opacity: 0.85 }}
+                />
+                <span
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    window.open(profile.zhihu);
+                  }}
+                >
+                  {profile.zhihu}
+                </span>
+              </div>
+            )}
+            {profile?.workExpYear && (
+              <div className="work-exp-year">
+                <ScheduleFilled style={{ color: theme.color, opacity: 0.85 }} />
+                <span>
+                  <FormattedMessage id="工作经验" />: {profile.workExpYear}
+                </span>
+              </div>
+            )}
+            {profile?.workPlace && (
+              <div className="work-place">
+                <EnvironmentFilled
+                  style={{ color: theme.color, opacity: 0.85 }}
+                />
+                <span>
+                  <FormattedMessage id="期望工作地" />: {profile.workPlace}
+                </span>
+              </div>
+            )}
+            {profile?.positionTitle && (
+              <div className="expect-job">
+                <HeartFilled style={{ color: theme.color, opacity: 0.85 }} />
+                <span>
+                  <FormattedMessage id="职位" />: {profile.positionTitle}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 自我介绍 */}
+        {!!_.trim(_.join(aboutme, '')) && (
+          <section className="section section-aboutme">
+            <div className="section-title" style={{ color: theme.color }}>
+              {titleNameMap?.aboutme}
+            </div>
+            {aboutme.map((d, idx) => (
+              <div key={idx}>{d}</div>
+            ))}
+          </section>
+        )}
+
+        {/* 教育背景 */}
+        {educationList?.length ? (
+          <section className="section section-education">
+            <div className="section-title" style={{ color: theme.color }}>
+              {titleNameMap?.educationList}
+            </div>
+            {educationList.map((education, idx) => {
+              const [start, end] = education.edu_time;
+              return (
+                <div key={idx.toString()} className="education-item">
+                  <div>
+                    <b>{education.school}</b>
+                    <span className="info-time">
+                      {start}
+                      {end ? (
+                        <>
+                          {' ~ '}
+                          {end}
+                        </>
+                      ) : (
+                        <FormattedMessage id=" 至今" />
+                      )}
+                    </span>
+                  </div>
+                  <div>
+                    {education.major && <span>{education.major}</span>}
+                    {education.academic_degree && (
+                      <span className="sub-info" style={{ marginLeft: '4px' }}>
+                        ({education.academic_degree})
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </section>
+        ) : null}
+
+        {/* 工作经历 */}
+        {workExpList?.length ? (
+          <section className="section section-work-exp">
+            <div className="section-title" style={{ color: theme.color }}>
+              {titleNameMap?.workExpList}
+            </div>
+            {_.map(workExpList, (work, idx) => {
+              if (!work) return null;
+
+              let start: string | null = null;
+              let end: string | null = null;
+
+              if (typeof work.work_time === 'string') {
+                const times = (work.work_time || '').split(',');
+                [start, end] = [times[0] || null, times[1] || null];
+              } else if (Array.isArray(work.work_time)) {
+                [start, end] = work.work_time;
+              }
+
+              return (
+                <div className="section-item" key={idx.toString()}>
+                  <div className="section-info">
+                    <b className="info-name">
+                      {work.company_name}
+                      <span className="sub-info">{work.department_name}</span>
+                    </b>
+                    <span className="info-time">
+                      {start}
+                      {end ? (
+                        <>
+                          {' ~ '}
+                          {end}
+                        </>
+                      ) : (
+                        <FormattedMessage id=" 至今" />
+                      )}
+                    </span>
+                  </div>
+                  <div className="work-description">{work.work_desc}</div>
+                </div>
+              ) : null;
+            })}
+          </section>
+        ) : null}
+
+        {/* 项目经验 */}
+        {projectList?.length ? (
+          <section className="section section-project">
+            <div className="section-title" style={{ color: theme.color }}>
+              {titleNameMap?.projectList}
+            </div>
+            {_.map(projectList, (project, idx) =>
+              project ? (
+                <div className="section-item" key={idx.toString()}>
+                  <div className="section-info">
+                    <b className="info-name">
+                      {project.project_name}
+                      <span className="info-time">{project.project_time}</span>
+                    </b>
+                    {project.project_role && (
+                      <Tag color={theme.tagColor}>{project.project_role}</Tag>
+                    )}
+                  </div>
+                  <div className="project-content">{project.project_desc}</div>
+                </div>
+              ) : null
+            )}
+          </section>
+        ) : null}
+
+        {/* 个人作品 */}
+        {workList?.length ? (
+          <section className="section section-work">
+            <div className="section-title" style={{ color: theme.color }}>
+              {titleNameMap?.workList}
+            </div>
+            {workList.map((work, idx) => {
+              return (
+                <div key={idx.toString()}>
+                  <div>
+                    <CrownFilled
+                      style={{ color: '#ffc107', marginRight: '8px' }}
+                    />
+                    <b className="info-name">{work.work_name}</b>
+                    <a className="sub-info" href={work.visit_link}>
+                      <FormattedMessage id="访问链接" />
+                    </a>
+                  </div>
+                  {work.work_desc && <div>{work.work_desc}</div>}
+                </div>
+              );
+            })}
+          </section>
+        ) : null}
+
+        {/* 专业技能 */}
+        {skillList?.length ? (
+          <section className="section section-skill">
+            <div className="section-title" style={{ color: theme.color }}>
+              {titleNameMap?.skillList}
+            </div>
+            {skillList.map((skill, idx) => {
+              return skill ? (
+                <React.Fragment key={idx}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginTop: '8px',
+                    }}
+                    key={idx}
+                  >
+                    <b className="info-name">{skill.skill_name}</b>
+                    {skill.skill_desc}
+                  </div>
+                </React.Fragment>
+              ) : null;
+            })}
+          </section>
+        ) : null}
+
+        {/* 荣誉奖励 */}
+        {awardList?.length ? (
+          <section className="section section-award">
+            <div className="section-title" style={{ color: theme.color }}>
+              {titleNameMap?.awardList}
+            </div>
+            {awardList.map((award, idx) => {
+              return (
+                <div key={idx.toString()}>
+                  <TrophyFilled
+                    style={{ color: '#ffc107', marginRight: '8px' }}
+                  />
+                  <b className="info-name">{award.award_info}</b>
+                  {award.award_time && (
+                    <span className="sub-info award-time">
+                      ({award.award_time})
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </section>
+        ) : null}
+      </div>
+    </div>
+  );
+};
+export default Template1;
+`;
+      const exampleLess = `/*
+  Final styles for the single-column, white-background resume.
+*/
+
+// Base container for the entire resume page
+.template1-resume {
+  width: 794px;
+  min-height: 1122px; // A4 aspect ratio
+  margin: 30px auto;
+  padding: 50px;
+  background: #fff;
+  color: #333;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+  font-family: sans-serif;
+}
+
+// Avatar (Personal Photo) - positioned to the right, but within the document flow
+.avatar {
+  width: 100px;
+  height: 120px;
+  border: 1px solid #ddd;
+  object-fit: cover;
+  float: right; // Use float to position it to the right
+  margin: 0 0 15px 15px;
+}
+
+// Main content area
+.content-area {
+  // No margin-top needed now
+}
+
+// General Section Styling
+section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 18px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+  color: #8C438D; // Purple color
+  border-bottom: 2px solid #8C438D; // Purple underline
+  padding-bottom: 5px;
+  font-weight: bold;
+  text-transform: none;
+  clear: both; // Clear float for section titles
+}
+
+.section-info {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+// Profile Name
+.profile .name {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #000;
+}
+
+// List of profile details (phone, email, etc.)
+.profile .profile-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-bottom: 20px;
+  color: #333;
+
+  .anticon {
+    margin-right: 8px;
+    color: #8C438D;
+  }
+}
+
+// Experience item styling
+.section-item {
+  margin-bottom: 15px;
+}
+
+.work-description,
+.project-content {
+  white-space: pre-wrap;
+  color: #555;
+  padding-left: 15px;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+// --- Print and Responsive Styles ---
+ @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  .template1-resume {
+    width: 100%;
+    min-height: initial;
+    margin: 0;
+    padding: 40px;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 794px) {
+  .template1-resume {
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+  }
+  .avatar {
+    float: none;
+    display: block;
+    margin: 0 auto 20px;
+  }
+}
+`;
 
       const prompt = `
-You are an expert in CSS and Less. I will provide you with a .tsx React component file for a resume template. Your task is to generate a .less file that styles this component.
+You are an expert in React and Less. I will provide you with the content of a resume (it could be text or an image data URL). Your task is to generate a React component (\`index.tsx\`) and a Less file (\`index.less\`) that represent this resume.
 
-Here is an example of a .less file for a similar template:
----
+The generated code should be a single-column layout.
+
+Here is an example of a \`template1/index.tsx\` file:
+\`\`\`tsx
+${exampleTsx}
+\`\`\`
+
+Here is an example of a \`template1/index.less\` file:
+\`\`\`less
 ${exampleLess}
+\`\`\`
+
+Now, here is the new resume content:
+---
+${resumeContent}
 ---
 
-Now, here is the new .tsx resume template file:
----
-${tsxContent}
----
-
-Please generate the corresponding .less file. The less file should be complete and well-structured. Do not include any other text or explanation in your response, only the Less code.
+Please generate the corresponding \`index.tsx\` and \`index.less\` files. The response should be a JSON object with two keys: "tsx" and "less". For example:
+{
+  "tsx": "...",
+  "less": "..."
+}
       `;
 
       try {
         const aiSettings = getAiSettings();
         const stream = streamAiResponse(prompt, aiSettings.activeModel);
-        let lessContent = '';
+        let responseJson = '';
         for await (const chunk of stream) {
-          lessContent += chunk;
+          responseJson += chunk;
         }
+
+        const { tsx, less } = JSON.parse(responseJson);
 
         const response = await fetch(
           'http://localhost:4000/api/save-template',
@@ -274,8 +751,8 @@ Please generate the corresponding .less file. The less file should be complete a
             },
             body: JSON.stringify({
               templateName,
-              tsxContent,
-              lessContent,
+              tsxContent: tsx,
+              lessContent: less,
             }),
           }
         );
@@ -297,7 +774,12 @@ Please generate the corresponding .less file. The less file should be complete a
       setLoading(false);
       setError('Failed to read the file.');
     };
-    reader.readAsText(file);
+
+    if (file.type.startsWith('image/')) {
+      reader.readAsDataURL(file);
+    } else {
+      reader.readAsText(file);
+    }
     return false; // Prevent antd from uploading the file automatically
   };
 
@@ -313,9 +795,9 @@ Please generate the corresponding .less file. The less file should be complete a
         <Upload
           beforeUpload={handleUpload}
           showUploadList={false}
-          accept=".tsx"
+          accept=".tsx,.pdf,.png,.jpg,.jpeg,.doc,.docx"
         >
-          <Button icon={<UploadOutlined />}>Click to Upload .tsx File</Button>
+          <Button icon={<UploadOutlined />}>Click to Upload</Button>
         </Upload>
       </Spin>
       {error && (

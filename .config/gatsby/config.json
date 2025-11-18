@@ -1,6 +1,7 @@
 {
 	"telemetry": {
-		"machineId": "5dc39ae5-950b-4f51-9fac-42409f22e450"
+		"machineId": "5dc39ae5-950b-4f51-9fac-42409f22e450",
+		"enabled": true
 	},
 	"feedback": {
 		"firstCheckDate": 1761397680965,
