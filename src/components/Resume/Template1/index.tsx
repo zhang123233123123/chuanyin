@@ -27,7 +27,7 @@ type Props = {
 /**
  * @description 简历内容区
  */
-export const Template1: React.FC<Props> = props => {
+const Template1: React.FC<Props> = props => {
   const intl = useIntl();
   const { value, theme } = props;
 
@@ -324,3 +324,4 @@ export const Template1: React.FC<Props> = props => {
     </div>
   );
 };
+export default Template1;

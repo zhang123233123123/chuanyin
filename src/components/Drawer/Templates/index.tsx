@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ReactSVG } from 'react-svg';
 import cx from 'classnames';
 import { useIntl } from 'react-intl';
@@ -9,7 +9,7 @@ type Props = {
   onChange: (v: string) => void;
 };
 
-const TEMPLATES = [
+const defaultTemplates = [
   {
     url: 'https://gw.alipayobjects.com/zos/antfincdn/GLDkiGBSPl/moban1.svg',
     id: 'template1',
@@ -30,10 +30,35 @@ const TEMPLATES = [
 
 export const Templates: React.FC<Props> = props => {
   const intl = useIntl();
+  const [templates, setTemplates] = useState(defaultTemplates);
+
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/api/templates');
+        if (response.ok) {
+          const data = await response.json();
+          const userTemplates = data.templates
+            .filter(t => !defaultTemplates.some(dt => dt.id === t))
+            .map(t => ({
+              url:
+                'https://gw.alipayobjects.com/zos/antfincdn/GLDkiGBSPl/moban1.svg', // Placeholder
+              id: t,
+              description: t,
+            }));
+          setTemplates([...defaultTemplates, ...userTemplates]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch templates:', error);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
 
   return (
     <div className="templates">
-      {TEMPLATES.map(item => {
+      {templates.map(item => {
         return (
           <div
             className={cx('template-item', {
@@ -50,9 +75,7 @@ export const Templates: React.FC<Props> = props => {
               }}
             />
             <span className="template-id">{item.id}</span>
-            <span className="template-description">
-              {intl.formatMessage({ id: item.description })}
-            </span>
+            <span className="template-description">{item.description}</span>
           </div>
         );
       })}

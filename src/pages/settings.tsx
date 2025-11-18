@@ -21,7 +21,6 @@ registerLocale('en-US', EN_US_LOCALE);
 registerLocale('zh-CN', ZH_CN_LOCALE);
 
 const { Paragraph, Text } = Typography;
-const { TabPane } = Tabs;
 
 // UI-specific mapping for prompt feature names
 const PROMPT_FEATURES = {
@@ -57,7 +56,7 @@ const SettingsPage: React.FC = () => {
 
   const handleModelConfigChange = (
     model: string,
-    key: keyof ModelConfig,
+    key: 'apiKey' | 'endpoint',
     value: string
   ) => {
     setAiSettingsValue(prev => ({
@@ -105,9 +104,10 @@ const SettingsPage: React.FC = () => {
             <Tabs
               activeKey={aiSettings.activeModel}
               onChange={handleActiveModelChange}
-            >
-              {AI_MODELS.map(model => (
-                <TabPane tab={model} key={model}>
+              items={AI_MODELS.map(model => ({
+                key: model,
+                label: model,
+                children: (
                   <div className="settings-form">
                     <label htmlFor={`${model}-endpoint-input`}>
                       Endpoint 地址
@@ -135,9 +135,9 @@ const SettingsPage: React.FC = () => {
                       visibilityToggle
                     />
                   </div>
-                </TabPane>
-              ))}
-            </Tabs>
+                ),
+              }))}
+            />
 
             <Divider />
 

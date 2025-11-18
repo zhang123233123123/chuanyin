@@ -587,3 +587,112 @@ export async function summarizeExperience(
   }
   return items;
 }
+// 请将此函数添加到 ai.ts 文件的末尾
+
+export async function streamAiResponse(
+  raw: string,
+  feature: string,
+  model: string
+): Promise<Response> {
+  if (!raw || !raw.trim()) {
+    throw new Error('没有可供总结的内容');
+    [cite_start]; // [cite: 1]
+  }
+
+  const settings = getAiSettings();
+  [cite_start]; // [cite: 1]
+
+  if (!settings || !settings.models) {
+    throw new Error('AI 配置不完整，请先前往“API 设置”页面');
+    [cite_start]; // [cite: 1]
+  }
+
+  const modelConfig = settings.models[model];
+  [cite_start]; // [cite: 1]
+  if (!modelConfig || !modelConfig.apiKey) {
+    throw new Error(`模型“${model}”缺少 API Key，请前往“API 设置”页面配置`);
+    [cite_start]; // [cite: 1]
+  }
+
+  const systemPrompt = settings.prompts?.[feature];
+  [cite_start]; // [cite: 1]
+  if (!systemPrompt) {
+    throw new Error(`缺少“${feature}”功能的 Prompt，请前往“API 设置”页面配置`);
+    [cite_start]; // [cite: 1]
+  }
+
+  // 注意：此处省略了 tryProxy 逻辑，因为流式传输的代理逻辑通常更复杂。
+
+  const endpoint = modelConfig.endpoint || OPENAI_CHAT_COMPLETIONS;
+  const lowerEndpoint = (endpoint || '').toLowerCase();
+  const isGemini = lowerEndpoint.includes('generativelanguage.googleapis.com');
+
+  // 关键区别：针对非 Gemini 模型（如 OpenAI）添加 stream: true
+  const requestBody = isGemini
+    ? {
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: `以下是候选人的个人经历，请根据要求输出：\n${raw}` },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          responseMimeType: 'application/json',
+        },
+      }
+    : {
+        model: model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: `以下是候选人的个人经历，请根据要求输出：\n${raw}`,
+          },
+        ],
+        temperature: 0.2,
+        response_format: { type: 'json_object' },
+        stream: true, // <-- 启用流式传输的关键参数
+      };
+
+  let fetchUrl = endpoint;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (isGemini) {
+    const separator = endpoint.includes('?') ? '&' : '?';
+    fetchUrl = `${endpoint}${separator}key=${modelConfig.apiKey}`;
+  } else {
+    headers.Authorization = `Bearer ${modelConfig.apiKey}`;
+  }
+
+  try {
+    console.info('[AI] invoking model (STREAMING)', model, 'via', fetchUrl);
+  } catch (err) {
+    // console might not exist in some environments; fail silently
+  }
+
+  const response = await fetch(fetchUrl, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    let reason = response.statusText;
+    try {
+      const parsed = JSON.parse(text);
+      reason = parsed?.error?.message || parsed?.message || reason;
+    } catch (err) {
+      // ignore
+    }
+    throw new Error(`流式生成失败：${reason}`);
+  }
+
+  return response; // <-- 返回原生的 Response 对象，供调用方进行流式读取
+}

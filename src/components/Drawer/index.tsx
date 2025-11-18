@@ -9,11 +9,16 @@ import {
   Input,
   List,
   Form,
+  Upload,
+  Spin,
+  Alert,
+  message,
 } from 'antd';
 import {
   DeleteFilled,
   InfoCircleFilled,
   EditOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -28,9 +33,133 @@ import { ConfigTheme } from './ConfigTheme';
 import { Templates } from './Templates';
 import './index.less';
 import useThrottle from '@/hooks/useThrottle';
+import { streamAiResponse } from '@/helpers/ai';
+import { getAiSettings } from '@/helpers/api-key';
 
 const { Panel } = Collapse;
 const { TextArea } = Input;
+
+const exampleLess = `
+/*
+  Final styles for the single-column, white-background resume.
+*/
+
+// Base container for the entire resume page
+.template1-resume {
+  width: 794px;
+  min-height: 1122px; // A4 aspect ratio
+  margin: 30px auto;
+  padding: 50px;
+  background: #fff;
+  color: #333;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+  font-family: sans-serif;
+}
+
+// Avatar (Personal Photo) - positioned to the right, but within the document flow
+.avatar {
+  width: 100px;
+  height: 120px;
+  border: 1px solid #ddd;
+  object-fit: cover;
+  float: right; // Use float to position it to the right
+  margin: 0 0 15px 15px;
+}
+
+// Main content area
+.content-area {
+  // No margin-top needed now
+}
+
+// General Section Styling
+section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 18px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+  color: #8C438D; // Purple color
+  border-bottom: 2px solid #8C438D; // Purple underline
+  padding-bottom: 5px;
+  font-weight: bold;
+  text-transform: none;
+  clear: both; // Clear float for section titles
+}
+
+.section-info {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+// Profile Name
+.profile .name {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #000;
+}
+
+// List of profile details (phone, email, etc.)
+.profile .profile-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-bottom: 20px;
+  color: #333;
+
+  .anticon {
+    margin-right: 8px;
+    color: #8C438D;
+  }
+}
+
+// Experience item styling
+.section-item {
+  margin-bottom: 15px;
+}
+
+.work-description,
+.project-content {
+  white-space: pre-wrap;
+  color: #555;
+  padding-left: 15px;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+// --- Print and Responsive Styles ---
+ @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  .template1-resume {
+    width: 100%;
+    min-height: initial;
+    margin: 0;
+    padding: 40px;
+    box-shadow: none;
+  }
+}
+
+ @media (max-width: 794px) {
+  .template1-resume {
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+  }
+  .avatar {
+    float: none;
+    display: block;
+    margin: 0 auto 20px;
+  }
+}
+`;
 
 type Props = {
   value: ResumeConfig;
@@ -85,6 +214,117 @@ const DragableRow = ({ index, moveRow, ...restProps }) => {
   );
 };
 
+const UploadTemplateModal: React.FC<{
+  open: boolean;
+  onClose: () => void;
+}> = ({ open, onClose }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleUpload = async (file: File) => {
+    if (!file.name.endsWith('.tsx')) {
+      setError('Please upload a .tsx file.');
+      return false;
+    }
+
+    const templateName = prompt(
+      'Please enter a name for your new template (e.g., MyTemplate):'
+    );
+    if (!templateName) {
+      return false;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const reader = new FileReader();
+    reader.onload = async e => {
+      const tsxContent = e.target?.result as string;
+
+      const prompt = `
+You are an expert in CSS and Less. I will provide you with a .tsx React component file for a resume template. Your task is to generate a .less file that styles this component.
+
+Here is an example of a .less file for a similar template:
+---
+${exampleLess}
+---
+
+Now, here is the new .tsx resume template file:
+---
+${tsxContent}
+---
+
+Please generate the corresponding .less file. The less file should be complete and well-structured. Do not include any other text or explanation in your response, only the Less code.
+      `;
+
+      try {
+        const aiSettings = getAiSettings();
+        const stream = streamAiResponse(prompt, aiSettings.activeModel);
+        let lessContent = '';
+        for await (const chunk of stream) {
+          lessContent += chunk;
+        }
+
+        const response = await fetch(
+          'http://localhost:4000/api/save-template',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              templateName,
+              tsxContent,
+              lessContent,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error || 'Failed to save template files.');
+        }
+
+        message.success(`Template ${templateName} saved successfully.`);
+        onClose(); // Close modal on success
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    reader.onerror = () => {
+      setLoading(false);
+      setError('Failed to read the file.');
+    };
+    reader.readAsText(file);
+    return false; // Prevent antd from uploading the file automatically
+  };
+
+  return (
+    <Modal
+      title="AI 生成模板"
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      destroyOnClose
+    >
+      <Spin spinning={loading}>
+        <Upload
+          beforeUpload={handleUpload}
+          showUploadList={false}
+          accept=".tsx"
+        >
+          <Button icon={<UploadOutlined />}>Click to Upload .tsx File</Button>
+        </Upload>
+      </Spin>
+      {error && (
+        <Alert message={error} type="error" style={{ marginTop: '16px' }} />
+      )}
+    </Modal>
+  );
+};
+
 /**
  * @description 简历配置区
  */
@@ -94,6 +334,7 @@ export const Drawer: React.FC<Props> = props => {
   const [visible, setVisible] = useState(false);
   const [childrenDrawer, setChildrenDrawer] = useState(null);
   const [currentContent, updateCurrentContent] = useState(null);
+  const [isUploadModalVisible, setIsUploadModalVisible] = useState(false);
 
   /**
    * 1. 更新currentContent State
@@ -273,7 +514,7 @@ export const Drawer: React.FC<Props> = props => {
         title={modules.find(m => m.key === childrenDrawer)?.name}
         width={450}
         onClose={() => setChildrenDrawer(null)}
-        visible={!!childrenDrawer}
+        open={!!childrenDrawer}
       >
         <FormCreator
           config={contentOfModule[childrenDrawer]}
@@ -342,12 +583,18 @@ export const Drawer: React.FC<Props> = props => {
             >
               <FormattedMessage id="管理模块" />
             </Button>
+            <Button
+              onClick={() => setIsUploadModalVisible(true)}
+              style={{ marginLeft: '16px' }}
+            >
+              AI 生成模板
+            </Button>
           </>
         }
         width={480}
         closable={false}
         onClose={() => setVisible(false)}
-        visible={visible}
+        open={visible}
       >
         {type === 'module' ? (
           moduleContent
@@ -365,6 +612,10 @@ export const Drawer: React.FC<Props> = props => {
           </>
         )}
       </AntdDrawer>
+      <UploadTemplateModal
+        open={isUploadModalVisible}
+        onClose={() => setIsUploadModalVisible(false)}
+      />
       <Modal
         title={<FormattedMessage id="管理自定义模块" />}
         open={moduleModalVisible}

@@ -14,7 +14,6 @@ import { copyToClipboard } from '@/helpers/copy-to-board';
 import { getDevice } from '@/helpers/detect-device';
 import { exportDataToLocal } from '@/helpers/export-to-local';
 import { getConfig, saveToLocalStorage } from '@/helpers/store-to-local';
-import { fetchResume } from '@/helpers/fetch-resume';
 import { Drawer } from './Drawer';
 import { Resume } from './Resume';
 import { AISummaryPanel } from './AISummaryPanel';
@@ -81,7 +80,6 @@ export const Page: React.FC = () => {
   useEffect(() => {
     const user = (query.user || '') as string;
     const branch = (query.branch || 'master') as string;
-    const mode = query.mode;
 
     function store(data) {
       originalConfig.current = data;
@@ -93,35 +91,14 @@ export const Page: React.FC = () => {
       updateLoading(false);
     }
 
-    if (!mode) {
-      const link = `https://github.com/${user}/${user}/tree/${branch}`;
-      fetchResume(lang, branch, user)
-        .then(data => store(data))
-        .catch(() => {
-          Modal.info({
-            title: <FormattedMessage id="获取简历信息失败" />,
-            content: (
-              <div>
-                请检查用户名 {user} 是否正确或者简历信息是否在
-                <a href={link} target="_blank">{`${link}/resume.json`}</a>下
-              </div>
-            ),
-            okText: <FormattedMessage id="进入在线编辑" />, // intl.formatMessage({ id: '进入在线编辑' }),
-            onOk: () => {
-              changeMode('edit');
-            },
-          });
-        });
+    if (query.data) {
+      codec.decompress(query.data).then(data => {
+        store(JSON.parse(data));
+      });
     } else {
-      if (query.data) {
-        codec.decompress(query.data).then(data => {
-          store(JSON.parse(data));
-        });
-      } else {
-        getConfig(lang, branch, user).then(data => {
-          store(data);
-        });
-      }
+      getConfig(lang, branch, user).then(data => {
+        store(data);
+      });
     }
   }, [lang, query.user, query.branch, query.data]);
 
