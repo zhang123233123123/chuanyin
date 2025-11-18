@@ -33,7 +33,6 @@ import { ConfigTheme } from './ConfigTheme';
 import { Templates } from './Templates';
 import './index.less';
 import useThrottle from '@/hooks/useThrottle';
-import { streamAiResponse } from '@/helpers/ai';
 import { getAiSettings } from '@/helpers/api-key';
 
 const { Panel } = Collapse;
@@ -254,6 +253,7 @@ import { getDefaultTitleNameMap } from '@/data/constant';
 import { Avatar } from '../../Avatar';
 import type { ResumeConfig, ThemeConfig } from '../../types';
 import './index.less';
+import { buildResumeRestorePrompt, streamAiResponse } from '@/helpers/ai';
 
 type Props = {
   value: ResumeConfig;
@@ -807,6 +807,182 @@ Please generate the corresponding \`index.tsx\` and \`index.less\` files. The re
   );
 };
 
+type AiRestoreModalProps = {
+  open: boolean;
+  onClose: () => void;
+  onApply: (data: Partial<ResumeConfig>) => void;
+};
+
+const AiRestoreModal: React.FC<AiRestoreModalProps> = ({
+  open,
+  onClose,
+  onApply,
+}) => {
+  const [inputText, setInputText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<Partial<ResumeConfig> | null>(null);
+
+  const tryParseJson = (raw: string): Partial<ResumeConfig> | null => {
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        return parsed as Partial<ResumeConfig>;
+      }
+    } catch (err) {
+      // ignore parse errors here
+    }
+    return null;
+  };
+
+  const readStreamToString = async (response: Response) => {
+    if (!response.body?.getReader) {
+      return response.text();
+    }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let result = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) {
+        result += decoder.decode(value, { stream: true });
+      }
+    }
+    result += decoder.decode();
+    return result;
+  };
+
+  const handleGenerate = async () => {
+    if (!inputText.trim()) {
+      message.warning('请先输入或上传简历内容');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const parsed = tryParseJson(inputText.trim());
+    if (parsed) {
+      setPreview(parsed);
+      setLoading(false);
+      message.success('已将内容解析为结构化数据');
+      return;
+    }
+
+    try {
+      const aiSettings = getAiSettings();
+      const model = aiSettings?.activeModel;
+      if (!model) {
+        throw new Error('请先在“API 设置”中配置模型');
+      }
+
+      const prompt = buildResumeRestorePrompt(inputText);
+      const response = await streamAiResponse(prompt, 'resume-restore', model);
+      const fullText = await readStreamToString(
+        (response as unknown) as Response
+      );
+      const aiParsed = tryParseJson(fullText);
+      if (!aiParsed) {
+        throw new Error('AI 返回内容无法解析为 JSON，请重试或检查 Prompt');
+      }
+
+      setPreview(aiParsed);
+      message.success('AI 已生成结构化简历预览');
+    } catch (err: any) {
+      setError(err?.message || '生成失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApply = () => {
+    if (!preview) {
+      message.warning('请先生成预览');
+      return;
+    }
+    onApply(preview);
+    onClose();
+    setPreview(null);
+    setInputText('');
+  };
+
+  const handleUpload: any = async (file: File) => {
+    setError(null);
+    try {
+      const text = await file.text();
+      setInputText(text);
+      message.success('已读取文件内容，点击“生成”开始处理');
+    } catch (err) {
+      setError('文件读取失败');
+    }
+    return false;
+  };
+
+  return (
+    <Modal
+      title={<FormattedMessage id="AI 还原简历" defaultMessage="AI 还原简历" />}
+      open={open}
+      onCancel={onClose}
+      width={720}
+      footer={null}
+      destroyOnClose
+    >
+      <Spin spinning={loading}>
+        <Input.TextArea
+          rows={6}
+          value={inputText}
+          placeholder="粘贴简历文本或上传文件"
+          onChange={e => setInputText(e.target.value)}
+        />
+        <div
+          style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}
+        >
+          <Button type="primary" onClick={handleGenerate}>
+            开始生成
+          </Button>
+          <Button onClick={handleApply} disabled={!preview}>
+            应用到简历
+          </Button>
+          <Upload
+            beforeUpload={handleUpload}
+            showUploadList={false}
+            accept=".txt,.json"
+          >
+            <Button icon={<UploadOutlined />}>上传文本/JSON</Button>
+          </Upload>
+        </div>
+
+        {error && (
+          <Alert type="error" message={error} style={{ marginTop: 12 }} />
+        )}
+
+        {preview && (
+          <div style={{ marginTop: 12 }}>
+            <Alert
+              type="info"
+              message="生成预览（可直接应用或继续编辑）"
+              showIcon
+              style={{ marginBottom: 8 }}
+            />
+            <pre
+              style={{
+                maxHeight: 260,
+                overflow: 'auto',
+                background: '#f7f7f7',
+                padding: 12,
+                borderRadius: 4,
+              }}
+            >
+              {JSON.stringify(preview, null, 2)}
+            </pre>
+          </div>
+        )}
+      </Spin>
+    </Modal>
+  );
+};
+
 /**
  * @description 简历配置区
  */
@@ -817,6 +993,7 @@ export const Drawer: React.FC<Props> = props => {
   const [childrenDrawer, setChildrenDrawer] = useState(null);
   const [currentContent, updateCurrentContent] = useState(null);
   const [isUploadModalVisible, setIsUploadModalVisible] = useState(false);
+  const [isAiRestoreModalVisible, setIsAiRestoreModalVisible] = useState(false);
 
   /**
    * 1. 更新currentContent State
@@ -1066,6 +1243,12 @@ export const Drawer: React.FC<Props> = props => {
               <FormattedMessage id="管理模块" />
             </Button>
             <Button
+              onClick={() => setIsAiRestoreModalVisible(true)}
+              style={{ marginLeft: '16px' }}
+            >
+              AI 还原简历
+            </Button>
+            <Button
               onClick={() => setIsUploadModalVisible(true)}
               style={{ marginLeft: '16px' }}
             >
@@ -1094,6 +1277,14 @@ export const Drawer: React.FC<Props> = props => {
           </>
         )}
       </AntdDrawer>
+      <AiRestoreModal
+        open={isAiRestoreModalVisible}
+        onClose={() => setIsAiRestoreModalVisible(false)}
+        onApply={data => {
+          props.onValueChange(data);
+          message.success('AI 生成的内容已写入当前简历');
+        }}
+      />
       <UploadTemplateModal
         open={isUploadModalVisible}
         onClose={() => setIsUploadModalVisible(false)}

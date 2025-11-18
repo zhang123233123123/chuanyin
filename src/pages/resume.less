@@ -4,6 +4,7 @@
   flex-direction: column;
   padding: 24px 24px 120px;
   position: relative;
+  color: #fff;
 
   &::before,
   &::after {
@@ -96,6 +97,26 @@
   }
 }
 
+.toolbar__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.resume-page__layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.resume-page__panel {
+  background: rgba(7, 16, 36, 0.86);
+  border: 1px solid rgba(91, 157, 255, 0.25);
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px rgba(102, 224, 255, 0.08);
+}
+
 .resume-page__preview {
   background: linear-gradient(135deg, rgba(8, 20, 48, 0.88), rgba(5, 14, 32, 0.74));
   border-radius: 22px;
@@ -103,7 +124,10 @@
   box-shadow: 0 24px 55px rgba(3, 12, 32, 0.7), inset 0 0 0 1px rgba(102, 224, 255, 0.08);
   border: 1px solid rgba(91, 157, 255, 0.16);
   position: relative;
-  overflow: hidden;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 
   &::after {
     content: '';
@@ -119,7 +143,59 @@
   .resume-content {
     margin: 0 auto;
     box-shadow: 0 0 22px rgba(91, 157, 255, 0.15);
+    color: #333;
   }
+}
+
+.resume-page .ant-card,
+.resume-page .ant-card-head,
+.resume-page .ant-card-body,
+.resume-page .ant-card-head-title,
+.resume-page .ant-checkbox-wrapper,
+.resume-page .ant-checkbox + span,
+.resume-page .ant-input,
+.resume-page .ant-input-affix-wrapper,
+.resume-page .ant-input-affix-wrapper input,
+.resume-page .ant-btn,
+.resume-page .ant-tag,
+.resume-page .ant-tooltip-inner {
+  color: #fff;
+}
+
+.resume-page .ant-card,
+.resume-page .ant-card-head,
+.resume-page .ant-card-body,
+.resume-page .ant-tooltip-inner,
+.resume-page .ant-checkbox-wrapper,
+.resume-page .ant-btn,
+.resume-page .ant-tag {
+  background: rgba(7, 16, 36, 0.9);
+}
+
+.resume-page .ant-btn,
+.resume-page .ant-tag {
+  border-color: rgba(91, 157, 255, 0.25);
+}
+
+.resume-page .ant-btn-default:not(.ant-btn-primary) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.resume-page .ant-btn-primary {
+  background: linear-gradient(135deg, #4a7dff, #1f4da8);
+  border-color: rgba(91, 157, 255, 0.35);
+}
+
+.resume-page .ant-input,
+.resume-page .ant-input-affix-wrapper {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.resume-page .ant-input::placeholder,
+.resume-page .ant-input-affix-wrapper input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 @media (max-width: 900px) {

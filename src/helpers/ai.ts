@@ -32,6 +32,9 @@ const EXPERIENCE_NESTED_KEYS = [
   'experienceList',
 ];
 
+export const buildResumeRestorePrompt = (content: string): string =>
+  `You are a resume extraction assistant. Normalize the following resume content into a JSON object with these keys: profile, educationList, workExpList, projectList, skillList, awardList, workList, aboutme. Each list item should keep fields like names, titles, descriptions, time ranges (use YYYY-MM when possible), links, and tags. For work and project items prefer arrays for multi-line descriptions. Only return pure JSON, no extra text. Resume content:\n${content}`;
+
 const toTrimmedString = (value: unknown): string | undefined => {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
