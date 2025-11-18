@@ -43,7 +43,7 @@ type TemplateItem = {
 const buildDefaultTemplate = (): TemplateItem => ({
   id: 'default-template',
   name: '系统默认模版',
-  data: RESUME_INFO,
+  data: normalizeResumeData(RESUME_INFO),
   updatedAt: Date.now(),
 });
 
@@ -76,6 +76,16 @@ const normalizeResumeData = (data: any): ResumeConfig => {
 
   const source = data || {};
 
+  const theme = source.theme || {
+    color: source.theme?.color || DEFAULT_THEME.color,
+    tagColor: source.theme?.tagColor || DEFAULT_THEME.tagColor,
+  };
+
+  const titleNameMap =
+    source.titleNameMap && Object.keys(source.titleNameMap || {}).length
+      ? source.titleNameMap
+      : RESUME_INFO.titleNameMap;
+
   const normalized: ResumeConfig = {
     avatar: source.avatar || { hidden: true },
     profile: {
@@ -94,7 +104,7 @@ const normalizeResumeData = (data: any): ResumeConfig => {
         source.profile?.title || source.profile?.positionTitle || '',
       workExpYear: source.profile?.workExpYear,
     },
-    titleNameMap: source.titleNameMap || RESUME_INFO.titleNameMap,
+    titleNameMap,
     aboutme: {
       aboutme_desc:
         source.aboutme?.aboutme_desc ||
@@ -152,6 +162,10 @@ const normalizeResumeData = (data: any): ResumeConfig => {
       : [],
   };
 
+  // 将可能的主题与模版信息透传给后续渲染
+  (normalized as any).theme = theme;
+  (normalized as any).template = source.template || 'template1';
+
   return normalized;
 };
 
@@ -181,7 +195,9 @@ const extractSseContent = (raw: string): string => {
 const ResumePage: React.FC = () => {
   const lang = getLanguage();
   const [variantName, setVariantName] = useState('通用版');
-  const [resumeData, setResumeData] = useState<ResumeConfig>(RESUME_INFO);
+  const [resumeData, setResumeData] = useState<ResumeConfig>(
+    normalizeResumeData(RESUME_INFO)
+  );
   const [templates, setTemplates] = useState<TemplateItem[]>([
     buildDefaultTemplate(),
   ]);
@@ -200,6 +216,62 @@ const ResumePage: React.FC = () => {
   });
   const [restoring, setRestoring] = useState(false);
 
+  const baseModuleOptions = [
+    { key: 'profile', label: '基础信息' },
+    { key: 'educationList', label: '教育经历' },
+    { key: 'workExpList', label: '工作经历' },
+    { key: 'projectList', label: '项目经历' },
+    { key: 'skillList', label: '技能' },
+    { key: 'awardList', label: '奖项/更多' },
+    { key: 'workList', label: '作品' },
+    { key: 'aboutme', label: '自我介绍' },
+  ] as const;
+
+  const hasModuleData = (key: typeof baseModuleOptions[number]['key']) => {
+    const data = resumeData as any;
+    switch (key) {
+      case 'profile': {
+        const profile = data.profile || {};
+        return Boolean(
+          profile.name ||
+            profile.mobile ||
+            profile.email ||
+            profile.github ||
+            profile.zhihu ||
+            profile.positionTitle ||
+            profile.workPlace
+        );
+      }
+      case 'aboutme': {
+        const desc = data.aboutme?.aboutme_desc;
+        return Boolean(desc && desc.trim());
+      }
+      default: {
+        const list = data[key];
+        return Array.isArray(list) && list.length > 0;
+      }
+    }
+  };
+
+  const moduleOptions = useMemo(
+    () => baseModuleOptions.filter(item => hasModuleData(item.key)),
+    [resumeData]
+  );
+
+  React.useEffect(() => {
+    setVisibleModules(prev => {
+      const next = { ...prev } as any;
+      let changed = false;
+      moduleOptions.forEach(opt => {
+        if (typeof next[opt.key] === 'undefined') {
+          next[opt.key] = true;
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [moduleOptions]);
+
   const filteredResume = useMemo<ResumeConfig>(() => {
     const next: ResumeConfig = { ...resumeData } as ResumeConfig;
     if (!visibleModules.profile) next.profile = undefined;
@@ -213,17 +285,6 @@ const ResumePage: React.FC = () => {
       next.aboutme = { ...next.aboutme, aboutme_desc: '' } as any;
     return next;
   }, [resumeData, visibleModules]);
-
-  const moduleOptions = [
-    { key: 'profile', label: '基础信息' },
-    { key: 'educationList', label: '教育经历' },
-    { key: 'workExpList', label: '工作经历' },
-    { key: 'projectList', label: '项目经历' },
-    { key: 'skillList', label: '技能' },
-    { key: 'awardList', label: '奖项/更多' },
-    { key: 'workList', label: '作品' },
-    { key: 'aboutme', label: '自我介绍' },
-  ] as const;
 
   const toggleModule = (key: keyof typeof visibleModules, checked: boolean) => {
     setVisibleModules(prev => ({ ...prev, [key]: checked }));
@@ -285,6 +346,32 @@ const ResumePage: React.FC = () => {
     message.success(`已应用模版「${target.name}」`);
   };
 
+  const deleteTemplate = (id: string) => {
+    setTemplates(prev => {
+      if (prev.length <= 1) {
+        message.warning('至少保留一个模版');
+        return prev;
+      }
+      const next = prev.filter(item => item.id !== id);
+      const nextActive =
+        id === activeTemplateId
+          ? next[0]
+          : prev.find(t => t.id === activeTemplateId) || next[0];
+      setActiveTemplateId(nextActive.id);
+      setResumeData(normalizeResumeData(nextActive.data));
+      setVariantName(nextActive.name);
+      if (storageAvailable) {
+        window.localStorage.setItem(
+          STORAGE_KEY_TEMPLATES,
+          JSON.stringify(next)
+        );
+        window.localStorage.setItem(STORAGE_KEY_ACTIVE_TEMPLATE, nextActive.id);
+      }
+      message.success('已删除模版');
+      return next;
+    });
+  };
+
   const upsertTemplate = (name: string, data: ResumeConfig) => {
     const finalName = name?.trim() || '未命名模版';
     const now = Date.now();
@@ -337,7 +424,7 @@ const ResumePage: React.FC = () => {
       workList: true,
       aboutme: true,
     });
-    setResumeData(RESUME_INFO);
+    setResumeData(normalizeResumeData(RESUME_INFO));
     setActiveTemplateId('default-template');
     setVariantName('通用版');
     message.success('已重置为默认配置');
@@ -362,6 +449,8 @@ const ResumePage: React.FC = () => {
 
   const handleUpload = async (file: File) => {
     const name = file.name.toLowerCase();
+    const baseName = file.name.replace(/\.[^/.]+$/, '') || '未命名模版';
+    setVariantName(baseName);
     const isJson = name.endsWith('.json');
     const isTxt = name.endsWith('.txt');
     const isDocx = name.endsWith('.docx');
@@ -372,10 +461,7 @@ const ResumePage: React.FC = () => {
         const text = await file.text();
         const parsed = normalizeResumeData(JSON.parse(text));
         setResumeData(parsed);
-        upsertTemplate(
-          variantName || file.name.replace(/\.[^/.]+$/, ''),
-          parsed
-        );
+        upsertTemplate(baseName, parsed);
         message.success('已载入简历模版');
         return false;
       }
@@ -428,7 +514,7 @@ const ResumePage: React.FC = () => {
       const cleanText = extractSseContent(fullText);
       const parsed = normalizeResumeData(JSON.parse(cleanText));
       setResumeData(parsed);
-      upsertTemplate(variantName || file.name.replace(/\.[^/.]+$/, ''), parsed);
+      upsertTemplate(baseName, parsed);
       message.success('AI 已生成并应用简历模版');
     } catch (err: any) {
       message.error(err?.message || '处理失败，请重试');
@@ -450,6 +536,9 @@ const ResumePage: React.FC = () => {
       return '';
     }
   };
+
+  const activeTheme: ThemeConfig = (resumeData as any).theme || DEFAULT_THEME;
+  const activeTemplate: string = (resumeData as any).template || 'template1';
 
   return (
     <IntlProvider locale={lang} messages={getLocale(lang)}>
@@ -483,7 +572,6 @@ const ResumePage: React.FC = () => {
               <Button type="primary" onClick={handleSave}>
                 保存配置
               </Button>
-              <Button onClick={handleAiRestore}>AI 还原简历</Button>
               <Button onClick={handleReset}>重置</Button>
             </Space>
           </div>
@@ -510,15 +598,26 @@ const ResumePage: React.FC = () => {
                             {formatTime(item.updatedAt)}
                           </div>
                         </div>
-                        <Button
-                          size="small"
-                          type={
-                            item.id === activeTemplateId ? 'primary' : 'default'
-                          }
-                          onClick={() => applyTemplate(item.id)}
-                        >
-                          应用
-                        </Button>
+                        <Space size={8}>
+                          <Button
+                            size="small"
+                            type={
+                              item.id === activeTemplateId
+                                ? 'primary'
+                                : 'default'
+                            }
+                            onClick={() => applyTemplate(item.id)}
+                          >
+                            应用
+                          </Button>
+                          <Button
+                            size="small"
+                            danger
+                            onClick={() => deleteTemplate(item.id)}
+                          >
+                            删除
+                          </Button>
+                        </Space>
                       </div>
                     ))
                   ) : (
@@ -548,8 +647,8 @@ const ResumePage: React.FC = () => {
             <div className="resume-page__preview">
               <Resume
                 value={filteredResume}
-                theme={DEFAULT_THEME}
-                template="template1"
+                theme={activeTheme}
+                template={activeTemplate}
               />
             </div>
           </div>

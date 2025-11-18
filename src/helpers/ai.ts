@@ -33,7 +33,7 @@ const EXPERIENCE_NESTED_KEYS = [
 ];
 
 export const buildResumeRestorePrompt = (content: string): string =>
-  `You are a resume extraction assistant. Normalize the following resume content into a JSON object with these keys: profile, educationList, workExpList, projectList, skillList, awardList, workList, aboutme. Each list item should keep fields like names, titles, descriptions, time ranges (use YYYY-MM when possible), links, and tags. For work and project items prefer arrays for multi-line descriptions. Only return pure JSON, no extra text. Resume content:\n${content}`;
+  `You are a resume extraction assistant. Normalize the following resume content into a JSON object with these keys: profile, educationList, workExpList, projectList, skillList, awardList, workList, aboutme, titleNameMap, template, theme.\n\nRequirements:\n- Preserve the original style meta: if the source has theme colors, return { \\"color\\": "#xxxxxx", \\"tagColor\\": "#xxxxxx" } in key \\"theme\\"; otherwise set theme to { \\"color\\": "#2f5785\\", \\"tagColor\\": "#8bc34a\\" }.\n- If the source has a template/style name, return it in key \\"template\\"; otherwise set template to \\"template1\\".\n- Keep titles for sections in \\"titleNameMap\\" (educationList, workExpList, projectList, skillList, awardList, workList, aboutme).\n- Each list item should keep fields like names, titles/roles, descriptions (prefer array of bullet strings), time ranges (use YYYY-MM when possible), links, and tags.\n- Do not include markdown fences. Only return pure JSON.\n\nResume content:\n${content}`;
 
 const toTrimmedString = (value: unknown): string | undefined => {
   if (typeof value !== 'string') return undefined;
