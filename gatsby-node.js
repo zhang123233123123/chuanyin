@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
 
 exports.onPreBootstrap = () => {
   const templatesDir = path.join(__dirname, 'src', 'components', 'Resume');
@@ -29,6 +30,11 @@ exports.onCreateWebpackConfig = ({ actions, loaders, stage, getConfig }) => {
       alias: { '@': path.resolve(__dirname, 'src') },
     };
   }
+
+  if (!config.plugins) {
+    config.plugins = [];
+  }
+  config.plugins.push(new AntdDayjsWebpackPlugin());
 
   // This will completely replace the webpack config with the modified object.
   actions.replaceWebpackConfig(config);

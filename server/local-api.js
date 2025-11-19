@@ -9,6 +9,8 @@ const fetch = require('cross-fetch');
 const PORT = process.env.PORT || 4000;
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'experiences.json');
+const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');
+const RESUME_FILE = path.join(DATA_DIR, 'resume.json');
 
 const readJsonBody = req =>
   new Promise(resolve => {
@@ -32,6 +34,12 @@ const ensureDataFile = () => {
   }
   if (!fs.existsSync(DATA_FILE)) {
     fs.writeFileSync(DATA_FILE, JSON.stringify({ experiences: [] }, null, 2));
+  }
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+  if (!fs.existsSync(RESUME_FILE)) {
+    fs.writeFileSync(RESUME_FILE, JSON.stringify({ resume: null }, null, 2));
   }
 };
 
@@ -166,8 +174,85 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (req.url && req.url.startsWith('/uploads/')) {
+    const fileName = req.url.replace('/uploads/', '');
+    const filePath = path.join(UPLOAD_DIR, fileName);
+    if (!fs.existsSync(filePath)) {
+      res.writeHead(404);
+      res.end('Not found');
+      return;
+    }
+    const stream = fs.createReadStream(filePath);
+    res.writeHead(200, {
+      'Content-Type': 'image/*',
+      'Access-Control-Allow-Origin': '*',
+    });
+    stream.pipe(res);
+    return;
+  }
+
+  if (req.url === '/api/avatar' && req.method === 'POST') {
+    ensureDataFile();
+    readJsonBody(req).then(body => {
+      const { name, data } = body || {};
+      if (!name || !data) {
+        sendJson(res, 400, { error: '缺少文件名或数据' });
+        return;
+      }
+      try {
+        const base64 = data.replace(/^data:image\/[\w+]+;base64,/, '');
+        const buffer = Buffer.from(base64, 'base64');
+        const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const filePath = path.join(UPLOAD_DIR, safeName);
+        fs.writeFileSync(filePath, buffer);
+        const url = `http://localhost:${PORT}/uploads/${safeName}`;
+        sendJson(res, 200, { url });
+      } catch (err) {
+        console.error('[local-api] avatar save error', err);
+        sendJson(res, 500, { error: '保存失败' });
+      }
+    });
+    return;
+  }
+
   if (req.url === '/api/ai/summarize' && req.method === 'POST') {
     handleAiSummarize(req, res);
+    return;
+  }
+
+  if (req.url === '/api/resume' && req.method === 'GET') {
+    ensureDataFile();
+    try {
+      const raw = fs.readFileSync(RESUME_FILE, 'utf-8');
+      const data = JSON.parse(raw || '{}');
+      sendJson(res, 200, { resume: data.resume || null, savedAt: data.savedAt });
+    } catch (err) {
+      console.error('[local-api] read resume error', err);
+      sendJson(res, 500, { error: 'Failed to read resume file' });
+    }
+    return;
+  }
+
+  if (req.url === '/api/resume' && req.method === 'POST') {
+    ensureDataFile();
+    const chunks = [];
+    req.on('data', chunk => chunks.push(chunk));
+    req.on('end', () => {
+      try {
+        const body = Buffer.concat(chunks).toString('utf-8') || '{}';
+        const payload = JSON.parse(body);
+        if (!payload || typeof payload !== 'object') {
+          sendJson(res, 400, { error: 'Invalid payload' });
+          return;
+        }
+        const data = { resume: payload.resume || payload, savedAt: new Date().toISOString() };
+        fs.writeFileSync(RESUME_FILE, JSON.stringify(data, null, 2));
+        sendJson(res, 200, { ok: true });
+      } catch (err) {
+        console.error('[local-api] save resume error', err);
+        sendJson(res, 500, { error: 'Failed to save resume file' });
+      }
+    });
     return;
   }
 

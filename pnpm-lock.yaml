@@ -14,6 +14,9 @@ importers:
       antd:
         specifier: ^4.16.6
         version: 4.24.16(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      antd-dayjs-webpack-plugin:
+        specifier: ^1.0.6
+        version: 1.0.6(dayjs@1.11.18)
       array-move:
         specifier: ^3.0.1
         version: 3.0.1
@@ -1510,6 +1513,11 @@ packages:
   ansi-styles@6.2.3:
     resolution: {integrity: sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==}
     engines: {node: '>=12'}
+
+  antd-dayjs-webpack-plugin@1.0.6:
+    resolution: {integrity: sha512-UlK3BfA0iE2c5+Zz/Bd2iPAkT6cICtrKG4/swSik5MZweBHtgmu1aUQCHvICdiv39EAShdZy/edfP6mlkS/xXg==}
+    peerDependencies:
+      dayjs: '*'
 
   antd@4.24.16:
     resolution: {integrity: sha512-zZrK4UYxHtU6tGOOf0uG/kBRx1kTvypfuSB3GqE/SBQxFhZ/TZ+yj7Z1qwI8vGfMtUUJdLeuoCAqGDa1zPsXnQ==}
@@ -9372,6 +9380,10 @@ snapshots:
       color-convert: 2.0.1
 
   ansi-styles@6.2.3: {}
+
+  antd-dayjs-webpack-plugin@1.0.6(dayjs@1.11.18):
+    dependencies:
+      dayjs: 1.11.18
 
   antd@4.24.16(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:

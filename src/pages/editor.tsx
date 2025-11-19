@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
-import qs from 'query-string';
 import { IntlProvider } from 'react-intl';
 import Header from '@/layout/header';
 import Footer from '@/layout/footer';
@@ -15,25 +14,6 @@ registerLocale('zh-CN', ZH_CN_LOCALE);
 
 const EditorPage: React.FC = () => {
   const lang = getLanguage();
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const {
-      pathname,
-      hash: currentHash,
-      search: currentSearch,
-    } = window.location;
-    const hash = currentHash === '#/' ? '' : currentHash;
-    const query = qs.parse(currentSearch);
-    if (query.mode !== 'edit') {
-      const nextSearch = qs.stringify({
-        ...query,
-        mode: 'edit',
-      });
-      const nextUrl = `${pathname}?${nextSearch}${hash}`;
-      window.history.replaceState({}, '', nextUrl);
-    }
-  }, []);
 
   return (
     <IntlProvider locale={lang} messages={getLocale(lang)}>

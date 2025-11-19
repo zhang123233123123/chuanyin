@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星邻履历智造 (StarLink Resume Maker) - 官方网站</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Inter 字体 -->
+    <style>
+        @import url('https://rsms.me/inter/inter.css');
+        html { 
+            font-family: 'Inter', sans-serif; 
+            scroll-behavior: smooth;
+        }
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        ::selection {
+            background-color: rgba(59, 130, 246, 0.3);
+            color: rgb(191, 219, 254);
+        }
+
+        /* --- 动态图标 Keyframes --- */
+        @keyframes subtle-shake {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(1px, 0); }
+            75% { transform: translate(-1px, 0); }
+        }
+        @keyframes subtle-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @keyframes slow-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* --- 文本闪烁动画 --- */
+        @keyframes text-shimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+        .animate-text-shimmer {
+            animation: text-shimmer 3s linear infinite;
+            background-size: 200% auto;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        /* --- UI 扫描线动画 --- */
+        @keyframes scan {
+          0% { top: 0%; opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
+        }
+        .animate-scan {
+            animation: scan 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        /* --- 背景光晕动画 (星云效果) --- */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.1; background-color: #1d4ed8; } /* Blue */
+            50% { opacity: 0.15; background-color: #7c3aed; } /* Purple */
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 12s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+        }
+
+        /* --- 导航栏链接悬停 --- */
+        .nav-link-hover {
+            position: relative;
+        }
+        .nav-link-hover::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: white;
+            transform: scaleX(0);
+            transform-origin: bottom center;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .nav-link-hover:hover::after {
+            transform: scaleX(1);
+        }
+
+        /* --- 滚动淡入动画 --- */
+        .fade-in-on-scroll {
+            opacity: 0;
+            transform: translateY(48px);
+            filter: blur(16px);
+            transition: opacity 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        transform 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        filter 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: opacity, transform, filter;
+        }
+        .fade-in-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+
+        /* --- 3D 倾斜容器 --- */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        /* --- 苹果风格卡片 --- */
+        .apple-card {
+            background-color: #101010;
+            border: 1px solid #27272a; /* neutral-800 */
+            border-radius: 24px; /* rounded-3xl */
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        box-shadow 0.4s cubic-bezier(0, 0, 0.2, 1);
+        }
+        .apple-card:hover {
+            transform: scale(1.02);
+            border-color: #52525b; /* neutral-600 */
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2); 
+        }
+
+        /* --- 微弱网格背景 (新增) --- */
+        .subtle-grid {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), 
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        
+        /* --- Star 图标渐变填充 (新增) --- */
+        .star-gradient-fill {
+            fill: url(#star-gradient);
+            stroke: url(#star-gradient);
+        }
+        
+        /* --- 品牌文字渐变和光晕 (新增) --- */
+        .brand-text-gradient {
+            background-image: linear-gradient(to right, #93c5fd, #a78bfa); /* Light Blue to Light Purple */
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 5px rgba(99, 102, 241, 0.5); /* Subtle blue glow */
+        }
+        
+    </style>
+</head>
+<body>
+
+    <!-- SVG 图标定义 and Gradients -->
+    <svg width="0" height="0" style="display:none;">
+        <defs>
+            <!-- 品牌 Star 渐变 -->
+            <linearGradient id="star-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:rgb(99,102,241); stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgb(236,72,153); stop-opacity:1" />
+            </linearGradient>
+
+            <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </symbol>
+            <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </symbol>
+            <symbol id="icon-layout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
+            </symbol>
+            <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </symbol>
+            <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </symbol>
+            <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </symbol>
+            <symbol id="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3L9.27 9.27L3 12l6.27 2.73L12 21l2.73-6.27L21 12l-6.27-2.73z"></path><path d="M3 3l3 3"></path><path d="M18 3l3 3"></path><path d="M3 21l3-3"></path><path d="M18 21l3-3"></path>
+            </symbol>
+        </defs>
+    </svg>
+
+    <!-- 氛围背景光 (已优化渐变脉冲) -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] blur-[120px] rounded-full pointer-events-none animate-pulse-slow"></div>
+
+    <!-- 导航栏 -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-500 bg-transparent pt-6">
+        <div class="max-w-[980px] mx-auto px-6 h-14 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer group">
+                <div class="relative">
+                    <!-- 导航栏 Star 图标使用渐变填充 -->
+                    <svg class="w-[18px] h-[18px] star-gradient-fill relative z-10 transition-transform duration-500 group-hover:rotate-12" viewBox="0 0 24 24"><use href="#icon-star"></use></svg>
+                </div>
+                <!-- 导航栏品牌名更新为 StarLink Pro 并应用渐变 -->
+                <span class="text-lg font-medium tracking-tight opacity-90 group-hover:opacity-100 brand-text-gradient">StarLink Pro</span>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-8 text-xs font-normal text-neutral-400">
+                <a href="#overview" class="hover:text-white transition-colors duration-300 nav-link-hover">概览</a>
+                <a href="#intelligence" class="hover:text-white transition-colors duration-300 nav-link-hover">智能引擎</a>
+                <a href="#design" class="hover:text-white transition-colors duration-300 nav-link-hover">设计美学</a>
+            </div>
+
+            <button class="relative overflow-hidden bg-white text-black px-5 py-1.5 rounded-full text-xs font-medium hover:scale-105 active:scale-95 transition-all duration-300 group">
+                <span class="relative z-10">开始制作</span>
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主体内容 -->
+    <main>
+        <!-- 英雄区域 -->
+        <section id="overview" class="relative pt-48 pb-32 flex flex-col items-center justify-center min-h-[90vh] perspective-1000">
+            <div class="fade-in-on-scroll">
+                <h1 class="text-6xl md:text-8xl font-semibold tracking-tighter text-center mb-8">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-neutral-500">
+                      履历，
+                    </span>
+                    <br />
+                    <span class="animate-text-shimmer bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400">
+                      由此新生。
+                    </span>
+                </h1>
+            </div>
+            
+            <div class="fade-in-on-scroll" style="transition-delay: 200ms;">
+                <p class="text-xl md:text-2xl text-neutral-400 max-w-2xl text-center font-normal tracking-wide mb-12 leading-relaxed">
+                    StarLink 重新定义了简历制作。<br class="hidden md:block"/>
+                    <span class="text-blue-400/90 font-medium">智能深度解析</span> 与 <span class="text-purple-400/90 font-medium">电影级排版</span> 的完美融合。
+                </p>
+            </div>
+
+            <div class="fade-in-on-scroll" style="transition-delay: 400ms;">
+                <div class="flex items-center gap-6">
+                    <a href="https://zhanghj.github.io/resume" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-500 shadow-lg hover:shadow-blue-500/30 px-6 py-3 rounded-full transition-all duration-300 hover:scale-105">
+                        <!-- 按钮 Sparkles 图标添加 pulse 动效 -->
+                        <svg class="w-4 h-4 transition-transform group-hover:animate-[subtle-pulse_0.8s_ease-in-out_1]" viewBox="0 0 24 24"><use href="#icon-sparkles"></use></svg>
+                        <span>立即体验</span>
+                        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24"><use href="#icon-chevron-right"></use></svg>
+                    </a>
+                    <a href="#" class="group flex items-center gap-1.5 text-sm text-neutral-400 hover:text-white transition-colors">
+                        <span>观看演示视频</span>
+                        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24"><use href="#icon-chevron-right"></use></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3D 倾斜预览图 -->
+            <div class="fade-in-on-scroll mt-24 w-full max-w-5xl px-6" style="transition-delay: 600ms;">
+                 <div id="tilt-container" class="transition-transform duration-200 ease-out">
+                     <div class="relative aspect-[16/9] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#050505] group">
+                        <!-- 屏幕反射 -->
+                        <div class="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-transparent z-20 pointer-events-none"></div>
+                        
+                        <!-- UI 模拟内容 -->
+                        <div class="absolute inset-0 flex">
+                             <!-- 侧边栏 -->
+                             <div class="w-64 border-r border-white/5 bg-[#0a0a0a] p-6 hidden md:flex flex-col gap-6">
+                                <div class="flex gap-2 mb-4">
+                                    <div class="w-3 h-3 rounded-full bg-red-500/20"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500/20"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500/20"></div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="h-8 w-full rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer flex items-center px-3">
+                                         <div class="w-4 h-4 rounded bg-white/10 mr-3"></div>
+                                         <div class="h-2 w-12 bg-white/10 rounded"></div>
+                                    </div>
+                                    <div class="h-8 w-full rounded-lg bg-white/10 cursor-pointer flex items-center px-3">
+                                         <div class="w-4 h-4 rounded bg-white/10 mr-3"></div>
+                                         <div class="h-2 w-12 bg-white/10 rounded"></div>
+                                    </div>
+                                    <div class="h-8 w-full rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer flex items-center px-3">
+                                         <div class="w-4 h-4 rounded bg-white/10 mr-3"></div>
+                                         <div class="h-2 w-12 bg-white/10 rounded"></div>
+                                    </div>
+                                </div>
+                             </div>
+                             
+                             <!-- 主画布 -->
+                             <div class="flex-1 bg-[#050505] relative overflow-hidden p-8 md:p-12 flex flex-col items-center">
+                                <!-- 简历白纸 -->
+                                <div class="w-full max-w-2xl h-full bg-white rounded shadow-2xl transform transition-transform duration-700 hover:scale-[1.02] origin-top p-8 md:p-12 text-black relative">
+                                    <!-- 简历骨架 -->
+                                    <div class="flex justify-between items-end border-b-2 border-black pb-6 mb-8">
+                                         <div>
+                                            <div class="h-8 w-48 bg-black mb-2 rounded-sm"></div>
+                                            <div class="h-3 w-64 bg-neutral-400 rounded-sm"></div>
+                                         </div>
+                                         <div class="h-16 w-16 bg-neutral-200 rounded-full"></div>
+                                    </div>
+                                    <div class="space-y-6">
+                                         <div>
+                                            <div class="h-4 w-32 bg-neutral-800 mb-4 rounded-sm"></div>
+                                            <div class="space-y-2">
+                                                <div class="h-2 w-full bg-neutral-200 rounded-sm"></div>
+                                                <div class="h-2 w-full bg-neutral-200 rounded-sm"></div>
+                                                <div class="h-2 w-5/6 bg-neutral-200 rounded-sm"></div>
+                                            </div>
+                                         </div>
+                                         <div class="pt-4">
+                                            <div class="h-4 w-32 bg-neutral-800 mb-4 rounded-sm"></div>
+                                            <div class="space-y-2">
+                                                <div class="h-2 w-full bg-neutral-200 rounded-sm"></div>
+                                                <div class="h-2 w-4/6 bg-neutral-200 rounded-sm"></div>
+                                            </div>
+                                         </div>
+                                    </div>
+                                    
+                                    <!-- 扫描动画 -->
+                                    <div class="absolute top-0 left-0 w-full h-1 bg-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-scan opacity-0 group-hover:opacity-100"></div>
+                                </div>
+                             </div>
+                        </div>
+                        
+                        <!-- 浮动 UI - 液态玻璃效果 -->
+                        <div class="absolute top-10 right-10 z-30 bg-black/40 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-full flex items-center gap-2 shadow-xl shadow-blue-500/10 transition-all duration-300 hover:bg-black/60">
+                             <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                             <span class="text-xs font-mono text-green-400">AI Analysis: 98% Match</span>
+                        </div>
+                     </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Bento Grid 布局 - 智能引擎 -->
+        <section id="intelligence" class="py-32 bg-[#020202] subtle-grid">
+            <div class="max-w-[980px] mx-auto px-6">
+                <div class="fade-in-on-scroll">
+                     <h2 class="text-4xl md:text-6xl font-semibold mb-20 text-center tracking-tight">
+                       强大，<br />
+                       <span class="text-neutral-600">以此为基。</span>
+                     </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- 卡片 1: AI (大) -->
+                    <div class="apple-card md:col-span-2 fade-in-on-scroll group">
+                         <!-- 统一高度设置 -->
+                         <div class="h-full p-10 flex flex-col justify-between md:h-[320px]">
+                            <div>
+                                <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center mb-6 text-blue-400">
+                                    <!-- Zap 图标添加 shake 动效 -->
+                                    <svg class="w-5 h-5 fill-current transition-transform duration-300 group-hover:animate-[subtle-shake_0.5s_ease-in-out_1]" viewBox="0 0 24 24"><use href="#icon-zap"></use></svg>
+                                </div>
+                                <h4 class="text-3xl font-bold text-white max-w-sm mb-4">Neural Engine</h4>
+                                <p class="text-neutral-400 text-lg leading-relaxed max-w-md">
+                                    不仅仅是润色。我们的 AI 引擎重塑你的语言结构，让每一段经历都符合 STAR 法则，如职场精英般干练。
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm font-mono text-neutral-500 mt-8">
+                                 <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span> PROCESSING...
+                            </div>
+                         </div>
+                         <div class="absolute right-0 top-0 w-2/3 h-full bg-gradient-to-l from-blue-900/10 to-transparent pointer-events-none"></div>
+                    </div>
+
+                    <!-- 卡片 2: 设计 -->
+                    <div class="apple-card fade-in-on-scroll group" style="transition-delay: 150ms;">
+                        <!-- 统一高度设置 -->
+                         <div class="h-full p-8 flex flex-col justify-between md:h-[320px]">
+                            <div>
+                                <!-- Layout 图标添加 scale/rotate 动效 -->
+                                <svg class="w-8 h-8 text-neutral-200 mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3" viewBox="0 0 24 24"><use href="#icon-layout"></use></svg>
+                                <h4 class="text-2xl font-bold text-white mb-3">自适应流体排版</h4>
+                                <p class="text-neutral-400 leading-relaxed">
+                                    无论内容长短，像素级完美的动态布局算法。
+                                </p>
+                            </div>
+                            <div class="h-20 w-full bg-neutral-800/50 rounded-lg border border-white/5 mt-6 overflow-hidden relative">
+                                 <div class="absolute top-2 left-2 right-2 h-2 bg-neutral-700 rounded-sm w-1/3"></div>
+                                 <div class="absolute top-6 left-2 right-2 bottom-2 border-t border-white/5 pt-2 space-y-1">
+                                    <div class="h-1.5 bg-neutral-700 rounded-sm w-full"></div>
+                                    <div class="h-1.5 bg-neutral-700 rounded-sm w-2/3"></div>
+                                 </div>
+                            </div>
+                         </div>
+                    </div>
+
+                    <!-- 卡片 3: 隐私 -->
+                    <div class="apple-card fade-in-on-scroll group" style="transition-delay: 300ms;">
+                        <!-- 统一高度设置 -->
+                         <div class="h-full p-8 flex flex-col justify-between md:h-[320px]">
+                            <div>
+                                <!-- Lock 图标添加 shake 动效 -->
+                                <svg class="w-8 h-8 text-neutral-200 mb-6 transition-transform duration-300 group-hover:animate-[subtle-shake_0.6s_ease-in-out_1]" viewBox="0 0 24 24"><use href="#icon-lock"></use></svg>
+                                <h4 class="text-2xl font-bold text-white mb-3">端到端隐私</h4>
+                                <p class="text-neutral-400 leading-relaxed">
+                                    你的数据只在本地渲染。我们不存储你的简历内容。
+                                </p>
+                            </div>
+                            <div class="mt-6 flex justify-center">
+                                 <div class="w-16 h-16 rounded-full border-2 border-green-500/20 flex items-center justify-center relative">
+                                    <div class="absolute inset-0 rounded-full border-2 border-green-500 opacity-20 animate-ping"></div>
+                                    <svg class="w-5 h-5 text-green-500" viewBox="0 0 24 24"><use href="#icon-lock"></use></svg>
+                                 </div>
+                            </div>
+                         </div>
+                    </div>
+
+                    <!-- 卡片 4: 匹配 (大) -->
+                    <div class="apple-card md:col-span-2 fade-in-on-scroll group" style="transition-delay: 450ms;">
+                        <!-- 统一高度设置 -->
+                         <div class="h-full p-10 flex flex-col md:flex-row items-center justify-between gap-8 md:h-[320px]">
+                            <div class="flex-1">
+                                 <div class="flex items-center gap-2 mb-4 text-blue-400">
+                                    <!-- Globe 图标添加慢速旋转动效 -->
+                                    <svg class="w-5 h-5 transition-transform duration-300 group-hover:animate-[slow-spin_10s_linear_infinite]" viewBox="0 0 24 24"><use href="#icon-globe"></use></svg>
+                                    <span class="text-xs font-bold uppercase tracking-widest">StarLink Connect</span>
+                                 </div>
+                                 <h4 class="text-3xl font-bold text-white mb-4">JD 深度匹配</h4>
+                                 <p class="text-neutral-400 text-lg leading-relaxed">
+                                    上传职位描述，系统如同雷达般扫描你的简历盲区，提供针对性的优化建议。
+                                 </p>
+                            </div>
+                            <div class="relative w-40 h-40 flex items-center justify-center">
+                                <div class="absolute inset-0 border border-white/10 rounded-full"></div>
+                                <div class="absolute inset-0 border border-blue-500/30 rounded-full animate-[spin_10s_linear_infinite]" style="border-right-color: transparent; border-bottom-color: transparent;"></div>
+                                <div class="absolute inset-4 border border-purple-500/30 rounded-full animate-[spin_8s_linear_infinite_reverse]" style="border-left-color: transparent; border-top-color: transparent;"></div>
+                                <div class="absolute w-2 h-2 bg-blue-500 rounded-full top-0 left-1/2 -translate-x-1/2 shadow-[0_0_10px_#3b82f6]"></div>
+                                <div class="text-2xl font-bold text-white/80">98%</div>
+                            </div>
+                         </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据统计区域 -->
+        <section id="design" class="py-32 border-t border-white/5 bg-[#020202] relative overflow-hidden subtle-grid">
+            <div class="max-w-[980px] mx-auto px-6 relative z-10">
+                <div class="fade-in-on-scroll">
+                    <div class="flex flex-col md:flex-row justify-between items-end gap-12 mb-20">
+                        <h2 class="text-5xl font-bold tracking-tight text-white">
+                            快，<br />
+                            胜过千言万语。
+                        </h2>
+                        <p class="text-neutral-500 max-w-xs text-sm leading-6">
+                            优化了每一个交互步骤，从灵感到 PDF 交付，流程缩短 80%。
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <div class="group cursor-default">
+                            <div class="text-5xl font-bold text-white mb-2 group-hover:text-blue-400 transition-all duration-300 group-hover:-translate-y-1">30s</div>
+                            <div class="text-neutral-600 text-sm font-medium uppercase tracking-wide group-hover:text-neutral-400 transition-colors">平均生成时间</div>
+                        </div>
+                        <div class="group cursor-default">
+                            <div class="text-5xl font-bold text-white mb-2 group-hover:text-blue-400 transition-all duration-300 group-hover:-translate-y-1">2.5x</div>
+                            <div class="text-neutral-600 text-sm font-medium uppercase tracking-wide group-hover:text-neutral-400 transition-colors">简历通过率提升</div>
+                        </div>
+                        <div class="group cursor-default">
+                            <div class="text-5xl font-bold text-white mb-2 group-hover:text-blue-400 transition-all duration-300 group-hover:-translate-y-1">4K</div>
+                            <div class="text-neutral-600 text-sm font-medium uppercase tracking-wide group-hover:text-neutral-400 transition-colors">矢量级输出</div>
+                        </div>
+                        <div class="group cursor-default">
+                            <div class="text-5xl font-bold text-white mb-2 group-hover:text-blue-400 transition-all duration-300 group-hover:-translate-y-1">10+</div>
+                            <div class="text-neutral-600 text-sm font-medium uppercase tracking-wide group-hover:text-neutral-400 transition-colors">专业模版</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 沉浸式 CTA 区域 -->
+        <section class="py-24 bg-[#050505] relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-900/10 via-transparent to-purple-900/10 opacity-50 pointer-events-none"></div>
+            
+            <div class="max-w-[800px] mx-auto px-6 text-center relative z-10">
+                <div class="fade-in-on-scroll">
+                    <p class="text-sm font-bold uppercase tracking-widest text-blue-400 mb-4">下一代简历</p>
+                    <h2 class="text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-10">
+                        释放您的全部潜力。
+                    </h2>
+                </div>
+                
+                <div class="fade-in-on-scroll" style="transition-delay: 200ms;">
+                    <a href="https://zhanghj.github.io/resume" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center justify-center gap-2 text-white bg-blue-600 hover:bg-blue-500 shadow-xl hover:shadow-blue-500/50 px-8 py-4 rounded-full text-lg font-medium transition-all duration-300 hover:scale-[1.03]">
+                        <!-- Sparkles 图标添加 pulse 动效 -->
+                        <svg class="w-5 h-5 transition-transform group-hover:animate-[subtle-pulse_0.8s_ease-in-out_1]" viewBox="0 0 24 24"><use href="#icon-sparkles"></use></svg>
+                        <span>即刻开始制作</span>
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24"><use href="#icon-chevron-right"></use></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="bg-[#050505] border-t border-white/5 py-20">
+            <div class="max-w-[980px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="flex items-center gap-2">
+                    <!-- 页脚 Star 图标使用渐变填充 -->
+                    <svg class="w-5 h-5 star-gradient-fill" viewBox="0 0 24 24"><use href="#icon-star"></use></svg>
+                    <!-- 页脚品牌名应用渐变 -->
+                    <span class="text-xl font-bold brand-text-gradient">StarLink Pro</span>
+                </div>
+                <div class="text-neutral-500 text-sm">
+                    为传音创新大赛而设计。
+                </div>
+            </div>
+        </footer>
+    </main>
+
+            <!-- 交互脚本 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // --- 导航栏滚动效果 ---
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 20) {
+                    // 应用更强的液态玻璃效果
+                    navbar.classList.add('bg-black/40', 'backdrop-blur-3xl', 'border-b', 'border-white/10', 'pt-0');
+                    navbar.classList.remove('bg-transparent', 'pt-6', 'bg-black/80', 'backdrop-blur-xl', 'border-white/5');
+                } else {
+                    // 恢复初始状态
+                    navbar.classList.remove('bg-black/40', 'backdrop-blur-3xl', 'border-b', 'border-white/10', 'pt-0');
+                    navbar.classList.add('bg-transparent', 'pt-6');
+                }
+            });
+
+            // --- 滚动淡入效果 ---
+            const scrollObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        // 只需要触发一次，所以停止观察
+                        scrollObserver.unobserve(entry.target); 
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.fade-in-on-scroll').forEach(el => {
+                scrollObserver.observe(el);
+            });
+
+            // --- 3D 倾斜效果 ---
+            const tiltContainer = document.getElementById('tilt-container');
+            if (tiltContainer) {
+                tiltContainer.addEventListener('mousemove', (e) => {
+                    const rect = tiltContainer.getBoundingClientRect();
+                    const width = rect.width;
+                    const height = rect.height;
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    const xPct = mouseX / width - 0.5;
+                    const yPct = mouseY / height - 0.5;
+
+                    const rotateX = yPct * -10; // 最大倾斜 10 度
+                    const rotateY = xPct * 10;
+
+                    tiltContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                });
+
+                tiltContainer.addEventListener('mouseleave', () => {
+                    tiltContainer.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                });
+            }
+
+        });
+    </script>
+
+</body>
+</html>

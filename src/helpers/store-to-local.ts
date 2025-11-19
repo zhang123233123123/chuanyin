@@ -33,12 +33,16 @@ export async function getConfig(
   );
 }
 
+type PersistOptions = {
+  silent?: boolean;
+};
+
 export const saveToLocalStorage = _.throttle(
-  (user: string, config: ResumeConfig) => {
+  (user: string, config: ResumeConfig, options?: PersistOptions) => {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(LOCAL_KEY(user), JSON.stringify(config));
 
-      if (intl) {
+      if (intl && !options?.silent) {
         message.success(intl.formatMessage({ id: '已缓存在本地' }), 0.65);
       }
     }

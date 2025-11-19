@@ -100,6 +100,8 @@ export type ResumeConfig = {
   aboutme?: {
     aboutme_desc: string;
   };
+  /** 个人亮点/额外字段（裁剪版） */
+  highlights?: string[];
 
   /** 增加国际化 */
   locales?: {

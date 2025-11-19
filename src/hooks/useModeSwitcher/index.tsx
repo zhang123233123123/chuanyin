@@ -8,7 +8,16 @@ import './index.less';
 
 export function getMode() {
   const query = getSearchObj();
-  return (query ? query.mode : 'read') as string;
+  if (query && typeof query.mode === 'string') {
+    return query.mode as string;
+  }
+  if (typeof window !== 'undefined') {
+    const pathname = window.location.pathname || '';
+    if (pathname.includes('editor')) {
+      return 'edit';
+    }
+  }
+  return 'read';
 }
 
 export const useModeSwitcher = ({

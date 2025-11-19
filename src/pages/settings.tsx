@@ -27,6 +27,9 @@ const PROMPT_FEATURES = {
   summarize: '总结个人经历',
   match_jd: '匹配职位描述 (JD)',
   optimize: '优化经历描述',
+  resume_optimize: '简历模块化 / 生成整份简历',
+  resume_profile: '简历模块化 / 个人信息填充',
+  resume_experience: '简历模块化 / 经历填充',
 };
 
 const SettingsPage: React.FC = () => {

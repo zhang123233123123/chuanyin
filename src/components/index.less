@@ -57,32 +57,33 @@ body {
       display: flex;
       flex-direction: column;
       gap: 18px;
+      color: #fff;
 
-      .btn-group {
-        display: block;
+      .editor-side-card {
+        width: 260px;
+        background: rgba(7, 16, 36, 0.86);
+        border: 1px solid rgba(91, 157, 255, 0.25);
+        border-radius: 14px;
+        box-shadow: inset 0 0 0 1px rgba(102, 224, 255, 0.08);
+        color: #fff;
 
-        .ant-btn {
-          display: block;
-          margin-top: 12px;
-          padding: 8px 18px;
-          width: 188px;
-          border-radius: 999px !important;
-          font-family: 'Orbitron', sans-serif;
-          letter-spacing: 0.04em;
-          text-transform: uppercase;
-          background: linear-gradient(135deg, rgba(91, 157, 255, 0.16), rgba(102, 224, 255, 0.08));
-          color: var(--space-text);
-          border: 1px solid rgba(91, 157, 255, 0.35) !important;
-          box-shadow: var(--space-glow);
+        .ant-card-head-title {
+          color: #fff;
+        }
 
-          &:hover,
-          &:focus {
-            background: linear-gradient(135deg, rgba(91, 157, 255, 0.35), rgba(102, 224, 255, 0.25));
-            border-color: rgba(102, 224, 255, 0.65) !important;
-            color: #fff;
-          }
+        .field-label {
+          margin-bottom: 6px;
+          font-size: 13px;
+          color: rgba(255, 255, 255, 0.75);
         }
       }
+
+      .btn-group {
+        .ant-btn {
+          color: #fff !important;
+        }
+      }
+
     }
   }
 
@@ -109,6 +110,19 @@ body {
 
         .ai-summary-panel {
           width: 100%;
+        }
+      }
+
+      .action-buttons {
+        width: 100%;
+
+        .ant-btn {
+          width: 100%;
+          border-radius: 10px;
+          background: linear-gradient(135deg, rgba(91, 157, 255, 0.2), rgba(102, 224, 255, 0.1));
+          color: #fff;
+          border: 1px solid rgba(91, 157, 255, 0.35) !important;
+          box-shadow: var(--space-glow);
         }
       }
     }

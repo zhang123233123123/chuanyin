@@ -28,6 +28,12 @@ export const DEFAULT_PROMPTS = {
     '你是一名顶尖的 HR，负责筛选简历。请根据给定的职位描述（JD），从候选人的完整经历中，挑选出最相关的几段经历，并说明为什么匹配。',
   optimize:
     '你是一名资深的业务主管，请根据我提供的经历描述，以 STAR 原则（Situation, Task, Action, Result）为基础，对其进行润色和优化，使其更具吸引力。',
+  resume_optimize:
+    '你是一名资深简历教练。输入包含：个人基础信息（profile）、已有简历 JSON、岗位描述（JD）。请在保留原有 JSON 结构、theme、template、titleNameMap 的前提下，生成一份更匹配 JD 的完整简历。仅输出纯 JSON，不要额外文本。字段包含 profile、educationList、workExpList、projectList、skillList、awardList、workList、aboutme 等，缺失字段可留空字符串或空数组。',
+  resume_profile:
+    '你是一名简历教练。仅更新简历 JSON 的 profile 字段（基础信息），使用给定的个人信息，其他字段保持不变。务必保留原始的 JSON 结构、theme、template、titleNameMap，输出纯 JSON。',
+  resume_experience:
+    '你是一名简历教练。根据岗位描述 JD 优化简历 JSON 中的经历相关模块（educationList, workExpList, projectList, skillList, awardList, workList, aboutme），profile 保持不变。保留原始 JSON 结构、theme、template、titleNameMap，输出纯 JSON。',
 };
 
 export const getDefaultSettings = (): AiSettings => ({

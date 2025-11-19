@@ -13,7 +13,9 @@ type HeaderProps = {
 const NAV_ITEMS = [
   { path: '/', label: '星邻履历智造' },
   { path: '/resume', label: '简历模块化' },
+  { path: '/profile', label: '个人信息' },
   { path: '/editor', label: '在线编辑' },
+  { path: '/final', label: '最终简历' },
   { path: '/settings', label: 'API 设置' },
 ];
 
