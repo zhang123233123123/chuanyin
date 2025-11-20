@@ -4,6 +4,7 @@ const OPENAI_CHAT_COMPLETIONS = 'https://api.openai.com/v1/chat/completions';
 
 // 定义经历项类型
 export type ExperienceItem = {
+  _id?: string;
   type: 'workExp' | 'project';
   company_name?: string;
   department_name?: string;

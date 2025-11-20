@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { IntlProvider } from 'react-intl';
+import { navigate } from 'gatsby';
+import qs from 'query-string';
 import {
   Button,
   Card,
@@ -529,6 +531,17 @@ const ResumePage: React.FC = () => {
     message.info('AI 还原简历：请在编辑器侧边栏使用“AI 还原简历”功能。');
   };
 
+  const gotoFineMode = () => {
+    if (typeof window === 'undefined') return;
+    const currentQuery = qs.parse(window.location.search || '');
+    const nextQuery = qs.stringify({
+      ...currentQuery,
+      mode: 'edit',
+      fine: '1',
+    });
+    navigate(`/editor?${nextQuery}`);
+  };
+
   const formatTime = (timestamp: number) => {
     try {
       return new Date(timestamp).toLocaleString('zh-CN', { hour12: false });
@@ -573,6 +586,9 @@ const ResumePage: React.FC = () => {
                 保存配置
               </Button>
               <Button onClick={handleReset}>重置</Button>
+              <Button type="default" onClick={gotoFineMode}>
+                进入细致模式
+              </Button>
             </Space>
           </div>
 

@@ -10,6 +10,12 @@ import {
   Space,
   Select,
   Input,
+  Drawer,
+  Checkbox,
+  Empty,
+  Tag,
+  Divider,
+  Alert,
 } from 'antd';
 import type { RcFile } from 'antd/lib/upload';
 import _ from 'lodash-es';
@@ -26,19 +32,96 @@ import { exportDataToLocal } from '@/helpers/export-to-local';
 import { getConfig, saveToLocalStorage } from '@/helpers/store-to-local';
 import { getAiSettings } from '@/helpers/api-key';
 import { streamAiResponse } from '@/helpers/ai';
-import { Drawer } from './Drawer';
+import type { ExperienceItem } from '@/helpers/ai';
+import {
+  loadExperiencesFromServer,
+  saveExperiencesToServer,
+} from '@/helpers/experience-api';
 import { Resume } from './Resume';
 import type { ResumeConfig, ThemeConfig } from './types';
 
 import './index.less';
 
 const codec = jsonUrl('lzma');
+const RESUME_API_URL =
+  process.env.GATSBY_RESUME_API || 'http://localhost:4000/api/resume';
 
 type TemplateItem = {
   id: string;
   name: string;
   data: ResumeConfig;
   updatedAt: number;
+};
+
+type CandidateModule = 'workExpList' | 'projectList';
+
+type SelectionCandidate = {
+  id: string;
+  module: CandidateModule;
+  item: any;
+  reason?: string;
+  confidence?: number;
+  sourceId?: string;
+  isNew?: boolean;
+};
+
+type SelectionResult = Partial<Record<CandidateModule, SelectionCandidate[]>>;
+
+type ExperienceWithId = ExperienceItem & { _id: string };
+
+const candidateModuleOptions: { key: CandidateModule; label: string }[] = [
+  { key: 'workExpList', label: '实习 / 工作经历' },
+  { key: 'projectList', label: '项目经历' },
+];
+
+const generateId = () =>
+  `exp-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+const SELECTION_CACHE_KEY = 'resume_fine_selection_cache';
+
+type SelectionCachePayload = {
+  jobDesc: string;
+  timestamp: number;
+  candidates: SelectionResult;
+  checked: Record<string, boolean>;
+  baseResume?: ResumeConfig;
+  experiencePool: ExperienceWithId[];
+};
+
+const attachExperienceIds = (items: ExperienceItem[]): ExperienceWithId[] =>
+  items.map((item, index) => ({
+    ...item,
+    _id: (item as any)?._id || `${item.type || 'exp'}-${index}-${generateId()}`,
+  }));
+
+const resumeItemToExperience = (
+  module: CandidateModule,
+  item: any,
+  id?: string
+): ExperienceWithId => {
+  if (module === 'workExpList') {
+    return {
+      _id: id || generateId(),
+      type: 'workExp',
+      company_name: item.company_name || '',
+      department_name: item.department_name || '',
+      work_time: Array.isArray(item.work_time)
+        ? item.work_time
+        : item.work_time
+        ? [item.work_time, '']
+        : ['', ''],
+      work_desc: item.work_desc || '',
+    } as ExperienceWithId;
+  }
+  return {
+    _id: id || generateId(),
+    type: 'project',
+    project_name: item.project_name || '',
+    project_role: item.project_role || '',
+    project_time: item.project_time || '',
+    project_desc: item.project_desc || '',
+    project_content: item.project_content || '',
+  } as ExperienceWithId;
 };
 
 export const Page: React.FC = () => {
@@ -67,6 +150,41 @@ export const Page: React.FC = () => {
     null
   );
   const [initialLoaded, setInitialLoaded] = useState(false);
+  const [selectionDrawerOpen, setSelectionDrawerOpen] = useState(false);
+  const [selectionLoading, setSelectionLoading] = useState(false);
+  const [
+    selectionCandidates,
+    setSelectionCandidates,
+  ] = useState<SelectionResult>({});
+  const [selectionChecked, setSelectionChecked] = useState<
+    Record<string, boolean>
+  >({});
+  const [
+    selectionBaseResume,
+    setSelectionBaseResume,
+  ] = useState<ResumeConfig>();
+  const [selectionError, setSelectionError] = useState<string | null>(null);
+  const [selectionApplying, setSelectionApplying] = useState(false);
+  const [experiencePoolState, setExperiencePoolState] = useState<
+    ExperienceWithId[]
+  >([]);
+  const [experiencePoolDirty, setExperiencePoolDirty] = useState(false);
+  const [editingCandidate, setEditingCandidate] = useState<{
+    module: CandidateModule;
+    candidate: SelectionCandidate;
+  } | null>(null);
+  const [editingFormData, setEditingFormData] = useState<any>({});
+  const [newCandidateModule, setNewCandidateModule] = useState<CandidateModule>(
+    'workExpList'
+  );
+  const [selectionSort, setSelectionSort] = useState<
+    'confidence' | 'time' | 'custom'
+  >('confidence');
+  const [selectionShowOnly, setSelectionShowOnly] = useState<
+    'all' | 'selected' | 'unselected'
+  >('all');
+  const [rewriteLoadingId, setRewriteLoadingId] = useState<string | null>(null);
+  const fineModeTriggered = useRef(false);
 
   const changeConfig = (v: Partial<ResumeConfig>) => {
     setConfig(
@@ -141,6 +259,18 @@ export const Page: React.FC = () => {
     saveToLocalStorage(query.user as string, snapshot, { silent: true });
   }, [config, theme, query.user]);
 
+  useEffect(() => {
+    if (fineModeTriggered.current) return;
+    if (mode !== 'edit') return;
+    if (query?.fine !== '1') return;
+    if (!jobDesc) {
+      message.warning('请先填写岗位描述/JD 再使用细致模式');
+      return;
+    }
+    fineModeTriggered.current = true;
+    handleAiSelection();
+  }, [mode, query?.fine, jobDesc]);
+
   const onThemeChange = useCallback(
     (v: Partial<ThemeConfig>) => {
       setTheme(_.assign({}, theme, v));
@@ -169,6 +299,51 @@ export const Page: React.FC = () => {
     }, 400);
     return () => clearTimeout(timer);
   }, [config, theme]);
+
+  useEffect(() => {
+    if (selectionDrawerOpen) return;
+    if (fineModeTriggered.current) return;
+    if (!jobDesc) return;
+    const cache = loadSelectionCache();
+    if (
+      cache &&
+      cache.jobDesc === jobDesc &&
+      candidateModuleOptions.some(
+        option => cache.candidates?.[option.key]?.length
+      )
+    ) {
+      setSelectionCandidates(cache.candidates);
+      setSelectionChecked(cache.checked || {});
+      setSelectionBaseResume(cache.baseResume);
+      setExperiencePoolState(cache.experiencePool || []);
+      setSelectionDrawerOpen(true);
+      message.info('已恢复上次未完成的细致模式草稿');
+      fineModeTriggered.current = true;
+    }
+  }, [jobDesc, selectionDrawerOpen]);
+
+  useEffect(() => {
+    if (!selectionDrawerOpen) return;
+    const hasCandidates = candidateModuleOptions.some(
+      option => selectionCandidates[option.key]?.length
+    );
+    if (!hasCandidates) return;
+    saveSelectionCache({
+      jobDesc,
+      timestamp: Date.now(),
+      candidates: selectionCandidates,
+      checked: selectionChecked,
+      baseResume: selectionBaseResume,
+      experiencePool: experiencePoolState,
+    });
+  }, [
+    selectionDrawerOpen,
+    selectionCandidates,
+    selectionChecked,
+    selectionBaseResume,
+    experiencePoolState,
+    jobDesc,
+  ]);
 
   const saveFinalResume = () => {
     if (!config) {
@@ -206,6 +381,47 @@ export const Page: React.FC = () => {
     return undefined;
   };
 
+  const fetchServerResume = useCallback(async () => {
+    try {
+      const resp = await fetch(RESUME_API_URL, { cache: 'no-store' });
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      return (data?.resume || null) as ResumeConfig | null;
+    } catch (err) {
+      console.warn('[resume] load server resume failed', err);
+      return null;
+    }
+  }, []);
+
+  const fetchExperiencePool = useCallback(async (): Promise<
+    ExperienceWithId[]
+  > => {
+    try {
+      const experiences = await loadExperiencesFromServer();
+      return Array.isArray(experiences) ? attachExperienceIds(experiences) : [];
+    } catch (err) {
+      console.warn('[experience] load pool failed', err);
+      return [];
+    }
+  }, []);
+
+  const loadAiSourceData = useCallback(async (): Promise<{
+    resumeData: ResumeConfig | undefined;
+    experiencePool: ExperienceWithId[];
+  }> => {
+    const [serverResume, experiencePool] = await Promise.all([
+      fetchServerResume(),
+      fetchExperiencePool(),
+    ]);
+    const latestResume = serverResume || config;
+    setExperiencePoolState(experiencePool);
+    setExperiencePoolDirty(false);
+    return {
+      resumeData: latestResume,
+      experiencePool,
+    };
+  }, [config, fetchExperiencePool, fetchServerResume]);
+
   const fetchSavedResume = async () => {
     try {
       const resp = await fetch('http://localhost:4000/api/resume');
@@ -242,6 +458,38 @@ export const Page: React.FC = () => {
     return raw;
   };
 
+  const mergeResumeSections = (
+    base: ResumeConfig | undefined,
+    patch: ResumeConfig
+  ): ResumeConfig => {
+    if (!base) return patch;
+    const merged = { ...base, ...patch } as ResumeConfig;
+    const listKeys: (keyof ResumeConfig)[] = [
+      'educationList',
+      'workExpList',
+      'projectList',
+      'skillList',
+      'awardList',
+      'workList',
+    ];
+    listKeys.forEach(key => {
+      const value = patch[key];
+      if (!Array.isArray(value) || value.length === 0) {
+        merged[key] = base[key];
+      }
+    });
+    if (!patch.profile) merged.profile = base.profile;
+    if (!patch.aboutme?.aboutme_desc) merged.aboutme = base.aboutme;
+    if (!patch.titleNameMap) merged.titleNameMap = base.titleNameMap;
+    if (!(patch as any)?.template && (base as any)?.template) {
+      (merged as any).template = (base as any).template;
+    }
+    if (!(patch as any)?.theme && (base as any)?.theme) {
+      (merged as any).theme = (base as any).theme;
+    }
+    return merged;
+  };
+
   const applyTemplate = (id?: string) => {
     const target = templates.find(item => item.id === id) || templates[0];
     if (!target) {
@@ -267,7 +515,8 @@ export const Page: React.FC = () => {
     prompt: string,
     successMsg: string,
     featureKey: string,
-    loadingKey: 'profile' | 'exp' | 'full'
+    loadingKey: 'profile' | 'exp' | 'full',
+    baseResume?: ResumeConfig
   ) => {
     try {
       setAiLoading(loadingKey);
@@ -292,14 +541,160 @@ export const Page: React.FC = () => {
       }
       const cleanText = extractSseContent(fullText);
       const parsed = JSON.parse(cleanText) as ResumeConfig;
-      changeConfig(parsed);
-      if ((parsed as any)?.theme) setTheme((parsed as any).theme);
+      const merged = mergeResumeSections(baseResume || config, parsed);
+      changeConfig(merged);
+      const nextTheme = (parsed as any)?.theme || (merged as any)?.theme;
+      if (nextTheme) setTheme(nextTheme);
       message.success(successMsg);
     } catch (err: any) {
       message.error(err?.message || '生成失败');
     } finally {
       setAiLoading(null);
     }
+  };
+
+  const requestAiSelection = async (prompt: string) => {
+    const settings = getAiSettings();
+    const model = settings?.activeModel;
+    if (!model) {
+      throw new Error('请先在“API 设置”中配置模型');
+    }
+    const response = await streamAiResponse(prompt, 'resume_selection', model);
+    let fullText = '';
+    if ((response as any)?.body?.getReader) {
+      const reader = (response as any).body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) fullText += decoder.decode(value, { stream: true });
+      }
+      fullText += decoder.decode();
+    } else {
+      fullText = await (response as any).text();
+    }
+    const cleanText = extractSseContent(fullText);
+    return JSON.parse(cleanText);
+  };
+
+  const normalizeSelectionResponse = (raw: any): SelectionResult => {
+    const result: SelectionResult = {};
+    candidateModuleOptions.forEach(option => {
+      const list = Array.isArray(raw?.[option.key]) ? raw[option.key] : [];
+      if (!list.length) return;
+      const normalized = list
+        .map((entry: any, idx: number) => {
+          const rawItem = entry?.item || entry;
+          if (!rawItem) return null;
+          const item = { ...rawItem };
+          if (item._id) delete item._id;
+          const id =
+            entry?.id ||
+            rawItem?._id ||
+            entry?.sourceId ||
+            `${option.key}-${idx}-${generateId()}`;
+          return {
+            id,
+            module: option.key,
+            item,
+            reason: entry?.reason || entry?.match_reason || entry?.note,
+            confidence:
+              typeof entry?.confidence === 'number'
+                ? entry.confidence
+                : typeof entry?.score === 'number'
+                ? entry.score
+                : undefined,
+            sourceId:
+              rawItem?._id || entry?.sourceId || entry?.source_id || undefined,
+          } as SelectionCandidate;
+        })
+        .filter(Boolean) as SelectionCandidate[];
+      if (normalized.length) {
+        result[option.key] = normalized;
+      }
+    });
+    return result;
+  };
+
+  const buildSelectionCheckedMap = (result: SelectionResult) => {
+    const map: Record<string, boolean> = {};
+    candidateModuleOptions.forEach(option => {
+      result[option.key]?.forEach(entry => {
+        map[entry.id] = true;
+      });
+    });
+    return map;
+  };
+
+  const saveSelectionCache = (payload: SelectionCachePayload) => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(SELECTION_CACHE_KEY, JSON.stringify(payload));
+    } catch (err) {
+      // ignore
+    }
+  };
+
+  const loadSelectionCache = (): SelectionCachePayload | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = window.localStorage.getItem(SELECTION_CACHE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (err) {
+      return null;
+    }
+  };
+
+  const clearSelectionCache = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.removeItem(SELECTION_CACHE_KEY);
+    } catch (err) {
+      // ignore
+    }
+  };
+
+  const parseTimeToNumber = (value: string | undefined) => {
+    if (!value) return 0;
+    const normalized = value
+      .replace(/[年|\.|\/]/g, '-')
+      .replace(/--+/g, '-')
+      .replace(/[^0-9-]/g, '');
+    const date = new Date(normalized);
+    const time = date.getTime();
+    return Number.isNaN(time) ? 0 : time;
+  };
+
+  const getCandidateTimeValue = (entry: SelectionCandidate) => {
+    if (entry.module === 'workExpList') {
+      const [start = '', end = ''] = Array.isArray(entry.item?.work_time)
+        ? entry.item.work_time
+        : ['', ''];
+      return parseTimeToNumber(end || start);
+    }
+    return parseTimeToNumber(entry.item?.project_time);
+  };
+
+  const filterCandidateVisible = (entry: SelectionCandidate) => {
+    if (selectionShowOnly === 'all') return true;
+    const checked = !!selectionChecked[entry.id];
+    if (selectionShowOnly === 'selected') return checked;
+    return !checked;
+  };
+
+  const sortCandidates = (entries: SelectionCandidate[]) => {
+    if (!entries?.length) return entries;
+    if (selectionSort === 'custom') return entries;
+    const sorted = [...entries];
+    if (selectionSort === 'confidence') {
+      sorted.sort((a, b) => (b.confidence || 0) - (a.confidence || 0));
+    } else if (selectionSort === 'time') {
+      sorted.sort(
+        (a, b) => getCandidateTimeValue(b) - getCandidateTimeValue(a)
+      );
+    }
+    return sorted;
   };
 
   const handleAiProfile = async () => {
@@ -312,14 +707,16 @@ export const Page: React.FC = () => {
       message.warning('请先在“个人信息”页面填写并保存');
       return;
     }
-    const payload = {
-      ...config,
+    const { resumeData } = await loadAiSourceData();
+    const baseResume = resumeData || config;
+    const payload: ResumeConfig = {
+      ...(baseResume || {}),
       profile,
-    };
+    } as ResumeConfig;
     const prompt = `You are a resume optimizer. Update ONLY the profile/basic info section using the provided personal profile, keep other sections unchanged. Preserve JSON structure, theme, template, titleNameMap. Return pure JSON.\nPersonal profile: ${JSON.stringify(
       profile
     )}\nCurrent resume: ${JSON.stringify(payload)}`;
-    await runAi(prompt, '已更新个人信息', 'resume_profile', 'profile');
+    await runAi(prompt, '已更新个人信息', 'resume_profile', 'profile', payload);
   };
 
   const handleAiExperience = async () => {
@@ -331,15 +728,22 @@ export const Page: React.FC = () => {
       message.warning('请输入岗位描述/JD');
       return;
     }
-    const profile = getPersonalProfile();
-    const payload = {
-      ...config,
-      profile: profile || config.profile,
-    };
-    const prompt = `You are a resume optimizer. Using the job description and existing resume experience data, rewrite ONLY the experience-related sections (educationList, workExpList, projectList, skillList, awardList, workList, aboutme) to better match the JD. Keep profile as-is, keep JSON structure, theme, template, titleNameMap. Return pure JSON.\nJob description: ${jobDesc}\nCurrent resume JSON: ${JSON.stringify(
+    const { resumeData } = await loadAiSourceData();
+    const baseResume = resumeData || config;
+    const profile = getPersonalProfile() || baseResume?.profile;
+    const payload: ResumeConfig = {
+      ...(baseResume || {}),
+      profile: profile || baseResume?.profile,
+    } as ResumeConfig;
+    const poolText = experiencePool.length
+      ? `\nExperience pool (JSON array of candidates): ${JSON.stringify(
+          experiencePool
+        )}`
+      : '';
+    const prompt = `You are a resume optimizer. Using the job description and existing resume experience data, rewrite ONLY the experience-related sections (educationList, workExpList, projectList, skillList, awardList, workList, aboutme) to better match the JD. Keep profile as-is, keep JSON structure, theme, template, titleNameMap. Return pure JSON.${poolText}\nJob description: ${jobDesc}\nCurrent resume JSON: ${JSON.stringify(
       payload
     )}`;
-    await runAi(prompt, '已更新经历模块', 'resume_experience', 'exp');
+    await runAi(prompt, '已更新经历模块', 'resume_experience', 'exp', payload);
   };
 
   const handleAiFull = async () => {
@@ -351,17 +755,331 @@ export const Page: React.FC = () => {
       message.warning('请输入岗位描述/JD');
       return;
     }
-    const profile = getPersonalProfile();
-    const payload = {
-      ...config,
-      profile: profile || config.profile,
-    };
+    const { resumeData } = await loadAiSourceData();
+    const baseResume = resumeData || config;
+    const profile = getPersonalProfile() || baseResume?.profile;
+    const payload: ResumeConfig = {
+      ...(baseResume || {}),
+      profile: profile || baseResume?.profile,
+    } as ResumeConfig;
+    const poolText = experiencePool.length
+      ? `\nExperience pool (JSON array of candidates): ${JSON.stringify(
+          experiencePool
+        )}`
+      : '';
     const prompt = `You are a resume optimizer. Using the personal profile (if provided), job description, and base resume JSON, generate a fully optimized resume matching the JD while preserving JSON structure, theme, template, titleNameMap. Return pure JSON.\nPersonal profile: ${JSON.stringify(
       profile || {}
-    )}\nJob description: ${jobDesc}\nBase resume JSON: ${JSON.stringify(
+    )}\nJob description: ${jobDesc}${poolText}\nBase resume JSON: ${JSON.stringify(
       payload
     )}`;
-    await runAi(prompt, '已生成完整简历', 'resume_optimize', 'full');
+    await runAi(prompt, '已生成完整简历', 'resume_optimize', 'full', payload);
+  };
+
+  const handleAiSelection = async () => {
+    if (!config) {
+      message.warning('请先选择模版');
+      return;
+    }
+    if (!jobDesc) {
+      message.warning('请输入岗位描述/JD');
+      return;
+    }
+    fineModeTriggered.current = true;
+    setSelectionLoading(true);
+    setSelectionError(null);
+    setSelectionCandidates({});
+    setSelectionChecked({});
+    try {
+      const { resumeData, experiencePool } = await loadAiSourceData();
+      const baseResume = resumeData || config;
+      if (!baseResume) {
+        message.warning('暂无可用的简历数据');
+        return;
+      }
+      setSelectionBaseResume(baseResume);
+      const profile = getPersonalProfile() || baseResume.profile;
+      const poolPayload = experiencePool.map(item => ({ ...item }));
+      const prompt = `You are a resume assistant. Based on the job description and the candidate's full resume plus experience pool, select only the most relevant work and project experiences. Respond with JSON: { "workExpList": [ { "item": { ... }, "reason": "...", "confidence": 0.85, "sourceId": "_id" } ], "projectList": [...] }. Only include modules with matches. Keep \"_id\" when referencing existing pool items so we can update them.\nJob description: ${jobDesc}\nCurrent resume JSON: ${JSON.stringify(
+        baseResume
+      )}\nExperience pool with _id: ${JSON.stringify(poolPayload)}`;
+      const rawResult = await requestAiSelection(prompt);
+      const normalized = normalizeSelectionResponse(rawResult);
+      const hasData = candidateModuleOptions.some(
+        option => normalized[option.key]?.length
+      );
+      if (!hasData) {
+        message.info('AI 暂无匹配建议，请调整 JD');
+        return;
+      }
+      setSelectionCandidates(normalized);
+      setSelectionChecked(buildSelectionCheckedMap(normalized));
+      setSelectionDrawerOpen(true);
+    } catch (err: any) {
+      const msg = err?.message || 'AI 推荐失败';
+      setSelectionError(msg);
+      message.error(msg);
+    } finally {
+      setSelectionLoading(false);
+    }
+  };
+
+  const closeSelectionDrawer = () => {
+    setSelectionDrawerOpen(false);
+    setEditingCandidate(null);
+    setSelectionError(null);
+  };
+
+  const handleToggleCandidate = (id: string, checked: boolean) => {
+    setSelectionChecked(prev => ({ ...prev, [id]: checked }));
+  };
+
+  const handleToggleModule = (module: CandidateModule, checked: boolean) => {
+    setSelectionChecked(prev => {
+      const next = { ...prev };
+      selectionCandidates[module]?.forEach(entry => {
+        next[entry.id] = checked;
+      });
+      return next;
+    });
+  };
+
+  const selectedCount = Object.values(selectionChecked).filter(Boolean).length;
+
+  const getCandidateTitle = (module: CandidateModule, item: any) => {
+    if (module === 'workExpList') return item.company_name || '未命名公司';
+    return item.project_name || '未命名项目';
+  };
+
+  const getCandidateSubtitle = (module: CandidateModule, item: any) => {
+    if (module === 'workExpList')
+      return item.department_name || item.positionTitle;
+    return item.project_role;
+  };
+
+  const getCandidateTime = (module: CandidateModule, item: any) => {
+    if (module === 'workExpList') {
+      const [start = '', end = ''] = Array.isArray(item.work_time)
+        ? item.work_time
+        : ['', ''];
+      return start || end ? `${start} ~ ${end || '至今'}` : '';
+    }
+    return item.project_time || '';
+  };
+
+  const openEditingModal = (entry: SelectionCandidate) => {
+    const base = entry.item || {};
+    const initial = {
+      ...base,
+      work_time_start: Array.isArray(base.work_time) ? base.work_time[0] : '',
+      work_time_end: Array.isArray(base.work_time) ? base.work_time[1] : '',
+    };
+    setEditingCandidate({ module: entry.module, candidate: entry });
+    setEditingFormData(initial);
+  };
+
+  const handleAddCandidate = () => {
+    const newId = generateId();
+    const defaultItem =
+      newCandidateModule === 'workExpList'
+        ? {
+            company_name: '',
+            department_name: '',
+            work_time: ['', ''],
+            work_desc: '',
+          }
+        : {
+            project_name: '',
+            project_role: '',
+            project_time: '',
+            project_desc: '',
+          };
+    const entry: SelectionCandidate = {
+      id: newId,
+      module: newCandidateModule,
+      item: defaultItem,
+      isNew: true,
+      sourceId: newId,
+    };
+    openEditingModal(entry);
+  };
+
+  const normalizeEditingItem = (module: CandidateModule, data: any) => {
+    if (module === 'workExpList') {
+      const { work_time_start, work_time_end, ...rest } = data;
+      return {
+        ...rest,
+        work_time: [work_time_start || '', work_time_end || ''],
+      };
+    }
+    const clone = { ...data };
+    return clone;
+  };
+
+  const saveEditingCandidate = () => {
+    if (!editingCandidate) return;
+    const module = editingCandidate.module;
+    const candidate = editingCandidate.candidate;
+    const normalizedItem = normalizeEditingItem(module, editingFormData);
+    const sourceId = candidate.sourceId || candidate.id;
+    const updatedEntry: SelectionCandidate = {
+      ...candidate,
+      item: normalizedItem,
+      sourceId,
+      isNew: false,
+    };
+    setSelectionCandidates(prev => {
+      const current = prev[module] || [];
+      const exists = current.some(item => item.id === candidate.id);
+      const list = exists
+        ? current.map(item => (item.id === candidate.id ? updatedEntry : item))
+        : [...current, updatedEntry];
+      return {
+        ...prev,
+        [module]: list,
+      };
+    });
+    setSelectionChecked(prev => ({ ...prev, [candidate.id]: true }));
+    setExperiencePoolState(prev => {
+      const expItem = resumeItemToExperience(module, normalizedItem, sourceId);
+      const index = prev.findIndex(item => item._id === sourceId);
+      if (index > -1) {
+        const clone = [...prev];
+        clone[index] = { ...clone[index], ...expItem };
+        return clone;
+      }
+      return [...prev, expItem];
+    });
+    setExperiencePoolDirty(true);
+    setEditingCandidate(null);
+  };
+
+  const cancelEditingCandidate = () => {
+    setEditingCandidate(null);
+  };
+
+  const handleEditingFieldChange = (field: string, value: string) => {
+    setEditingFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const confirmClearSelection = () => {
+    Modal.confirm({
+      title: '清空细致模式草稿？',
+      content: '草稿清空后需要重新运行 AI 以生成候选列表。',
+      okText: '清空',
+      okButtonProps: { danger: true },
+      onOk: () => {
+        clearSelectionCache();
+        setSelectionCandidates({});
+        setSelectionChecked({});
+        setSelectionBaseResume(undefined);
+        setExperiencePoolState([]);
+        setSelectionDrawerOpen(false);
+        setSelectionError(null);
+        message.success('已清空细致模式草稿');
+      },
+    });
+  };
+
+  const applySelectedCandidates = async () => {
+    const patch: Partial<ResumeConfig> = {};
+    candidateModuleOptions.forEach(option => {
+      const entries = selectionCandidates[option.key];
+      if (!entries?.length) return;
+      const selectedItems = entries
+        .filter(entry => selectionChecked[entry.id])
+        .map(entry => entry.item);
+      if (selectedItems.length) {
+        (patch as any)[option.key] = selectedItems;
+      }
+    });
+    if (Object.keys(patch).length === 0) {
+      message.warning('请选择要应用的经历');
+      return;
+    }
+    const base = selectionBaseResume || config;
+    if (!base) {
+      message.warning('暂无可用的简历数据');
+      return;
+    }
+    setSelectionApplying(true);
+    try {
+      const merged = mergeResumeSections(
+        base as ResumeConfig,
+        patch as ResumeConfig
+      );
+      changeConfig(merged);
+      const nextTheme = (merged as any)?.theme || theme;
+      if (nextTheme) setTheme(nextTheme);
+      if (experiencePoolDirty && experiencePoolState.length) {
+        try {
+          await saveExperiencesToServer(experiencePoolState);
+          setExperiencePoolDirty(false);
+        } catch (err) {
+          message.error('经历池保存失败，请稍后重试');
+        }
+      }
+      setSelectionDrawerOpen(false);
+      clearSelectionCache();
+      message.success('已应用选中的经历');
+    } finally {
+      setSelectionApplying(false);
+    }
+  };
+
+  const handleRewriteCandidate = async (entry: SelectionCandidate) => {
+    if (!jobDesc) {
+      message.warning('请先填写岗位描述/JD');
+      return;
+    }
+    setRewriteLoadingId(entry.id);
+    try {
+      const base = selectionBaseResume || config;
+      const prompt = `You are a resume coach. Based on the job description and the following resume entry, rewrite it to better match the JD. Keep the JSON fields identical to the original structure. Return JSON: { \"item\": { ... } }.\nJob description: ${jobDesc}\nEntry JSON: ${JSON.stringify(
+        entry.item
+      )}`;
+      const raw = await requestAiSelection(prompt);
+      const updatedItem =
+        raw?.item ||
+        raw?.result?.item ||
+        raw?.workExpList?.[0]?.item ||
+        raw?.projectList?.[0]?.item;
+      if (!updatedItem) {
+        message.warning('AI 未返回有效内容');
+        return;
+      }
+      setSelectionCandidates(prev => {
+        const current = prev[entry.module] || [];
+        const next = current.map(item =>
+          item.id === entry.id ? { ...item, item: updatedItem } : item
+        );
+        return { ...prev, [entry.module]: next };
+      });
+      setExperiencePoolState(prev => {
+        const sourceId = entry.sourceId || entry.id;
+        const updated = resumeItemToExperience(
+          entry.module,
+          updatedItem,
+          sourceId
+        );
+        const index = prev.findIndex(item => item._id === sourceId);
+        if (index > -1) {
+          const clone = [...prev];
+          clone[index] = { ...clone[index], ...updated };
+          return clone;
+        }
+        return [...prev, updated];
+      });
+      setExperiencePoolDirty(true);
+      if (base && entry.module === 'workExpList') {
+        message.success('该经历已依据 JD 重新润色');
+      } else {
+        message.success('AI 已更新该条经历');
+      }
+    } catch (err: any) {
+      message.error(err?.message || 'AI 润色失败');
+    } finally {
+      setRewriteLoadingId(null);
+    }
   };
 
   useEffect(() => {
@@ -553,6 +1271,12 @@ export const Page: React.FC = () => {
                         >
                           经历填充
                         </Button>
+                        <Button
+                          onClick={handleAiSelection}
+                          loading={selectionLoading}
+                        >
+                          细致模式
+                        </Button>
                       </Space>
                     </Space>
                   </Space>
@@ -594,6 +1318,279 @@ export const Page: React.FC = () => {
           onChange={e => setFinalName(e.target.value)}
           placeholder="请输入保存名称"
         />
+      </Modal>
+
+      <Drawer
+        className="selection-drawer"
+        title="AI 推荐的匹配经历"
+        placement="right"
+        width={520}
+        open={selectionDrawerOpen}
+        onClose={closeSelectionDrawer}
+        destroyOnClose
+      >
+        <Space direction="vertical" size={16} style={{ width: '100%' }}>
+          <div className="selection-controls">
+            <Space>
+              <Select
+                value={newCandidateModule}
+                onChange={value =>
+                  setNewCandidateModule(value as CandidateModule)
+                }
+                options={candidateModuleOptions.map(item => ({
+                  label: item.label,
+                  value: item.key,
+                }))}
+                style={{ width: 200 }}
+              />
+              <Button type="dashed" size="small" onClick={handleAddCandidate}>
+                新增条目
+              </Button>
+            </Space>
+            <Space>
+              <Select
+                value={selectionSort}
+                onChange={value =>
+                  setSelectionSort(value as 'confidence' | 'time' | 'custom')
+                }
+                style={{ width: 160 }}
+                options={[
+                  { label: '按匹配度排序', value: 'confidence' },
+                  { label: '按时间排序', value: 'time' },
+                  { label: '保持原顺序', value: 'custom' },
+                ]}
+              />
+              <Select
+                value={selectionShowOnly}
+                onChange={value =>
+                  setSelectionShowOnly(
+                    value as 'all' | 'selected' | 'unselected'
+                  )
+                }
+                style={{ width: 160 }}
+                options={[
+                  { label: '显示全部', value: 'all' },
+                  { label: '仅查看已选', value: 'selected' },
+                  { label: '仅查看未选', value: 'unselected' },
+                ]}
+              />
+              <Button size="small" onClick={confirmClearSelection}>
+                清空草稿
+              </Button>
+            </Space>
+          </div>
+          {selectionError && <Alert type="error" message={selectionError} />}
+          {candidateModuleOptions.map(option => {
+            const entries = selectionCandidates[option.key];
+            if (!entries?.length) return null;
+            const visibleEntries = sortCandidates(entries).filter(entry =>
+              filterCandidateVisible(entry)
+            );
+            if (!visibleEntries.length) return null;
+            return (
+              <div key={option.key} className="selection-module">
+                <div className="selection-module__header">
+                  <div>{option.label}</div>
+                  <Space size={8}>
+                    <Button
+                      size="small"
+                      type="link"
+                      onClick={() => handleToggleModule(option.key, true)}
+                    >
+                      全选
+                    </Button>
+                    <Button
+                      size="small"
+                      type="link"
+                      onClick={() => handleToggleModule(option.key, false)}
+                    >
+                      全不选
+                    </Button>
+                  </Space>
+                </div>
+                <div className="selection-module__list">
+                  {visibleEntries.map(entry => {
+                    const title = getCandidateTitle(entry.module, entry.item);
+                    const subtitle = getCandidateSubtitle(
+                      entry.module,
+                      entry.item
+                    );
+                    const timeText = getCandidateTime(entry.module, entry.item);
+                    return (
+                      <div key={entry.id} className="selection-item">
+                        <Checkbox
+                          checked={!!selectionChecked[entry.id]}
+                          onChange={e =>
+                            handleToggleCandidate(entry.id, e.target.checked)
+                          }
+                        />
+                        <div className="selection-item__body">
+                          <div className="selection-item__title">
+                            <span className="selection-item__name">
+                              {title}
+                            </span>
+                            {subtitle && (
+                              <span className="selection-item__sub">
+                                {subtitle}
+                              </span>
+                            )}
+                          </div>
+                          {timeText && (
+                            <div className="selection-item__time">
+                              {timeText}
+                            </div>
+                          )}
+                          {entry.item?.work_desc &&
+                            entry.module === 'workExpList' && (
+                              <div className="selection-item__desc">
+                                {entry.item.work_desc}
+                              </div>
+                            )}
+                          {entry.item?.project_desc &&
+                            entry.module === 'projectList' && (
+                              <div className="selection-item__desc">
+                                {entry.item.project_desc}
+                              </div>
+                            )}
+                          <div className="selection-item__meta">
+                            {entry.reason && (
+                              <div className="selection-item__reason">
+                                推荐理由：{entry.reason}
+                              </div>
+                            )}
+                            {typeof entry.confidence === 'number' && (
+                              <Tag color="blue">
+                                匹配度 {(entry.confidence * 100).toFixed(0)}%
+                              </Tag>
+                            )}
+                          </div>
+                        </div>
+                        <Button
+                          size="small"
+                          onClick={() => openEditingModal(entry)}
+                        >
+                          编辑
+                        </Button>
+                        <Button
+                          size="small"
+                          type="link"
+                          loading={rewriteLoadingId === entry.id}
+                          onClick={() => handleRewriteCandidate(entry)}
+                        >
+                          AI 润色
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+          {!candidateModuleOptions.some(
+            option => selectionCandidates[option.key]?.length
+          ) && <Empty description="暂无推荐" />}
+          <Divider />
+          <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+            <Button onClick={closeSelectionDrawer}>取消</Button>
+            <Button
+              type="primary"
+              onClick={applySelectedCandidates}
+              disabled={selectedCount === 0}
+              loading={selectionApplying}
+            >
+              应用选中{selectedCount ? ` (${selectedCount})` : ''}
+            </Button>
+          </Space>
+        </Space>
+      </Drawer>
+
+      <Modal
+        open={!!editingCandidate}
+        title="编辑候选经历"
+        onCancel={cancelEditingCandidate}
+        onOk={saveEditingCandidate}
+      >
+        {editingCandidate && (
+          <Space direction="vertical" style={{ width: '100%' }}>
+            {editingCandidate.module === 'workExpList' ? (
+              <>
+                <Input
+                  value={editingFormData.company_name || ''}
+                  placeholder="公司名称"
+                  onChange={e =>
+                    handleEditingFieldChange('company_name', e.target.value)
+                  }
+                />
+                <Input
+                  value={editingFormData.department_name || ''}
+                  placeholder="部门 / 职位"
+                  onChange={e =>
+                    handleEditingFieldChange('department_name', e.target.value)
+                  }
+                />
+                <Space>
+                  <Input
+                    value={editingFormData.work_time_start || ''}
+                    placeholder="开始时间"
+                    onChange={e =>
+                      handleEditingFieldChange(
+                        'work_time_start',
+                        e.target.value
+                      )
+                    }
+                  />
+                  <Input
+                    value={editingFormData.work_time_end || ''}
+                    placeholder="结束时间"
+                    onChange={e =>
+                      handleEditingFieldChange('work_time_end', e.target.value)
+                    }
+                  />
+                </Space>
+                <Input.TextArea
+                  rows={4}
+                  value={editingFormData.work_desc || ''}
+                  placeholder="工作描述"
+                  onChange={e =>
+                    handleEditingFieldChange('work_desc', e.target.value)
+                  }
+                />
+              </>
+            ) : (
+              <>
+                <Input
+                  value={editingFormData.project_name || ''}
+                  placeholder="项目名称"
+                  onChange={e =>
+                    handleEditingFieldChange('project_name', e.target.value)
+                  }
+                />
+                <Input
+                  value={editingFormData.project_role || ''}
+                  placeholder="担任角色"
+                  onChange={e =>
+                    handleEditingFieldChange('project_role', e.target.value)
+                  }
+                />
+                <Input
+                  value={editingFormData.project_time || ''}
+                  placeholder="项目时间"
+                  onChange={e =>
+                    handleEditingFieldChange('project_time', e.target.value)
+                  }
+                />
+                <Input.TextArea
+                  rows={4}
+                  value={editingFormData.project_desc || ''}
+                  placeholder="项目描述"
+                  onChange={e =>
+                    handleEditingFieldChange('project_desc', e.target.value)
+                  }
+                />
+              </>
+            )}
+          </Space>
+        )}
       </Modal>
     </React.Fragment>
   );
