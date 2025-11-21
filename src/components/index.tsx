@@ -10,7 +10,7 @@ import {
   Space,
   Select,
   Input,
-  Drawer,
+  Drawer as AntdDrawer,
   Checkbox,
   Empty,
   Tag,
@@ -38,6 +38,7 @@ import {
   saveExperiencesToServer,
 } from '@/helpers/experience-api';
 import { Resume } from './Resume';
+import { Drawer as ConfigDrawer } from './Drawer';
 import type { ResumeConfig, ThemeConfig } from './types';
 
 import './index.less';
@@ -124,6 +125,36 @@ const resumeItemToExperience = (
   } as ExperienceWithId;
 };
 
+const experienceToResumeItem = (
+  experience: ExperienceWithId,
+  module: CandidateModule
+) => {
+  if (module === 'workExpList') {
+    const workTime = Array.isArray(experience.work_time)
+      ? experience.work_time
+      : experience.work_time
+      ? [experience.work_time, '']
+      : ['', ''];
+    return {
+      company_name: experience.company_name || '',
+      department_name:
+        experience.department_name || experience.project_role || '',
+      work_time: workTime,
+      work_desc: experience.work_desc || experience.project_content || '',
+    };
+  }
+  return {
+    project_name:
+      experience.project_name || experience.company_name || '未命名项目',
+    project_role: experience.project_role || experience.department_name || '',
+    project_time: Array.isArray(experience.work_time)
+      ? experience.work_time.filter(Boolean).join(' ~ ')
+      : experience.project_time || '',
+    project_desc: experience.project_desc || experience.work_desc || '',
+    project_content: experience.project_content || '',
+  };
+};
+
 export const Page: React.FC = () => {
   const lang = getLanguage();
   const intl = useIntl();
@@ -140,6 +171,7 @@ export const Page: React.FC = () => {
     tagColor: '#8bc34a',
   });
   const [templates, setTemplates] = useState<TemplateItem[]>([]);
+  const [configDrawerOpen, setConfigDrawerOpen] = useState(false);
   const [activeTemplateId, setActiveTemplateId] = useState<string>();
   const [jobDesc, setJobDesc] = useState('');
   const [saveModalOpen, setSaveModalOpen] = useState(false);
@@ -185,6 +217,7 @@ export const Page: React.FC = () => {
   >('all');
   const [rewriteLoadingId, setRewriteLoadingId] = useState<string | null>(null);
   const fineModeTriggered = useRef(false);
+  const [poolFilter, setPoolFilter] = useState('');
 
   const changeConfig = (v: Partial<ResumeConfig>) => {
     setConfig(
@@ -278,10 +311,45 @@ export const Page: React.FC = () => {
     [theme]
   );
 
-  const exportCurrent = () => {
-    if (!config) return;
-    const json = JSON.stringify({ ...config, theme }, null, 2);
-    exportDataToLocal(json, `${query.user || 'resume'}-config`);
+  const waitForNextFrame = () =>
+    new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
+  const exportPreviewToPdf = (fileName: string) => {
+    const preview = resumePreviewRef.current;
+    if (!preview) {
+      message.error('未找到简历内容，无法导出');
+      return;
+    }
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      message.error('请允许浏览器弹窗以导出 PDF');
+      return;
+    }
+    const styles = Array.from(
+      document.querySelectorAll('style, link[rel="stylesheet"]')
+    )
+      .map(node => node.outerHTML)
+      .join('');
+    printWindow.document.write(
+      `<!DOCTYPE html><html><head><title>${fileName}</title>${styles}</head><body class="resume-print">${preview.innerHTML}</body></html>`
+    );
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.onload = () => {
+      printWindow.print();
+      printWindow.close();
+    };
+  };
+
+  const exportCurrent = async () => {
+    if (!config) {
+      message.warning('没有可导出的简历');
+      return;
+    }
+    await waitForNextFrame();
+    exportPreviewToPdf(
+      config?.profile?.name ? `${config.profile.name}-简历` : '在线简历'
+    );
   };
 
   useEffect(() => {
@@ -376,7 +444,10 @@ export const Page: React.FC = () => {
     if (typeof window === 'undefined') return undefined;
     try {
       const saved = window.localStorage.getItem('resume_personal_profile');
-      if (saved) return JSON.parse(saved);
+      if (!saved) return undefined;
+      const parsed = JSON.parse(saved);
+      // 兼容历史存储结构：可能是完整简历 JSON，也可能只有 profile
+      return parsed?.profile || parsed || undefined;
     } catch (err) {}
     return undefined;
   };
@@ -499,8 +570,17 @@ export const Page: React.FC = () => {
     const profile = getPersonalProfile();
     const merged: ResumeConfig = {
       ...target.data,
-      profile: profile || target.data.profile,
+      profile: profile || config?.profile || target.data.profile,
     };
+    if (!merged.profile) {
+      merged.profile = config?.profile || {
+        name: '',
+        mobile: '',
+        email: '',
+        workPlace: '',
+        positionTitle: '',
+      };
+    }
     changeConfig(merged);
     if ((target.data as any)?.theme) {
       setTheme((target.data as any).theme);
@@ -697,15 +777,17 @@ export const Page: React.FC = () => {
     return sorted;
   };
 
-  const handleAiProfile = async () => {
+  const fillProfileWithAi = async (
+    loadingKey: 'profile' | 'full' = 'profile'
+  ) => {
     if (!config) {
       message.warning('请先选择模版');
-      return;
+      return false;
     }
     const profile = getPersonalProfile();
     if (!profile) {
       message.warning('请先在“个人信息”页面填写并保存');
-      return;
+      return false;
     }
     const { resumeData } = await loadAiSourceData();
     const baseResume = resumeData || config;
@@ -716,63 +798,28 @@ export const Page: React.FC = () => {
     const prompt = `You are a resume optimizer. Update ONLY the profile/basic info section using the provided personal profile, keep other sections unchanged. Preserve JSON structure, theme, template, titleNameMap. Return pure JSON.\nPersonal profile: ${JSON.stringify(
       profile
     )}\nCurrent resume: ${JSON.stringify(payload)}`;
-    await runAi(prompt, '已更新个人信息', 'resume_profile', 'profile', payload);
+    await runAi(
+      prompt,
+      '已更新个人信息',
+      'resume_profile',
+      loadingKey,
+      payload
+    );
+    return true;
   };
 
-  const handleAiExperience = async () => {
-    if (!config) {
-      message.warning('请先选择模版');
-      return;
-    }
-    if (!jobDesc) {
-      message.warning('请输入岗位描述/JD');
-      return;
-    }
-    const { resumeData } = await loadAiSourceData();
-    const baseResume = resumeData || config;
-    const profile = getPersonalProfile() || baseResume?.profile;
-    const payload: ResumeConfig = {
-      ...(baseResume || {}),
-      profile: profile || baseResume?.profile,
-    } as ResumeConfig;
-    const poolText = experiencePool.length
-      ? `\nExperience pool (JSON array of candidates): ${JSON.stringify(
-          experiencePool
-        )}`
-      : '';
-    const prompt = `You are a resume optimizer. Using the job description and existing resume experience data, rewrite ONLY the experience-related sections (educationList, workExpList, projectList, skillList, awardList, workList, aboutme) to better match the JD. Keep profile as-is, keep JSON structure, theme, template, titleNameMap. Return pure JSON.${poolText}\nJob description: ${jobDesc}\nCurrent resume JSON: ${JSON.stringify(
-      payload
-    )}`;
-    await runAi(prompt, '已更新经历模块', 'resume_experience', 'exp', payload);
+  const handleAiProfile = async () => {
+    await fillProfileWithAi('profile');
   };
 
   const handleAiFull = async () => {
-    if (!config) {
-      message.warning('请先选择模版');
-      return;
-    }
     if (!jobDesc) {
       message.warning('请输入岗位描述/JD');
       return;
     }
-    const { resumeData } = await loadAiSourceData();
-    const baseResume = resumeData || config;
-    const profile = getPersonalProfile() || baseResume?.profile;
-    const payload: ResumeConfig = {
-      ...(baseResume || {}),
-      profile: profile || baseResume?.profile,
-    } as ResumeConfig;
-    const poolText = experiencePool.length
-      ? `\nExperience pool (JSON array of candidates): ${JSON.stringify(
-          experiencePool
-        )}`
-      : '';
-    const prompt = `You are a resume optimizer. Using the personal profile (if provided), job description, and base resume JSON, generate a fully optimized resume matching the JD while preserving JSON structure, theme, template, titleNameMap. Return pure JSON.\nPersonal profile: ${JSON.stringify(
-      profile || {}
-    )}\nJob description: ${jobDesc}${poolText}\nBase resume JSON: ${JSON.stringify(
-      payload
-    )}`;
-    await runAi(prompt, '已生成完整简历', 'resume_optimize', 'full', payload);
+    const filled = await fillProfileWithAi('full');
+    if (!filled) return;
+    await handleAiSelection();
   };
 
   const handleAiSelection = async () => {
@@ -961,6 +1008,41 @@ export const Page: React.FC = () => {
     setEditingFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleAddFromPool = (exp: ExperienceWithId) => {
+    const module: CandidateModule =
+      exp.type === 'project' ? 'projectList' : 'workExpList';
+    const existing = selectionCandidates[module]?.find(
+      entry => entry.sourceId === exp._id || entry.id === exp._id
+    );
+    if (existing) {
+      message.info('该候选已在列表中');
+      return;
+    }
+    const resumeItem = experienceToResumeItem(exp, module);
+    const id = exp._id || generateId();
+    const entry: SelectionCandidate = {
+      id,
+      module,
+      item: resumeItem,
+      reason: '来自候选库',
+      confidence: undefined,
+      sourceId: exp._id,
+    };
+    setSelectionCandidates(prev => ({
+      ...prev,
+      [module]: [...(prev[module] || []), entry],
+    }));
+    setSelectionChecked(prev => ({ ...prev, [id]: true }));
+    message.success('已添加到细致模式列表');
+  };
+
+  const filteredExperiencePool = experiencePoolState.filter(item => {
+    if (!poolFilter.trim()) return true;
+    const keywords = poolFilter.trim().toLowerCase();
+    const content = JSON.stringify(item).toLowerCase();
+    return content.includes(keywords);
+  });
+
   const confirmClearSelection = () => {
     Modal.confirm({
       title: '清空细致模式草稿？',
@@ -1091,6 +1173,7 @@ export const Page: React.FC = () => {
   }, []);
 
   const [box, setBox] = useState({ width: 0, height: 0, left: 0 });
+  const resumePreviewRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const targetNode = document.querySelector('.resume-content');
@@ -1202,13 +1285,15 @@ export const Page: React.FC = () => {
     <React.Fragment>
       <Spin spinning={loading}>
         <div className="page">
-          {config && (
-            <Resume
-              value={config}
-              theme={theme}
-              template={query.template || 'template1'}
-            />
-          )}
+          <div className="resume-preview" ref={resumePreviewRef}>
+            {config && (
+              <Resume
+                value={config}
+                theme={theme}
+                template={query.template || 'template1'}
+              />
+            )}
+          </div>
           {mode === 'edit' && (
             <>
               <div className="page-sidebar">
@@ -1264,29 +1349,26 @@ export const Page: React.FC = () => {
                           个人信息填充
                         </Button>
                       </Space>
-                      <Space>
-                        <Button
-                          onClick={handleAiExperience}
-                          loading={aiLoading === 'exp'}
-                        >
-                          经历填充
-                        </Button>
-                        <Button
-                          onClick={handleAiSelection}
-                          loading={selectionLoading}
-                        >
-                          细致模式
-                        </Button>
-                      </Space>
+                      <Button
+                        block
+                        onClick={handleAiSelection}
+                        loading={selectionLoading}
+                      >
+                        修改经历填充
+                      </Button>
                     </Space>
                   </Space>
                 </Card>
                 <Affix offsetTop={0}>
                   <Space direction="vertical" className="action-buttons">
-                    <Button type="primary" onClick={() => setVisible(true)}>
-                      编辑
+                    <Button
+                      type="primary"
+                      onClick={() => setConfigDrawerOpen(true)}
+                      disabled={!config}
+                    >
+                      在线编辑
                     </Button>
-                    <Button onClick={exportCurrent}>导出 JSON</Button>
+                    <Button onClick={exportCurrent}>导出简历</Button>
                     <Button onClick={() => setSaveModalOpen(true)}>
                       保存到最终简历
                     </Button>
@@ -1320,7 +1402,26 @@ export const Page: React.FC = () => {
         />
       </Modal>
 
-      <Drawer
+      {config && (
+        <ConfigDrawer
+          value={config}
+          onValueChange={onConfigChange}
+          theme={theme}
+          onThemeChange={onThemeChange}
+          template={activeTemplateId || templates[0]?.id || 'current-config'}
+          onTemplateChange={value => applyTemplate(value)}
+          open={configDrawerOpen}
+          onOpenChange={setConfigDrawerOpen}
+          hideTriggerButton
+          disableTemplateTab
+          className="editor-config-drawer"
+          nestedDrawerClassName="editor-config-drawer"
+          modalClassName="editor-config-modal"
+          hideHeaderActions
+        />
+      )}
+
+      <AntdDrawer
         className="selection-drawer"
         title="AI 推荐的匹配经历"
         placement="right"
@@ -1380,6 +1481,53 @@ export const Page: React.FC = () => {
             </Space>
           </div>
           {selectionError && <Alert type="error" message={selectionError} />}
+
+          {experiencePoolState.length > 0 && (
+            <div className="selection-pool">
+              <div className="selection-pool__header">
+                <div>候选经历库（{experiencePoolState.length}）</div>
+                <Input
+                  allowClear
+                  placeholder="搜索关键字"
+                  value={poolFilter}
+                  onChange={e => setPoolFilter(e.target.value)}
+                  size="small"
+                  style={{ width: 200 }}
+                />
+              </div>
+              <div className="selection-pool__list">
+                {filteredExperiencePool.slice(0, 50).map(item => (
+                  <div key={item._id} className="selection-pool__item">
+                    <div>
+                      <div className="selection-pool__name">
+                        {item.type === 'project'
+                          ? item.project_name || '未命名项目'
+                          : item.company_name || '未命名公司'}
+                      </div>
+                      <div className="selection-pool__desc">
+                        {(item.project_desc || item.work_desc || '')
+                          .split('\n')[0]
+                          .slice(0, 80)}
+                      </div>
+                    </div>
+                    <Button
+                      size="small"
+                      onClick={() => handleAddFromPool(item)}
+                    >
+                      加入
+                    </Button>
+                  </div>
+                ))}
+                {!filteredExperiencePool.length && (
+                  <Empty
+                    description="未找到匹配"
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
           {candidateModuleOptions.map(option => {
             const entries = selectionCandidates[option.key];
             if (!entries?.length) return null;
@@ -1502,7 +1650,7 @@ export const Page: React.FC = () => {
             </Button>
           </Space>
         </Space>
-      </Drawer>
+      </AntdDrawer>
 
       <Modal
         open={!!editingCandidate}

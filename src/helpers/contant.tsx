@@ -127,9 +127,7 @@ export const CONTENT_OF_MODULE = ({ intl }) => {
         attributeId: 'mobile',
         displayName: intl.formatMessage({ id: '手机号码' }),
         formItemProps: {
-          rules: [
-            { required: true, message: 'Please input your phone number!' },
-          ],
+          rules: [{ required: true, message: '请输入手机号' }],
         },
       },
       {
@@ -137,7 +135,7 @@ export const CONTENT_OF_MODULE = ({ intl }) => {
         attributeId: 'email',
         displayName: intl.formatMessage({ id: '邮箱' }),
         formItemProps: {
-          rules: [{ required: true, message: 'Please input your email!' }],
+          rules: [{ required: true, message: '请输入邮箱' }],
         },
       },
       {
@@ -145,7 +143,7 @@ export const CONTENT_OF_MODULE = ({ intl }) => {
         attributeId: 'github',
         displayName: intl.formatMessage({ id: 'Github' }),
         cfg: {
-          placeholder: 'Please input your github account, optional',
+          placeholder: '请输入 Github 主页（可选）',
         },
       },
       {
@@ -153,8 +151,7 @@ export const CONTENT_OF_MODULE = ({ intl }) => {
         attributeId: 'zhihu',
         displayName: intl.formatMessage({ id: '知乎' }),
         cfg: {
-          placeholder:
-            'Please input the link to visit your zhihu account, optional',
+          placeholder: '请输入知乎主页链接（可选）',
         },
       },
       {

@@ -16,6 +16,8 @@ export type AiSettings = {
   };
   // Optional proxy endpoint to offload AI calls from the browser.
   proxyEndpoint?: string;
+  // Models that the user chose to hide to avoid re-populating defaults
+  hiddenModels?: string[];
 };
 
 // --- 默认值定义 ---
@@ -33,9 +35,9 @@ export const DEFAULT_PROMPTS = {
   resume_profile:
     '你是一名简历教练。仅更新简历 JSON 的 profile 字段（基础信息），使用给定的个人信息，其他字段保持不变。务必保留原始的 JSON 结构、theme、template、titleNameMap，输出纯 JSON。',
   resume_experience:
-    '你是一名简历教练。根据岗位描述 JD 优化简历 JSON 中的经历相关模块（educationList, workExpList, projectList, skillList, awardList, workList, aboutme），profile 保持不变。每条工作经历或项目描述请使用 STAR（Situation、Task、Action、Result）结构生成 2-3 条精炼要点，尽量量化结果。保留原始 JSON 结构、theme、template、titleNameMap，输出纯 JSON。',
+    '你是一名简历教练。根据岗位描述 JD 优化简历 JSON 中的经历相关模块（educationList, workExpList, projectList, skillList, awardList, workList, aboutme），profile 保持不变。每条工作经历或项目描述请遵循 STAR（Situation、Task、Action、Result）思路撰写 2-3 条精炼要点，但不要输出显式的“S/T/A/R”标签，直接用自然语言描述并尽量量化成果。保留原始 JSON 结构、theme、template、titleNameMap，输出纯 JSON。',
   resume_selection:
-    '你是一名资深的 HR 助理。请根据候选人的完整简历和经历池（含后台解析的候选记录）以及岗位描述 JD，从中挑选最匹配的工作经历与项目经历供用户确认。要求：\n- 只返回严格的 JSON 对象：{ "workExpList": [...], "projectList": [...] }，不存在的模块使用空数组。\n- 每个条目结构：{ "item": <ResumeConfig 对应结构>, "reason": "匹配理由", "confidence": 0-1 的小数, "sourceId": "原始候选池 _id（若为新建议可留空）" }。\n- 当原始描述字数较少或缺乏细节时，请适度扩写，并使用 STAR（Situation、Task、Action、Result）模式整理 2-3 条要点，突出职责、行动和可量化成果。\n- 保持 ResumeConfig 字段命名（workExpList 需包含 company_name、department_name、work_time、work_desc；projectList 包含 project_name、project_role、project_time、project_desc 等），不要新增未知字段。\n- 若使用后台候选经历，请保留其 _id 作为 sourceId。\n- 输出纯 JSON，不要任何额外文本。',
+    '你是一名资深的 HR 助理。请根据候选人的完整简历和经历池（含后台解析的候选记录）以及岗位描述 JD，从中挑选最匹配的工作经历与项目经历供用户确认。要求：\n- 只返回严格的 JSON 对象：{ "workExpList": [...], "projectList": [...] }，不存在的模块使用空数组。\n- 每个条目结构：{ "item": <ResumeConfig 对应结构>, "reason": "匹配理由", "confidence": 0-1 的小数, "sourceId": "原始候选池 _id（若为新建议可留空）" }。\n- 当原始描述字数较少或缺乏细节时，请适度扩写，并按照 STAR 思路（Situation、Task、Action、Result）生成 2-3 条自然语言要点，不要显式写“S/T/A/R”标签，重点突出职责、行动和可量化成果。\n- 保持 ResumeConfig 字段命名（workExpList 需包含 company_name、department_name、work_time、work_desc；projectList 包含 project_name、project_role、project_time、project_desc 等），不要新增未知字段。\n- 若使用后台候选经历，请保留其 _id 作为 sourceId。\n- 输出纯 JSON，不要任何额外文本。',
 };
 
 export const getDefaultSettings = (): AiSettings => ({
@@ -48,8 +50,7 @@ export const getDefaultSettings = (): AiSettings => ({
     } else if (lower === 'deepseek-chat') {
       endpoint = 'https://api.deepseek.com/chat/completions';
     } else if (lower.startsWith('gemini')) {
-      endpoint =
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+      endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
     } else if (lower === 'qwen') {
       endpoint =
         'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
@@ -61,6 +62,7 @@ export const getDefaultSettings = (): AiSettings => ({
   }, {}),
   prompts: DEFAULT_PROMPTS,
   proxyEndpoint: '',
+  hiddenModels: [],
 });
 
 // --- 本地存储读写 ---
@@ -77,20 +79,34 @@ export function getAiSettings(): AiSettings {
     if (!raw) return defaults;
 
     const stored = JSON.parse(decodeURIComponent(escape(window.atob(raw))));
+    const hiddenModels: string[] = Array.from(
+      new Set([...(stored.hiddenModels || [])])
+    );
+    const mergedModels = {
+      ...defaults.models,
+      ...(stored.models || {}),
+    } as AiSettings['models'];
+    hiddenModels.forEach(model => {
+      if (model in mergedModels) delete mergedModels[model];
+    });
+
+    let activeModel = stored.activeModel || defaults.activeModel;
+    if (!mergedModels[activeModel]) {
+      activeModel = Object.keys(mergedModels)[0] || '';
+    }
 
     // Deep merge stored settings with defaults to gracefully handle new features
     const mergedSettings: AiSettings = {
       ...defaults,
       ...stored,
-      models: {
-        ...defaults.models,
-        ...(stored.models || {}),
-      },
+      activeModel,
+      models: mergedModels,
       prompts: {
         ...defaults.prompts,
         ...(stored.prompts || {}),
       },
       proxyEndpoint: stored.proxyEndpoint || defaults.proxyEndpoint,
+      hiddenModels,
     };
     return mergedSettings;
   } catch (err) {

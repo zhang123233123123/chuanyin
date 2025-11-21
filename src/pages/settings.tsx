@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { IntlProvider } from 'react-intl';
-import { Button, Input, message, Typography, Tabs, Divider } from 'antd';
+import { Button, Input, message, Typography, Tabs, Divider, Space } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import Header from '@/layout/header';
 import Footer from '@/layout/footer';
 import { getLanguage, registerLocale, getLocale } from '@/i18n';
@@ -38,6 +39,7 @@ const SettingsPage: React.FC = () => {
     getDefaultSettings()
   );
   const [isDirty, setDirty] = useState(false);
+  const [newModelName, setNewModelName] = useState('');
 
   useEffect(() => {
     // getAiSettings now returns a safe, merged object.
@@ -88,6 +90,39 @@ const SettingsPage: React.FC = () => {
     setDirty(true);
   };
 
+  const handleAddModel = () => {
+    const name = newModelName.trim();
+    if (!name) {
+      message.warning('请输入模型名称');
+      return;
+    }
+    let added = false;
+    setAiSettingsValue(prev => {
+      if (prev.models[name]) return prev;
+      added = true;
+      const hidden = new Set(prev.hiddenModels || []);
+      hidden.delete(name);
+      const nextModels = {
+        ...prev.models,
+        [name]: { apiKey: '', endpoint: '' },
+      };
+      const activeModel = prev.activeModel || name;
+      return {
+        ...prev,
+        models: nextModels,
+        hiddenModels: Array.from(hidden),
+        activeModel: activeModel || name,
+      };
+    });
+    if (added) {
+      setNewModelName('');
+      setDirty(true);
+      message.success('已新增模型');
+    } else {
+      message.warning('模型已存在');
+    }
+  };
+
   return (
     <IntlProvider locale={lang} messages={getLocale(lang)}>
       <div className="settings-page">
@@ -107,7 +142,26 @@ const SettingsPage: React.FC = () => {
             <Tabs
               activeKey={aiSettings.activeModel}
               onChange={handleActiveModelChange}
-              items={AI_MODELS.map(model => ({
+              tabBarExtraContent={
+                <Space size={8} align="center">
+                  <Input
+                    size="small"
+                    placeholder="新增模型标识"
+                    value={newModelName}
+                    onChange={e => setNewModelName(e.target.value)}
+                    style={{ width: 200 }}
+                  />
+                  <Button
+                    size="small"
+                    type="dashed"
+                    icon={<PlusOutlined />}
+                    onClick={handleAddModel}
+                  >
+                    新增模型
+                  </Button>
+                </Space>
+              }
+              items={Object.keys(aiSettings.models || {}).map(model => ({
                 key: model,
                 label: model,
                 children: (

@@ -169,6 +169,15 @@ type Props = {
   onTemplateChange: (v: string) => void;
 
   style?: object;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTriggerButton?: boolean;
+  disableTemplateTab?: boolean;
+  className?: string;
+  bodyStyle?: React.CSSProperties;
+  hideHeaderActions?: boolean;
+  nestedDrawerClassName?: string;
+  modalClassName?: string;
 };
 
 const type = 'DragableBodyRow';
@@ -216,7 +225,8 @@ const DragableRow = ({ index, moveRow, ...restProps }) => {
 const UploadTemplateModal: React.FC<{
   open: boolean;
   onClose: () => void;
-}> = ({ open, onClose }) => {
+  className?: string;
+}> = ({ open, onClose, className }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -788,6 +798,7 @@ Please generate the corresponding \`index.tsx\` and \`index.less\` files. The re
       title="AI 生成模板"
       open={open}
       onCancel={onClose}
+      className={className}
       footer={null}
       destroyOnClose
     >
@@ -811,12 +822,14 @@ type AiRestoreModalProps = {
   open: boolean;
   onClose: () => void;
   onApply: (data: Partial<ResumeConfig>) => void;
+  className?: string;
 };
 
 const AiRestoreModal: React.FC<AiRestoreModalProps> = ({
   open,
   onClose,
   onApply,
+  className,
 }) => {
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -924,6 +937,7 @@ const AiRestoreModal: React.FC<AiRestoreModalProps> = ({
       title={<FormattedMessage id="AI 还原简历" defaultMessage="AI 还原简历" />}
       open={open}
       onCancel={onClose}
+      className={className}
       width={720}
       footer={null}
       destroyOnClose
@@ -988,8 +1002,20 @@ const AiRestoreModal: React.FC<AiRestoreModalProps> = ({
  */
 export const Drawer: React.FC<Props> = props => {
   const intl = useIntl();
-
-  const [visible, setVisible] = useState(false);
+  const showTemplateTab = !props.disableTemplateTab;
+  const showHeaderActions = !props.hideHeaderActions;
+  const [internalVisible, setInternalVisible] = useState(false);
+  const isControlled = typeof props.open === 'boolean';
+  const visible = isControlled ? (props.open as boolean) : internalVisible;
+  const setVisibleState = (next: boolean) => {
+    if (isControlled) {
+      props.onOpenChange?.(next);
+    } else {
+      setInternalVisible(next);
+    }
+  };
+  const handleOpenDrawer = () => setVisibleState(true);
+  const handleCloseDrawer = () => setVisibleState(false);
   const [childrenDrawer, setChildrenDrawer] = useState(null);
   const [currentContent, updateCurrentContent] = useState(null);
   const [isUploadModalVisible, setIsUploadModalVisible] = useState(false);
@@ -1011,7 +1037,9 @@ export const Drawer: React.FC<Props> = props => {
     800
   );
 
-  const [type, setType] = useState('template');
+  const [type, setType] = useState<'template' | 'module'>(
+    showTemplateTab ? 'template' : 'module'
+  );
   const [moduleModalVisible, setModuleModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editingModule, setEditingModule] = useState<any>(null);
@@ -1174,6 +1202,7 @@ export const Drawer: React.FC<Props> = props => {
         width={450}
         onClose={() => setChildrenDrawer(null)}
         open={!!childrenDrawer}
+        className={props.nestedDrawerClassName}
       >
         <FormCreator
           config={contentOfModule[childrenDrawer]}
@@ -1211,55 +1240,65 @@ export const Drawer: React.FC<Props> = props => {
 
   return (
     <>
-      <Button
-        type="primary"
-        onClick={() => setVisible(true)}
-        style={props.style}
-      >
-        <FormattedMessage id="进行配置" />
-        <Popover
-          content={
-            <FormattedMessage id="移动端模式下，只支持预览，不支持配置" />
-          }
-        >
-          <InfoCircleFilled style={{ marginLeft: '4px' }} />
-        </Popover>
-      </Button>
+      {!props.hideTriggerButton && (
+        <Button type="primary" onClick={handleOpenDrawer} style={props.style}>
+          <FormattedMessage id="进行配置" />
+          <Popover
+            content={
+              <FormattedMessage id="移动端模式下，只支持预览，不支持配置" />
+            }
+          >
+            <InfoCircleFilled style={{ marginLeft: '4px' }} />
+          </Popover>
+        </Button>
+      )}
       <AntdDrawer
         title={
           <>
-            <Radio.Group value={type} onChange={e => setType(e.target.value)}>
-              <Radio.Button value="template">
-                <FormattedMessage id="选择模板" />
-              </Radio.Button>
-              <Radio.Button value="module">
+            {showTemplateTab ? (
+              <Radio.Group value={type} onChange={e => setType(e.target.value)}>
+                <Radio.Button value="template">
+                  <FormattedMessage id="选择模板" />
+                </Radio.Button>
+                <Radio.Button value="module">
+                  <FormattedMessage id="配置简历" />
+                </Radio.Button>
+              </Radio.Group>
+            ) : (
+              <span style={{ fontWeight: 500 }}>
                 <FormattedMessage id="配置简历" />
-              </Radio.Button>
-            </Radio.Group>
-            <Button
-              onClick={() => setModuleModalVisible(true)}
-              style={{ marginLeft: '16px' }}
-            >
-              <FormattedMessage id="管理模块" />
-            </Button>
-            <Button
-              onClick={() => setIsAiRestoreModalVisible(true)}
-              style={{ marginLeft: '16px' }}
-            >
-              AI 还原简历
-            </Button>
-            <Button
-              onClick={() => setIsUploadModalVisible(true)}
-              style={{ marginLeft: '16px' }}
-            >
-              AI 生成模板
-            </Button>
+              </span>
+            )}
+            {showHeaderActions && (
+              <>
+                <Button
+                  onClick={() => setModuleModalVisible(true)}
+                  style={{ marginLeft: '16px' }}
+                >
+                  <FormattedMessage id="管理模块" />
+                </Button>
+                <Button
+                  onClick={() => setIsAiRestoreModalVisible(true)}
+                  style={{ marginLeft: '16px' }}
+                >
+                  AI 还原简历
+                </Button>
+                <Button
+                  onClick={() => setIsUploadModalVisible(true)}
+                  style={{ marginLeft: '16px' }}
+                >
+                  AI 生成模板
+                </Button>
+              </>
+            )}
           </>
         }
         width={480}
         closable={false}
-        onClose={() => setVisible(false)}
+        onClose={handleCloseDrawer}
         open={visible}
+        className={props.className}
+        bodyStyle={props.bodyStyle}
       >
         {type === 'module' ? (
           moduleContent
@@ -1284,15 +1323,18 @@ export const Drawer: React.FC<Props> = props => {
           props.onValueChange(data);
           message.success('AI 生成的内容已写入当前简历');
         }}
+        className={props.modalClassName}
       />
       <UploadTemplateModal
         open={isUploadModalVisible}
         onClose={() => setIsUploadModalVisible(false)}
+        className={props.modalClassName}
       />
       <Modal
         title={<FormattedMessage id="管理自定义模块" />}
         open={moduleModalVisible}
         onCancel={() => setModuleModalVisible(false)}
+        className={props.modalClassName}
         footer={[
           <Button
             key="add"
@@ -1332,6 +1374,7 @@ export const Drawer: React.FC<Props> = props => {
         open={isEditModalVisible}
         onCancel={() => setIsEditModalVisible(false)}
         onOk={() => form.submit()}
+        className={props.modalClassName}
         destroyOnClose
       >
         <Form form={form} layout="vertical" initialValues={editingModule || {}}>

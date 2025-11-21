@@ -54,16 +54,43 @@ const FinalPage: React.FC = () => {
     message.success('已删除');
   };
 
-  const handleDownload = (item: FinalEntry) => {
-    const blob = new Blob([JSON.stringify(item.data, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${item.name}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const waitForNextFrame = () =>
+    new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
+  const exportPreviewToPdf = (fileName: string) => {
+    const preview = document.querySelector('.resume-page__preview');
+    if (!preview) {
+      message.error('未找到简历预览内容');
+      return;
+    }
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      message.error('请允许浏览器弹出窗口以导出 PDF');
+      return;
+    }
+    const styles = Array.from(
+      document.querySelectorAll('style, link[rel="stylesheet"]')
+    )
+      .map(node => node.outerHTML)
+      .join('');
+    printWindow.document.write(
+      `<!DOCTYPE html><html><head><title>${fileName}</title>${styles}</head><body class="resume-print">${preview.innerHTML}</body></html>`
+    );
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.onload = () => {
+      printWindow.print();
+      printWindow.close();
+    };
+  };
+
+  const handleExportPdf = async (item: FinalEntry) => {
+    if (item.id !== active?.id) {
+      setActive(item);
+      await waitForNextFrame();
+      await waitForNextFrame();
+    }
+    exportPreviewToPdf(item.name || '最终简历');
   };
 
   return (
@@ -92,9 +119,9 @@ const FinalPage: React.FC = () => {
                         </Button>,
                         <Button
                           size="small"
-                          onClick={() => handleDownload(item)}
+                          onClick={() => handleExportPdf(item)}
                         >
-                          导出
+                          导出简历
                         </Button>,
                         <Button
                           size="small"

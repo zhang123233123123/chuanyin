@@ -88,17 +88,18 @@ export const AISummaryPanel: React.FC<AISummaryPanelProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>();
   const [model, setModel] = useState<string>('');
-  const [availableModels, setAvailableModels] = useState<string[]>(AI_MODELS);
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
 
   useEffect(() => {
     // Load the default active model on initial render
     const settings = getAiSettings();
-    if (settings.activeModel) {
-      setModel(settings.activeModel);
-    }
-    const customModels = Object.keys(settings.models || {});
-    const mergedModels = Array.from(new Set([...AI_MODELS, ...customModels]));
+    const modelsFromSettings = Object.keys(settings.models || {});
+    const mergedModels = modelsFromSettings.length
+      ? modelsFromSettings
+      : AI_MODELS;
     setAvailableModels(mergedModels);
+    const activeModel = settings.activeModel || mergedModels[0] || '';
+    setModel(activeModel);
   }, []);
 
   useEffect(() => {
