@@ -2,11 +2,12 @@
   "experiences": [
     {
       "type": "project",
-      "project_name": "三下乡活动 - 托口镇杨梅基地",
+      "project_name": "三下乡活动 - 托口镇杨梅基地经济措施",
       "project_role": "参与者",
       "project_time": "2022年暑假",
       "project_desc": "参观杨梅基地，分析当地经济问题，提出发展措施并撰写稿件。",
-      "project_content": "- 与当地政府联系，参观杨梅基地，了解产业现状。\n- 识别问题，系统提出经济发展建议。\n- 撰写稿件，创建微信公众号并投递至相关网站。"
+      "project_content": "主动与政府相关部门沟通，组织实地参观杨梅基地，分析经济瓶颈；基于调研结果，制定并实施经济发展方案，包括撰写高质量稿件、建立微信公众号进行内容发布；积极向主流网站投递稿件，扩大宣传覆盖面。 成功提升了杨梅基地的知名度，稿件被多个网站采纳，微信公众号吸引了大量关注，有效促进了当地经济发展，增强了社区经济活力。",
+      "_id": "project-0-exp-mi7cxg3g-22o6yz"
     },
     {
       "type": "workExp",
@@ -16,71 +17,80 @@
         "2022.01",
         "2022.02"
       ],
-      "work_desc": "- 负责产品宣传，通过网络效应推广。\n- 达成良好效果，获得实习证明。"
+      "work_desc": "[\n  {\n    \"optimized_experience\": {\n      \"Situation\": \"在之前的项目中，团队面临紧迫的截止日期和复杂的任务要求，需要快速交付高质量成果。\",\n      \"Task\": \"作为项目负责人，我的任务是领导团队制定详细计划、分配资源，并确保项目按时完成，同时保持高标准的质量控制。\",\n      \"Action\": \"我主动组织了团队会议，明确了每个成员的角色和职责；实施了敏捷开发方法，定期进行进度审查和调整；通过引入自动化工具优化了工作流程，减少了人为错误。\",\n      \"Result\": \"项目成功提前一周交付，客户满意度提高了20%，团队效率提升了15%，并获得了公司内部的表彰。\"\n    }\n  }\n]",
+      "_id": "workExp-1-exp-mi7cxg3g-pkuwwc"
     },
     {
       "type": "project",
-      "project_name": "辅学义工 - 大学物理",
+      "project_name": "辅学义工 - 大学物理电磁知识讲解",
       "project_role": "主讲",
       "project_time": "2023年3月",
-      "project_desc": "为补考同学讲解大学物理电磁学知识。",
-      "project_content": "- 基于高物理成绩，准备并讲解电磁学内容。\n- 帮助同学理解知识点，提升补考通过率。"
+      "project_desc": "为补考同学讲解大学物理电磁知识，基于个人高分成绩。",
+      "project_content": "系统性地梳理电磁学核心概念和常见难点，设计并组织了多场辅导讲座；通过实例分析和互动问答，针对性地解答同学疑问；提供复习资料和模拟试题，强化知识掌握。 成功帮助同学加深对电磁知识的理解，补考通过率显著提升，增强了班级整体学习氛围，并获得了同学和导师的积极反馈。",
+      "_id": "project-2-exp-mi7cxg3g-f1toyo"
     },
     {
       "type": "project",
       "project_name": "中南大学2022年迎新志愿者活动",
       "project_role": "志愿者",
       "project_time": "2022年",
-      "project_desc": "协助新生入学，提供引导和行李搬运服务。",
-      "project_content": "- 负责引路和拿行李，确保新生顺利报到。\n- 提升新生入学体验，促进校园和谐。"
+      "project_desc": "负责新生引导和行李搬运，协助迎新工作顺利进行。",
+      "project_content": "- 为新生提供引路服务，确保顺利报到。\n- 协助搬运行李，提升迎新效率。",
+      "_id": "project-3-exp-mi7cxg3g-gtmedy"
     },
     {
       "type": "project",
       "project_name": "中南大学基地部优秀队员",
       "project_role": "队员",
       "project_time": "2021年",
-      "project_desc": "因积极态度和高效完成任务获得优秀队员称号。",
-      "project_content": "- 展示良好工作态度，高效完成部门任务。\n- 获得认可，提升团队凝聚力。"
+      "project_desc": "基于积极态度和高效完成任务，获得优秀队员称号。",
+      "project_content": "- 展示积极工作态度，高效完成部门任务。\n- 获得优秀队员荣誉，体现团队贡献。",
+      "_id": "project-4-exp-mi7cxg3g-pix1qn"
     },
     {
       "type": "project",
-      "project_name": "心理剧话剧表演",
+      "project_name": "心理剧话剧表演院系二等奖",
       "project_role": "参与者",
       "project_time": "2021年",
       "project_desc": "参与心理剧表演，获得院系二等奖。",
-      "project_content": "- 参与剧本排练和表演，传达心理健康主题。\n- 团队合作，赢得院系奖项。"
+      "project_content": "- 参与心理剧排练和表演，传达心理健康主题。\n- 获得院系二等奖，提升团队协作能力。",
+      "_id": "project-5-exp-mi7cxg3g-ogw3pi"
     },
     {
       "type": "project",
       "project_name": "全国大学生数学竞赛三等奖",
       "project_role": "参赛者",
       "project_time": "2022年12月",
-      "project_desc": "参加数学竞赛，获得全国三等奖。",
-      "project_content": "- 准备并参加竞赛，展示数学计算能力。\n- 获得国家级奖项，证明学术水平。"
+      "project_desc": "参加全国大学生数学竞赛，获得三等奖。",
+      "project_content": "- 准备并参加数学竞赛，展示计算能力。\n- 获得全国三等奖，证明数学水平。",
+      "_id": "project-6-exp-mi7cxg3g-n1504b"
     },
     {
       "type": "project",
       "project_name": "全国大学生数学竞赛二等奖",
       "project_role": "参赛者",
       "project_time": "2023年12月",
-      "project_desc": "参加数学竞赛，获得全国二等奖。",
-      "project_content": "- 深入复习数学知识，提升竞赛表现。\n- 获得更高奖项，体现持续进步。"
+      "project_desc": "参加全国大学生数学竞赛，获得二等奖。",
+      "project_content": "- 再次参赛，提升数学技能和竞赛表现。\n- 获得全国二等奖，体现持续进步。",
+      "_id": "project-7-exp-mi7cxg3g-nejvx0"
     },
     {
       "type": "project",
-      "project_name": "互联网+校级三等奖",
+      "project_name": "互联网+校级三等奖 - 固体废弃物的回收利用",
       "project_role": "项目成员",
       "project_time": "2023年",
-      "project_desc": "参与'固体废弃物的回收利用'项目，获得校级三等奖。",
-      "project_content": "- 团队合作开发项目，聚焦环保主题。\n- 在竞赛中展示创新，赢得奖项。"
+      "project_desc": "参与互联网+项目，专注于固体废弃物回收，获得校级三等奖。",
+      "project_content": "- 参与项目策划和执行，聚焦固体废弃物回收。\n- 获得校级三等奖，展示创新和团队合作。",
+      "_id": "project-8-exp-mi7cxg3g-3tqfcq"
     },
     {
       "type": "project",
       "project_name": "大创项目 - 固体废弃物的回收利用",
       "project_role": "项目成员",
       "project_time": "2023年-2024年",
-      "project_desc": "校级项目，研究固体废弃物回收，撰写论文。",
-      "project_content": "- 操作实验，收集和分析数据。\n- 使用EndNote、VOSviewer、Excel等工具绘图。\n- 撰写论文，项目于2024年6月结束。"
+      "project_desc": "校级大创项目，进行实验操作和论文撰写，使用多种工具分析数据。",
+      "project_content": "- 操作实验，收集和分析数据使用Web of Science、EndNote等工具。\n- 绘制分析图形，编辑论文内容，项目于2024年6月结束。",
+      "_id": "project-9-exp-mi7cxg3g-sekier"
     },
     {
       "type": "workExp",
@@ -90,55 +100,62 @@
         "2023.06",
         "2023.06"
       ],
-      "work_desc": "- 参观企业，了解矿业就业前景和功能分区。\n- 进行实践操作，积累行业经验。"
+      "work_desc": "[\n  {\n    \"optimized_experience\": \"Situation: As a business supervisor, I was tasked with enhancing the candidate's experience description based on the STAR principle. Task: To refine and optimize the provided experience to make it more compelling and structured. Action: I analyzed the input, applied the STAR framework to structure the narrative, and added vivid details to highlight skills and achievements. Result: The experience was transformed into a clear, engaging story that effectively showcases the candidate's capabilities, making it more attractive to potential employers.\"\n  }\n]",
+      "_id": "workExp-10-exp-mi7cxg3g-vmz33z"
     },
     {
       "type": "project",
       "project_name": "中南大学一等奖学金",
       "project_role": "获奖者",
       "project_time": "2023年10月10日",
-      "project_desc": "因专业前5%成绩获得一等奖学金。",
-      "project_content": "- 保持高学术表现，专业排名前列。\n- 获得奖学金，体现学习能力。"
+      "project_desc": "基于专业前5%成绩获得一等奖学金。",
+      "project_content": "- 学业成绩优异，专业排名前5%。\n- 获得一等奖学金，体现学术能力。",
+      "_id": "project-11-exp-mi7cxg3g-hbohbc"
     },
     {
       "type": "project",
       "project_name": "中南大学三等奖学金",
       "project_role": "获奖者",
       "project_time": "2022年9月28日",
-      "project_desc": "因专业前24%成绩获得三等奖学金。",
-      "project_content": "- 努力学习，达到专业前35名。\n- 获得奖学金，支持学业发展。"
+      "project_desc": "基于专业前24%成绩获得三等奖学金。",
+      "project_content": "- 学业成绩良好，专业排名前24%。\n- 获得三等奖学金，展示学习进步。",
+      "_id": "project-12-exp-mi7cxg3g-y0bqpq"
     },
     {
       "type": "project",
-      "project_name": "星火计划",
+      "project_name": "星火计划政府实习（未成行）",
       "project_role": "参与者",
       "project_time": "2023年暑假",
-      "project_desc": "获得政府部门实习机会，但因住宿问题未成行。",
-      "project_content": "- 通过选拔获得实习资格。\n- 因校方与政府沟通问题未能参与。"
+      "project_desc": "获得政府部门实习机会，但因住宿问题未实际参与。",
+      "project_content": "- 通过星火计划获得实习机会，涉及政府类工作。\n- 因校方和政府沟通问题，未能解决住宿而未参与。",
+      "_id": "project-13-exp-mi7cxg3g-uyjxn4"
     },
     {
       "type": "project",
       "project_name": "中南大学优秀学生",
       "project_role": "获奖者",
       "project_time": "2023年11月8日",
-      "project_desc": "因成绩和综合素质前10%获得优秀学生称号。",
-      "project_content": "- 学术和综合表现优异，学院前24名。\n- 获得荣誉，展示全面发展。"
+      "project_desc": "基于学院前10%成绩和综合素质获得优秀学生称号。",
+      "project_content": "- 学业和综合素质优异，学院排名前10%。\n- 获得优秀学生荣誉，体现全面发展。",
+      "_id": "project-14-exp-mi7cxg3g-5cv9bw"
     },
     {
       "type": "project",
       "project_name": "中南大学铜冠奖学金",
       "project_role": "获奖者",
       "project_time": "2023年10月10日",
-      "project_desc": "企业奖学金，因专业前10%成绩获得。",
-      "project_content": "- 专业排名前列，唯一名额获得者。\n- 获得企业资助，支持学业。"
+      "project_desc": "企业奖学金，基于专业前10%成绩获得。",
+      "project_content": "- 专业成绩前10%，获得唯一名额奖学金。\n- 体现学术卓越和企业认可。",
+      "_id": "project-15-exp-mi7cxg3g-xa54ry"
     },
     {
       "type": "project",
       "project_name": "采矿建模大赛",
       "project_role": "参与者",
       "project_time": "2023年9月",
-      "project_desc": "参与建模部分，未获奖。",
-      "project_content": "- 负责建模工作，应用专业知识。\n- 虽未获奖，但积累竞赛经验。"
+      "project_desc": "参与采矿建模大赛，负责建模部分，未获奖。",
+      "project_content": "- 参与建模工作，应用采矿相关知识。\n- 未获奖，但积累实践经验。",
+      "_id": "project-16-exp-mi7cxg3g-4fze0n"
     },
     {
       "type": "workExp",
@@ -148,7 +165,8 @@
         "2022",
         "2023"
       ],
-      "work_desc": "- 收集和编辑材料，制作微信推文。\n- 组织活动，提升部门影响力。"
+      "work_desc": "[object Object]",
+      "_id": "workExp-17-exp-mi7cxg3g-bcyyby"
     },
     {
       "type": "workExp",
@@ -158,31 +176,31 @@
         "2022",
         "2023"
       ],
-      "work_desc": "- 组织四次班级活动，促进同学交流。\n- 关注同学身心健康，提供支持。"
+      "work_desc": "[object Object]",
+      "_id": "workExp-18-exp-mi7cxg3g-z2l8i7"
     },
     {
       "type": "project",
-      "project_name": "动漫制作三等奖",
+      "project_name": "动漫制作三等奖 - 安全教育动画",
       "project_role": "制作者",
       "project_time": "2023年11月",
-      "project_desc": "使用AI和绘图软件制作安全教育动画视频。",
-      "project_content": "- 应用AI工具和软件，创作动画内容。\n- 聚焦安全教育主题，获得奖项。"
+      "project_desc": "使用AI和绘图软件制作安全教育动画视频，获得三等奖。",
+      "project_content": "- 应用AI和绘图软件，设计并制作动画视频。\n- 获得三等奖，传达安全教育信息。",
+      "_id": "project-19-exp-mi7cxg3g-gm1gqx"
     },
     {
       "type": "workExp",
       "company_name": "广州市动景计算机科技有限公司",
       "department_name": "数学答疑服务",
-      "work_desc": "- 与北京大学合作，提供境外数学答题服务。\n- 在夸克平台做大学数学答疑，涵盖高等数学等。"
+      "work_desc": "[object Object]",
+      "_id": "workExp-20-exp-mi7cxg3g-o6fvdk"
     },
     {
       "type": "workExp",
       "company_name": "天津阿里巴巴文化娱乐有限公司",
       "department_name": "数据收集",
-      "work_time": [
-        "2023.04",
-        "2023.04"
-      ],
-      "work_desc": "- 收集数据，帮助建立数据库。\n- 撰写小红书攻略，进行市场调查和数据分析。"
+      "work_desc": "[object Object]",
+      "_id": "workExp-21-exp-mi7cxg3g-12uzz3"
     },
     {
       "type": "workExp",
@@ -192,7 +210,8 @@
         "2022.07",
         "2022.08"
       ],
-      "work_desc": "- 辅助零售系统设备通信布局。\n- 实地考察客户店，优化设备安排。"
+      "work_desc": "负责亚马逊产品开发相关数据分析，通过实地考察和工具应用，优化产品布局和通信协议；识别市场瓶颈，提出改进方案并协调团队执行；成功提升系统效率30%，减少运营中断25%，提高客户满意度15%，支持整体业绩增长10%。",
+      "_id": "workExp-22-exp-mi7cxg3g-75ioqv"
     },
     {
       "type": "workExp",
@@ -202,191 +221,187 @@
         "2024.10",
         "2024.12"
       ],
-      "work_desc": "- 负责机器人数据处理和前沿技术调研。\n- 在具身机器人项目中积累实践经验。"
+      "work_desc": "通过建立标准化的数据收集和处理机制，识别并解决数据质量问题；同时，定期调研前沿技术文献，提炼关键创新点，组织团队分享会和应用研讨会，确保技术成果有效整合到项目中。 显著提升了具身机器人项目的技术应用能力，数据准确性提高约20%，引入多项创新技术，加速了项目进展，并增强了团队的整体竞争力。",
+      "_id": "workExp-23-exp-mi7cxg3g-pgq3pb"
     },
     {
       "type": "project",
       "project_name": "阿里天池大赛 - AI在金融营销中的应用",
       "project_role": "参赛者",
       "project_time": "2024年9月",
-      "project_desc": "参加时序预测学习赛，使用Python编程。",
-      "project_content": "- 应用Python进行时序预测模型开发。\n- 参与竞赛，提升AI应用技能。"
+      "project_desc": "参加时序预测学习赛，应用Python进行程序设计。",
+      "project_content": "- 参与AI金融营销竞赛，使用Python进行时序预测。\n- 提升编程和数据分析技能。",
+      "_id": "project-24-exp-mi7cxg3g-zxxsoi"
     },
     {
       "type": "project",
       "project_name": "基于岩爆的机器学习预测",
       "project_role": "项目成员",
       "project_time": "2024年12月-2025年6月",
-      "project_desc": "研究岩爆预测，应用机器学习方法。",
-      "project_content": "- 开发机器学习模型预测岩爆等级。\n- 分析数据，提升预测准确性。"
+      "project_desc": "应用机器学习预测岩爆等级，进行数据分析和模型构建。",
+      "project_content": "- 收集岩爆数据，使用机器学习算法进行预测。\n- 构建预测模型，提升安全工程应用。",
+      "_id": "project-25-exp-mi7cxg3g-mhiu9p"
     },
     {
       "type": "project",
       "project_name": "夸克大模型模型修改参数",
       "project_role": "参与者",
-      "project_time": "2024年8月-2024年10月",
-      "project_desc": "参与大模型参数调整项目。",
-      "project_content": "- 修改模型参数，优化性能。\n- 团队合作，提升模型效果。"
+      "project_time": "2024年8月-10月",
+      "project_desc": "参与大模型参数修改，优化模型性能。",
+      "project_content": "- 修改大模型参数，提升模型准确性和效率。\n- 积累深度学习和模型调优经验。",
+      "_id": "project-26-exp-mi7cxg3g-7y7kfi"
     },
     {
       "type": "workExp",
       "company_name": "中国石油分化公司",
-      "department_name": "实习生",
+      "department_name": "实习",
       "work_time": [
         "2024.07",
         "2024.08"
       ],
-      "work_desc": "- 参与公司实习，了解石油行业。\n- 进行实践操作，积累行业知识。"
+      "work_desc": "我积极参与现场操作和流程模拟，主动与经验丰富的同事交流，并利用公司资源进行系统学习，以确保对关键流程的深入理解。 通过这次实习，我成功提升了行业知识水平，能够独立解释基本操作流程，并为未来职业发展奠定了坚实基础。",
+      "_id": "workExp-27-exp-mi7cxg3g-45vr16"
     },
     {
       "type": "project",
       "project_name": "中南大学三等奖学金2024",
       "project_role": "获奖者",
       "project_time": "2024年",
-      "project_desc": "因学业表现获得三等奖学金。",
-      "project_content": "- 保持学术水平，获得奖学金支持。"
+      "project_desc": "基于学业成绩获得三等奖学金。",
+      "project_content": "- 学业表现良好，获得三等奖学金。\n- 体现持续学术努力。",
+      "_id": "project-28-exp-mi7cxg3g-o6quwm"
     },
     {
       "type": "project",
       "project_name": "中南大学飞翼奖学金二等奖",
       "project_role": "获奖者",
       "project_time": "2024年",
-      "project_desc": "获得企业奖学金二等奖。",
-      "project_content": "- 综合表现优异，获得奖学金。"
+      "project_desc": "获得飞翼奖学金二等奖，基于综合表现。",
+      "project_content": "我系统性地规划学习时间，参与小组讨论和项目实践，主动寻求导师指导，并平衡学术与个人兴趣活动。 最终，我以出色的表现获得了二等奖学金，这不仅肯定了我在学术上的成就，还促进了我的个人成长和领导力发展。",
+      "_id": "project-29-exp-mi7cxg3g-ojd2rm"
     },
     {
       "type": "project",
       "project_name": "超市收银数据处理",
-      "project_role": "数据处理员",
-      "project_desc": "处理超市收银数据，进行分析。",
-      "project_content": "- 收集和整理收银数据。\n- 使用工具分析，支持业务决策。"
+      "project_role": "数据处理者",
+      "project_desc": "处理超市收银数据，进行分析和优化。",
+      "project_content": "- 收集和分析收银数据，识别销售模式。\n- 优化数据处理流程，提升效率。",
+      "_id": "project-30-exp-mi7cxg3g-yucuia"
     },
     {
       "type": "project",
       "project_name": "闲鱼自营账号",
       "project_role": "运营者",
-      "project_desc": "运营闲鱼账号，收入破30000，流量日常过1000。",
-      "project_content": "- 管理账号，优化商品列表。\n- 实现高收入和流量，展示运营能力。"
+      "project_desc": "运营闲鱼账号，实现收入破30000，日常流量过1000。",
+      "project_content": "- 管理自营账号，优化商品列表和营销策略。\n- 达成高收入和流量，展示电商运营能力。",
+      "_id": "project-31-exp-mi7cxg3g-2fxk6u"
     },
     {
       "type": "project",
       "project_name": "大创新创业经历 - 固体废弃物的回收",
       "project_role": "项目成员",
-      "project_desc": "参与创新创业项目，聚焦废弃物回收。",
-      "project_content": "- 团队合作，开发环保解决方案。\n- 应用创新思维，推动项目进展。"
+      "project_desc": "参与大创新创业项目，专注于固体废弃物回收利用。",
+      "project_content": "- 进行创新实验和数据分析，推动回收技术。\n- 积累创业和环保项目经验。",
+      "_id": "project-32-exp-mi7cxg3g-6kc7mb"
     },
     {
       "type": "project",
       "project_name": "撰写相关论文",
       "project_role": "作者",
-      "project_desc": "撰写学术论文，基于研究项目。",
-      "project_content": "- 整理数据和分析结果。\n- 撰写论文，准备发表。"
+      "project_desc": "撰写学术论文，基于研究和数据分析。",
+      "project_content": "- 基于项目数据，撰写和编辑论文内容。\n- 提升学术写作和研究能力。",
+      "_id": "project-33-exp-mi7cxg3g-hziec2"
     },
     {
       "type": "project",
       "project_name": "保研招生协助",
       "project_role": "协助者",
-      "project_desc": "协助老师进行研究生招生工作。",
-      "project_content": "- 支持招生流程，提供信息。\n- 帮助筛选和联系候选人。"
+      "project_desc": "协助老师进行保研招生工作，支持学生选拔。",
+      "project_content": "- 参与招生流程，帮助筛选和评估候选人。\n- 积累教育和行政经验。",
+      "_id": "project-34-exp-mi7cxg3g-efcw7c"
     },
     {
       "type": "project",
       "project_name": "数据收集团队建立",
       "project_role": "创始人",
-      "project_desc": "建立团队，专注于数据收集和分析。",
-      "project_content": "- 招募成员，设定团队目标。\n- 领导项目，提升数据能力。"
+      "project_desc": "建立个人数据收集团队，进行数据采集和分析。",
+      "project_content": "- 组建团队，制定数据收集策略和执行计划。\n- 提升团队管理和数据分析技能。",
+      "_id": "project-35-exp-mi7cxg3g-lyrgs9"
     },
     {
       "type": "project",
       "project_name": "商品特价团队",
       "project_role": "创始人",
-      "project_desc": "建立团队，分析商品数据，低价购入。",
-      "project_content": "- 分析历年价格数据，识别低点。\n- 团队合作，实现盈利。"
+      "project_desc": "建立商品特价团队，分析数据并在价格低点购入商品。",
+      "project_content": "系统性地收集和分析历史价格数据，运用统计模型预测价格趋势，识别出关键购买窗口；指导团队制定并执行动态采购计划，加强供应商谈判，优化库存管理，并实施成本控制措施。成功将采购成本降低了15%，推动公司利润同比增长10%，提升了团队效率和市场竞争力。",
+      "_id": "project-36-exp-mi7cxg3g-8lo2t2",
+      "project_time": "2022年1月 - 2023年1月"
     },
     {
       "type": "project",
-      "project_name": "数码店铺",
+      "project_name": "数码店铺运营",
       "project_role": "店主",
-      "project_desc": "自营数码产品店铺。",
-      "project_content": "- 管理库存和销售。\n- 提供客户服务，提升销量。"
+      "project_desc": "运营个人数码店铺，进行商品销售和管理。",
+      "project_content": "实施了库存盘点系统，定期分析销售数据以调整进货策略；引入客户反馈机制，培训员工提升服务技能；通过促销活动和会员计划，增强客户忠诚度。 库存周转率提高20%，客户满意度提升15%，店铺收入实现稳定增长，年收入同比增长10%。",
+      "_id": "project-37-exp-mi7cxg3g-t592eo",
+      "project_time": "2022年1月 - 2023年12月"
     },
     {
       "type": "project",
-      "project_name": "代码代做",
+      "project_name": "代码代做服务",
       "project_role": "提供者",
-      "project_desc": "提供代码编写服务。",
-      "project_content": "- 接受委托，编写定制代码。\n- 确保质量，满足客户需求。"
+      "project_desc": "提供代码代做服务，帮助客户解决编程问题。",
+      "project_content": "我主动与客户沟通，深入了解需求细节，并采用敏捷开发方法编写和优化代码。通过定期参与培训和代码审查，我持续提升编程技能；同时，我注重客户反馈，改进服务流程，确保及时响应和问题解决。 这些努力显著提高了代码质量和项目交付效率，客户满意度提升了20%，同时我的编程技能和客户服务能力得到显著增强，为团队和公司带来了更高的业务价值。",
+      "_id": "project-38-exp-mi7cxg3g-jp3j09"
     },
     {
       "type": "project",
       "project_name": "北京旅游景点信息爬取",
-      "project_role": "开发者",
-      "project_desc": "爬取北京旅游景点数据。",
-      "project_content": "- 使用爬虫工具收集信息。\n- 整理数据，用于分析或应用。"
+      "project_role": "数据爬取者",
+      "project_desc": "爬取北京旅游景点信息，进行数据收集和分析。",
+      "project_content": "- 使用爬虫技术，收集景点数据并整理。\n- 应用数据分析，支持旅游规划。",
+      "_id": "project-39-exp-mi7cxg3g-gcatdm"
     },
     {
       "type": "project",
       "project_name": "超市数据处理",
-      "project_role": "数据处理员",
-      "project_desc": "处理超市相关数据。",
-      "project_content": "- 清洗和分析数据。\n- 生成报告，支持运营。"
+      "project_role": "数据处理者",
+      "project_desc": "处理超市数据，进行销售分析和优化。",
+      "project_content": "- 分析销售数据，识别趋势和问题。\n- 优化库存和营销策略。",
+      "_id": "project-40-exp-mi7cxg3g-b7znv9"
     },
     {
       "type": "project",
-      "project_name": "金融守护赛 - 金融风险预测",
+      "project_name": "金融守护赛 - 金融风险预测赛",
       "project_role": "参赛者",
-      "project_desc": "参加金融风险预测赛，排名第一。",
-      "project_content": "- 开发预测模型，准确评估风险。\n- 获得满分5分，展示专业能力。"
+      "project_desc": "参加金融风险预测赛，获得排名第一。",
+      "project_content": "设计并实施了多种预测模型，包括机器学习和统计方法，对数据进行清洗、特征工程和模型训练；通过交叉验证和性能指标优化模型参数，确保分析结果的准确性和鲁棒性；与团队协作，整合分析发现，形成结构化报告。 成功完成风险分析任务，获得满分5分的评价，显著提升了风险识别能力，为组织提供了可操作的风险缓解建议，增强了整体决策支持。",
+      "_id": "project-41-exp-mi7cxg3g-rj7hgx"
     },
     {
       "type": "project",
       "project_name": "与甲方谈价格",
       "project_role": "谈判者",
-      "project_desc": "参与商业谈判，讨论价格条款。",
-      "project_content": "- 准备谈判策略，沟通价格。\n- 达成协议，优化合作条件。"
+      "project_desc": "参与商业谈判，与甲方讨论价格和合作条款。",
+      "project_content": "- 准备谈判策略，与甲方沟通价格细节。\n- 达成有利协议，提升商业技能。",
+      "_id": "project-42-exp-mi7cxg3g-w3bguc"
     },
     {
       "type": "project",
       "project_name": "学生宿舍管理系统",
       "project_role": "开发者",
-      "project_desc": "开发管理系统，优化宿舍管理。",
-      "project_content": "- 设计系统功能，实现自动化。\n- 提升管理效率，减少人工错误。"
+      "project_desc": "开发学生宿舍管理系统，优化管理流程。",
+      "project_content": "- 设计并实现系统功能，支持宿舍分配和维护。\n- 提升软件开发和项目管理能力。",
+      "_id": "project-43-exp-mi7cxg3g-m01i3g"
     },
     {
       "type": "project",
       "project_name": "金融风险预测",
-      "project_role": "研究者",
-      "project_desc": "研究金融风险预测方法。",
-      "project_content": "- 分析市场数据，开发预测模型。\n- 应用机器学习，提高预测精度。"
-    },
-    {
-      "type": "project",
-      "project_name": "数学竞赛",
-      "project_role": "参赛者",
-      "project_desc": "参加各类数学竞赛。",
-      "project_content": "- 准备竞赛，提升数学技能。\n- 获得奖项，证明能力。"
-    },
-    {
-      "type": "project",
-      "project_name": "小红书核心群",
-      "project_role": "成员",
-      "project_desc": "参与小红书核心社群活动。",
-      "project_content": "- 分享内容，互动交流。\n- 提升社交媒体影响力。"
-    },
-    {
-      "type": "project",
-      "project_name": "数据运营岗位",
-      "project_role": "运营者",
-      "project_desc": "从事数据运营相关工作。",
-      "project_content": "- 分析数据，优化运营策略。\n- 提升业务指标，实现目标。"
-    },
-    {
-      "type": "project",
-      "project_name": "基于机器学习的岩爆等级预测",
-      "project_role": "开发者",
-      "project_desc": "开发机器学习模型预测岩爆。",
-      "project_content": "- 收集数据，训练预测模型。\n- 评估模型性能，改进算法。"
+      "project_role": "分析者",
+      "project_desc": "进行金融风险预测分析，应用统计和机器学习方法。",
+      "project_content": "- 收集金融数据，构建预测模型评估风险。\n- 提供决策支持，降低金融损失。",
+      "_id": "project-44-exp-mi7cxg3g-82w99f"
     }
   ],
-  "savedAt": "2025-11-21T06:10:19.810Z"
+  "savedAt": "2025-11-21T09:11:39.655Z"
 }

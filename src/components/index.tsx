@@ -75,6 +75,17 @@ const candidateModuleOptions: { key: CandidateModule; label: string }[] = [
   { key: 'projectList', label: '项目经历' },
 ];
 
+const PROFILE_DEFAULTS = {
+  name: '',
+  mobile: '',
+  email: '',
+  github: '',
+  zhihu: '',
+  workExpYear: '',
+  workPlace: '',
+  positionTitle: '',
+};
+
 const generateId = () =>
   `exp-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -219,10 +230,39 @@ export const Page: React.FC = () => {
   const fineModeTriggered = useRef(false);
   const [poolFilter, setPoolFilter] = useState('');
 
+  const ensureResumeSections = (value: Partial<ResumeConfig>): ResumeConfig => {
+    const next = {
+      titleNameMap: getDefaultTitleNameMap({ intl }),
+      ...value,
+    } as ResumeConfig;
+    next.profile = {
+      ...PROFILE_DEFAULTS,
+      ...(next.profile || {}),
+    };
+    next.aboutme = {
+      aboutme_desc: '',
+      ...(next.aboutme || {}),
+    };
+    next.avatar = next.avatar || {};
+    const listKeys: (keyof ResumeConfig)[] = [
+      'educationList',
+      'workExpList',
+      'projectList',
+      'skillList',
+      'awardList',
+      'workList',
+    ];
+    listKeys.forEach(key => {
+      if (!Array.isArray(next[key])) {
+        (next as any)[key] = [];
+      }
+    });
+    return next;
+  };
+
   const changeConfig = (v: Partial<ResumeConfig>) => {
-    setConfig(
-      _.assign({}, { titleNameMap: getDefaultTitleNameMap({ intl }) }, v)
-    );
+    const normalized = ensureResumeSections(v);
+    setConfig(normalized);
   };
 
   useEffect(() => {
@@ -777,49 +817,77 @@ export const Page: React.FC = () => {
     return sorted;
   };
 
-  const fillProfileWithAi = async (
-    loadingKey: 'profile' | 'full' = 'profile'
-  ) => {
+  const fillProfileWithAi = async () => {
     if (!config) {
       message.warning('请先选择模版');
       return false;
     }
-    const profile = getPersonalProfile();
-    if (!profile) {
+    const { resumeData } = await loadAiSourceData();
+    const baseResume = resumeData || config;
+    if (!baseResume) {
+      message.warning('暂无可用的简历数据');
+      return false;
+    }
+    const storedProfile = getPersonalProfile();
+    const baseProfile = baseResume.profile;
+    if (!storedProfile && !baseProfile) {
       message.warning('请先在“个人信息”页面填写并保存');
       return false;
     }
-    const { resumeData } = await loadAiSourceData();
-    const baseResume = resumeData || config;
+    const finalProfile = storedProfile || baseProfile || {};
+    const profileChanged =
+      !baseProfile || !_.isEqual(baseProfile, finalProfile);
+    if (!profileChanged) return true;
     const payload: ResumeConfig = {
-      ...(baseResume || {}),
-      profile,
+      ...baseResume,
+      profile: finalProfile,
     } as ResumeConfig;
     const prompt = `You are a resume optimizer. Update ONLY the profile/basic info section using the provided personal profile, keep other sections unchanged. Preserve JSON structure, theme, template, titleNameMap. Return pure JSON.\nPersonal profile: ${JSON.stringify(
-      profile
+      finalProfile
     )}\nCurrent resume: ${JSON.stringify(payload)}`;
-    await runAi(
-      prompt,
-      '已更新个人信息',
-      'resume_profile',
-      loadingKey,
-      payload
-    );
+    await runAi(prompt, '已更新个人信息', 'resume_profile', 'profile', payload);
     return true;
   };
 
   const handleAiProfile = async () => {
-    await fillProfileWithAi('profile');
+    await fillProfileWithAi();
   };
 
   const handleAiFull = async () => {
+    if (!config) {
+      message.warning('请先选择模版');
+      return;
+    }
     if (!jobDesc) {
       message.warning('请输入岗位描述/JD');
       return;
     }
-    const filled = await fillProfileWithAi('full');
-    if (!filled) return;
-    await handleAiSelection();
+    const { resumeData, experiencePool } = await loadAiSourceData();
+    const baseResume = ensureResumeSections(resumeData || config);
+    const personalProfile = getPersonalProfile();
+    if (personalProfile) {
+      baseResume.profile = {
+        ...baseResume.profile,
+        ...personalProfile,
+      };
+    }
+    const poolText = experiencePool?.length
+      ? `\nExperience pool (JSON array of candidates): ${JSON.stringify(
+          experiencePool
+        )}`
+      : '';
+    const prompt = `You are a resume optimizer. Using the personal profile (if provided), job description, base resume JSON, and experience pool, generate a fully optimized resume matching the JD. Update profile, educationList, workExpList, projectList, skillList, awardList, workList, aboutme even if they were empty before. Preserve JSON structure, theme, template, titleNameMap. Return pure JSON.\nPersonal profile data: ${JSON.stringify(
+      personalProfile || baseResume.profile || {}
+    )}\nJob description: ${jobDesc}${poolText}\nBase resume JSON: ${JSON.stringify(
+      baseResume
+    )}`;
+    await runAi(
+      prompt,
+      '已生成完整简历',
+      'resume_optimize',
+      'full',
+      baseResume
+    );
   };
 
   const handleAiSelection = async () => {
@@ -831,6 +899,8 @@ export const Page: React.FC = () => {
       message.warning('请输入岗位描述/JD');
       return;
     }
+    const profileUpdated = await fillProfileWithAi();
+    if (!profileUpdated) return;
     fineModeTriggered.current = true;
     setSelectionLoading(true);
     setSelectionError(null);
