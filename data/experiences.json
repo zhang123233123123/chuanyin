@@ -10,17 +10,6 @@
       "_id": "project-0-exp-mi7cxg3g-22o6yz"
     },
     {
-      "type": "workExp",
-      "company_name": "高途",
-      "department_name": "校园大使",
-      "work_time": [
-        "2022.01",
-        "2022.02"
-      ],
-      "work_desc": "[\n  {\n    \"optimized_experience\": {\n      \"Situation\": \"在之前的项目中，团队面临紧迫的截止日期和复杂的任务要求，需要快速交付高质量成果。\",\n      \"Task\": \"作为项目负责人，我的任务是领导团队制定详细计划、分配资源，并确保项目按时完成，同时保持高标准的质量控制。\",\n      \"Action\": \"我主动组织了团队会议，明确了每个成员的角色和职责；实施了敏捷开发方法，定期进行进度审查和调整；通过引入自动化工具优化了工作流程，减少了人为错误。\",\n      \"Result\": \"项目成功提前一周交付，客户满意度提高了20%，团队效率提升了15%，并获得了公司内部的表彰。\"\n    }\n  }\n]",
-      "_id": "workExp-1-exp-mi7cxg3g-pkuwwc"
-    },
-    {
       "type": "project",
       "project_name": "辅学义工 - 大学物理电磁知识讲解",
       "project_role": "主讲",
@@ -93,17 +82,6 @@
       "_id": "project-9-exp-mi7cxg3g-sekier"
     },
     {
-      "type": "workExp",
-      "company_name": "黄沙坪矿场",
-      "department_name": "实习",
-      "work_time": [
-        "2023.06",
-        "2023.06"
-      ],
-      "work_desc": "[\n  {\n    \"optimized_experience\": \"Situation: As a business supervisor, I was tasked with enhancing the candidate's experience description based on the STAR principle. Task: To refine and optimize the provided experience to make it more compelling and structured. Action: I analyzed the input, applied the STAR framework to structure the narrative, and added vivid details to highlight skills and achievements. Result: The experience was transformed into a clear, engaging story that effectively showcases the candidate's capabilities, making it more attractive to potential employers.\"\n  }\n]",
-      "_id": "workExp-10-exp-mi7cxg3g-vmz33z"
-    },
-    {
       "type": "project",
       "project_name": "中南大学一等奖学金",
       "project_role": "获奖者",
@@ -158,28 +136,6 @@
       "_id": "project-16-exp-mi7cxg3g-4fze0n"
     },
     {
-      "type": "workExp",
-      "company_name": "中南大学网络宣传部门",
-      "department_name": "副部长",
-      "work_time": [
-        "2022",
-        "2023"
-      ],
-      "work_desc": "[object Object]",
-      "_id": "workExp-17-exp-mi7cxg3g-bcyyby"
-    },
-    {
-      "type": "workExp",
-      "company_name": "中南大学班级",
-      "department_name": "身心委员",
-      "work_time": [
-        "2022",
-        "2023"
-      ],
-      "work_desc": "[object Object]",
-      "_id": "workExp-18-exp-mi7cxg3g-z2l8i7"
-    },
-    {
       "type": "project",
       "project_name": "动漫制作三等奖 - 安全教育动画",
       "project_role": "制作者",
@@ -190,27 +146,13 @@
     },
     {
       "type": "workExp",
-      "company_name": "广州市动景计算机科技有限公司",
-      "department_name": "数学答疑服务",
-      "work_desc": "[object Object]",
-      "_id": "workExp-20-exp-mi7cxg3g-o6fvdk"
-    },
-    {
-      "type": "workExp",
-      "company_name": "天津阿里巴巴文化娱乐有限公司",
-      "department_name": "数据收集",
-      "work_desc": "[object Object]",
-      "_id": "workExp-21-exp-mi7cxg3g-12uzz3"
-    },
-    {
-      "type": "workExp",
       "company_name": "湖南爱优网络技术有限公司",
       "department_name": "数据分析部门",
       "work_time": [
         "2022.07",
         "2022.08"
       ],
-      "work_desc": "负责亚马逊产品开发相关数据分析，通过实地考察和工具应用，优化产品布局和通信协议；识别市场瓶颈，提出改进方案并协调团队执行；成功提升系统效率30%，减少运营中断25%，提高客户满意度15%，支持整体业绩增长10%。",
+      "work_desc": "进行了深入的实地考察，结合数据分析工具，识别关键市场瓶颈；提出并实施了针对性的产品布局和通信协议优化方案；协调跨职能团队，确保方案高效执行，并持续监控进展。 成功将系统效率提升30%，运营中断减少25%，客户满意度提高15%，并支持整体业绩增长10%，显著改善了项目绩效和市场竞争力。",
       "_id": "workExp-22-exp-mi7cxg3g-75ioqv"
     },
     {
@@ -403,5 +345,5 @@
       "_id": "project-44-exp-mi7cxg3g-82w99f"
     }
   ],
-  "savedAt": "2025-11-23T06:32:22.479Z"
+  "savedAt": "2025-11-23T11:14:49.345Z"
 }

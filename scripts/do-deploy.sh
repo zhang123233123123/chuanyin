@@ -8,7 +8,7 @@ set -euo pipefail
 PROJECT_DIR=${PROJECT_DIR:-/root/resume}
 APP_DIR=${APP_DIR:-/var/www/starlink-resume}
 NODE_VERSION=${NODE_VERSION:-20}
-BRANCH=${BRANCH:-main}
+BRANCH=${BRANCH:-test-branch}
 REPO_URL=${REPO_URL:-https://github.com/zhanghj/resume.git}
 PUBLIC_IP=${PUBLIC_IP:-152.42.172.247}
 
