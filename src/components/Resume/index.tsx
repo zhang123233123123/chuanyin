@@ -31,27 +31,13 @@ const templateComponents = templates.reduce((acc, templateName) => {
   return acc;
 }, {} as Record<string, React.LazyExoticComponent<TemplateComponent>>);
 
-const serverTemplateCache: Record<string, TemplateComponent> = {};
+const serverTemplateMap: Record<string, TemplateComponent> = {
+  template1: require('./template1').default,
+};
 
 const loadServerTemplate = (template: string): TemplateComponent => {
-  if (serverTemplateCache[template]) {
-    return serverTemplateCache[template];
-  }
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = require(`./${template}`).default as TemplateComponent;
-    serverTemplateCache[template] = mod;
-    return mod;
-  } catch (err) {
-    console.warn(
-      `[resume] 模版 ${template} 加载失败，使用默认模版 template1`,
-      err
-    );
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const fallback = require('./template1').default as TemplateComponent;
-    serverTemplateCache[template] = fallback;
-    return fallback;
-  }
+  const key = template && serverTemplateMap[template] ? template : 'template1';
+  return serverTemplateMap[key];
 };
 
 const ResumeComponent = ({ template, ...props }) => {
