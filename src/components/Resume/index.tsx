@@ -32,7 +32,7 @@ const templateComponents = templates.reduce((acc, templateName) => {
 }, {} as Record<string, React.LazyExoticComponent<TemplateComponent>>);
 
 const serverTemplateMap: Record<string, TemplateComponent> = {
-  template1: require('./template1').default,
+  template1: require('./template1/index.tsx').default,
 };
 
 const loadServerTemplate = (template: string): TemplateComponent => {

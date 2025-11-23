@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星邻履历智造 - 商业计划书</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 使用 Poppins (标题) 和 Lato (正文) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+/* 1. THE SETUP */
+* {
+  box-sizing: border-box;
+}
+p {
+  margin: 0;
+  margin-bottom: 15px;
+}
+body {
+  /* 营造高级感的背景 */
+  background-color: #e2e8f0;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px 0;
+  place-items: center;
+}
+.slide-container {
+  align-items: center;
+  /* 深海军蓝 - 科技感/高级感 */
+  background-color: #0a192f;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 720px;
+  justify-content: center;
+  overflow: hidden;
+  padding: 60px;
+  position: relative;
+  width: 1280px;
+}
+.slide-container::before {
+  content: '';
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 0;
+  /* 增加一个微妙的网格背景，提升科技感 */
+  background-image: linear-gradient(rgba(204, 214, 246, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(204, 214, 246, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+.slide-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 2. CONSISTENT TYPOGRAPHY */
+:root {
+  --primary-color: #0a192f; /* Deep Navy */
+  --accent-color: #64ffda;  /* Tech Mint */
+  --text-light: #ccd6f6;    /* Light Slate */
+  --text-dark: #8892b0;     /* Dark Slate */
+  --text-white: #ffffff;
+}
+
+/* 标题字体 */
+.slide-container h1, .slide-container h2, .slide-container h3 {
+  color: var(--text-light);
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+/* 正文字体 */
+.slide-container p, .slide-container li, .slide-container .subtitle, .slide-container .number-label, .slide-container th, .slide-container td, .slide-container cite {
+  color: var(--text-dark);
+  font-family: 'Lato', sans-serif;
+}
+/* 字号规范 */
+.slide-container h1 {
+  font-size: 84px;
+  color: var(--text-white);
+  line-height: 1.1;
+}
+.slide-container .slide-title {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  text-align: left;
+  width: 100%;
+  padding-bottom: 15px;
+  /* 科技感的点缀线条 */
+  border-bottom: 2px solid var(--accent-color);
+}
+.slide-container h3 {
+  font-size: 26px;
+  font-weight: 500;
+  margin-bottom: 15px;
+  color: var(--text-light);
+}
+.slide-container p, .slide-container li, .slide-container .subtitle, .slide-container th, .slide-container td {
+  font-size: 20px;
+  line-height: 1.6;
+}
+.slide-container .subtitle {
+  font-size: 26px;
+  font-weight: 400;
+  margin: 20px auto;
+  color: var(--text-dark);
+}
+.slide-container .content-area {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  width: 100%;
+}
+/* 列表样式 */
+.slide-container ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.slide-container li {
+  margin-bottom: 15px;
+  position: relative;
+  padding-left: 35px;
+}
+.slide-container li::before {
+  content: '›'; /* 使用 '›' 符号，更精致 */
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: var(--accent-color);
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 24px;
+}
+
+/* 3. LAYOUT DEFINITIONS */
+
+/* Full_Background_Image (for Title) */
+.full-bg-image {
+  background-position: center;
+  background-size: cover;
+  padding: 80px;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.full-bg-image .content-overlay {
+  background-color: rgba(10, 25, 47, 0.7); /* 深色遮罩 */
+  padding: 40px;
+  border-radius: 8px;
+  text-align: left;
+}
+.full-bg-image .subtitle {
+  color: var(--text-light);
+  font-size: 32px;
+  max-width: 800px;
+}
+.full-bg-image .author {
+  font-size: 22px;
+  color: var(--text-dark);
+  margin-top: 30px;
+}
+
+/* Section_Title */
+.section-title-layout {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+}
+.section-title-layout .section-number {
+  font-size: 24px;
+  font-family: 'Poppins', sans-serif;
+  color: var(--accent-color);
+  margin-bottom: 10px;
+}
+.section-title-layout h2 {
+  font-size: 72px;
+  color: var(--text-white);
+  line-height: 1.3;
+}
+.section-title-layout .section-subtitle {
+  font-size: 28px;
+  color: var(--text-dark);
+  max-width: 900px;
+  margin-top: 20px;
+}
+
+/* Tiled_Text_With_Icons */
+.tiled-content {
+  align-items: stretch;
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  width: 100%;
+}
+.tile {
+  align-items: flex-start;
+  /* 增加透明度，营造“悬浮”感 */
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(204, 214, 246, 0.1);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: flex-start;
+  padding: 30px;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+.tile:hover {
+  transform: translateY(-5px);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.tile .icon {
+  color: var(--accent-color);
+  font-size: 36px;
+  margin-bottom: 25px;
+}
+.tile h3 {
+  font-size: 22px;
+  color: var(--text-white);
+}
+.tile p {
+  font-size: 18px;
+}
+
+/* Rounded_Image_and_Text (Persona) */
+.rounded-image-layout .image-wrapper {
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 350px;
+  width: 350px;
+  max-width: 350px;
+  margin: 0 auto;
+  border: 4px solid var(--accent-color);
+  overflow: hidden;
+}
+.rounded-image-layout .image-wrapper img {
+  object-fit: cover;
+  max-width: 100%;
+  height: 100%;
+  width: 100%;
+}
+.rounded-image-layout.two-column {
+  align-items: center;
+  gap: 80px;
+}
+.rounded-image-layout .persona-name {
+  font-size: 36px;
+  color: var(--text-white);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.rounded-image-layout .persona-profile {
+  font-size: 22px;
+  color: var(--accent-color);
+  margin-bottom: 20px;
+  font-style: italic;
+}
+.rounded-image-layout .persona-section {
+  font-weight: 700;
+  color: var(--text-light);
+  margin-top: 20px;
+}
+.rounded-image-layout .persona-quote {
+  font-size: 18px;
+  color: var(--text-dark);
+  border-left: 3px solid var(--accent-color);
+  padding-left: 15px;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+/* Image_Right_Text_Left */
+.two-column {
+  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  width: 100%;
+}
+.image-wrapper {
+  border-radius: 8px;
+  height: 400px;
+  max-width: 100%;
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid rgba(204, 214, 246, 0.1);
+}
+.image-wrapper img {
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+.two-column .image-wrapper img {
+  object-fit: contain; /* Contain for UI mockups */
+}
+
+/* Table (Competitive Landscape) */
+.table-layout {
+  width: 100%;
+}
+.table-layout table {
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(204, 214, 246, 0.1);
+}
+.table-layout th,
+.table-layout td {
+  border-bottom: 1px solid rgba(204, 214, 246, 0.1);
+  padding: 16px 20px;
+  text-align: left;
+}
+.table-layout th {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-light);
+  font-size: 18px;
+  font-family: 'Poppins', sans-serif;
+}
+.table-layout td {
+  font-size: 18px;
+  color: var(--text-dark);
+}
+.table-layout tr:last-child td {
+  border-bottom: none;
+}
+.table-layout .highlight-win {
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 20px;
+}
+.table-layout .highlight-lose {
+  color: #ff8a80; /* Red accent for "Low" */
+}
+
+/* Bleed_Image_Right */
+.slide-container.bleed-image-layout {
+  align-items: start;
+  display: grid;
+  gap: 50px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0;
+}
+.slide-container.bleed-image-layout > .content-container {
+  padding: 60px 0 60px 60px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.slide-container.bleed-image-layout .slide-title {
+  margin-bottom: 30px;
+}
+.slide-container.bleed-image-layout > .image-container {
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+.slide-container.bleed-image-layout img.bleed-image-side {
+  border-radius: 0 8px 8px 0;
+  display: block;
+  height: 100%;
+  max-height: 720px;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+}
+.slide-container.bleed-image-layout .bleed-text-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+}
+.slide-container.bleed-image-layout .bleed-text-side li {
+  font-size: 22px;
+  color: var(--text-light);
+  line-height: 1.7;
+}
+
+/* Two_Column_Tiled_Text (Architecture) */
+.two-column.tiled {
+  align-items: stretch;
+}
+.two-column.tiled > div {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(204, 214, 246, 0.1);
+  padding: 30px;
+  text-align: left;
+}
+.two-column.tiled h3 {
+  color: var(--accent-color);
+  font-size: 22px;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.two-column.tiled .icon {
+  font-size: 24px;
+  color: var(--accent-color);
+  margin-right: 15px;
+}
+.two-column.tiled p {
+  font-size: 18px;
+}
+
+/* Timeline */
+.timeline-layout {
+  align-items: stretch;
+  display: flex;
+  height: stretch;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
+}
+.timeline-layout .timeline-line {
+  background-color: rgba(204, 214, 246, 0.2);
+  height: 4px;
+  left: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-2px);
+  width: 100%;
+  z-index: 0;
+}
+.timeline-item {
+  position: relative;
+  text-align: center;
+  width: 23%;
+}
+.timeline-item::after {
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  border: 4px solid var(--accent-color);
+  content: '';
+  height: 20px;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  z-index: 1;
+}
+.timeline-item .content-wrapper {
+  left: 0;
+  position: absolute;
+  width: 100%;
+}
+.timeline-item:nth-child(odd) .content-wrapper {
+  bottom: 50%;
+  margin-bottom: 25px;
+}
+.timeline-item:nth-child(even) .content-wrapper {
+  margin-top: 25px;
+  top: 50%;
+}
+.timeline-item h3 {
+  color: var(--accent-color);
+  font-size: 20px;
+}
+.timeline-item p {
+  font-size: 16px;
+}
+
+/* Quote */
+.quote-layout {
+  text-align: left;
+  width: 80%;
+  border-left: 5px solid var(--accent-color);
+  padding-left: 40px;
+}
+.quote-layout blockquote {
+  color: var(--text-white);
+  font-size: 36px;
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+  padding: 0;
+  position: relative;
+}
+.quote-layout cite {
+  color: var(--text-dark);
+  font-size: 22px;
+  font-style: normal;
+  font-family: 'Lato', sans-serif;
+}
+
+/* Q&A */
+.qa-layout {
+  text-align: center;
+  width: 100%;
+  align-self: center;
+}
+.qa-layout h2 {
+  font-size: 100px;
+  margin-bottom: 20px;
+  color: var(--text-white);
+}
+.qa-layout p {
+  font-size: 32px;
+  color: var(--text-dark);
+}
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Title_Slide -->
+<div class="slide-container full-bg-image" id="slide1" style="background-image: linear-gradient(rgba(10, 25, 47, 0.8), rgba(10, 25, 47, 0.8)), url('https://images.pexels.com/photos/2045600/pexels-photo-2045600.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
+    <div class="content-overlay">
+        <h1>星邻履历智造</h1>
+        <p class="subtitle">赋能新兴市场：AI 驱动的职业跳板</p>
+        <p class="author">张洪健 | 17872965515</p>
+    </div>
+</div>
+
+<!-- Slide 2: Section_Title -->
+<div class="slide-container" id="slide2">
+    <div class="section-title-layout">
+        <div class="section-number">01</div>
+        <h2>“数字鸿沟”<br>即是“机遇鸿沟”</h2>
+        <p class="section-subtitle">在新兴市场，一份专业的简历是稀缺资源，正阻碍数百万人的职业发展。</p>
+    </div>
+</div>
+
+<!-- Slide 3: Tiled_Text_With_Icons (Market Challenges) -->
+<div class="slide-container" id="slide3">
+    <h2 class="slide-title">核心挑战：被“高门槛”AI 排除在外的用户</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-wifi-slash"></i></div>
+                <h3>严苛的网络环境</h3>
+                <p>主流网络仍为 2G/3G，流量昂贵。任何依赖持续云端连接的大模型应用都难以落地。</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-mobile-screen"></i></div>
+                <h3>受限的硬件性能</h3>
+                <p>60% 用户使用入门级设备，算力有限，功耗敏感。无法流畅运行需高算力的 AI 应用。</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-user-graduate"></i></div>
+                <h3>高昂的数字门槛</h3>
+                <p>70% 用户缺乏 PC 办公技能，且日常使用混合语言，标准 AI 工具无法准确理解其需求。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Rounded_Image_and_Text (Persona) -->
+<div class="slide-container" id="slide4">
+    <h2 class="slide-title">目标用户画像 (Persona)</h2>
+    <div class="content-area">
+        <div class="two-column rounded-image-layout">
+            <div>
+                <div class="image-wrapper"><img src="https://images.pexels.com/photos/1840608/pexels-photo-1840608.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="专业年轻黑人男性肖像" onerror="this.src='https://placehold.co/350x350/0a192f/ccd6f6?text=Kofi'"></div>
+            </div>
+            <div>
+                <p class="persona-name">Kofi Mensah</p>
+                <p class="persona-profile">24岁, IT 专业学生 / 街头创业者 (拉各斯)</p>
+                
+                <p class="persona-section">目标:</p>
+                <p class="persona-quote">“我想申请本地科技公司的实习，但我不知道怎么把我的项目经历写得专业。”</p>
+                
+                <p class="persona-section">痛点:</p>
+                <p class="persona-quote">“我只有一部传音手机。那些 AI 应用要么打不开，要么无法识别我夹杂着约鲁巴语的英语。”</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: Section_Title -->
+<div class="slide-container" id="slide5">
+    <div class="section-title-layout">
+        <div class="section-number">02</div>
+        <h2>我们的解决方案</h2>
+        <p class="section-subtitle">“星邻履历智造”，专为新兴市场设计的“轻量化”AI简历助手。</p>
+    </div>
+</div>
+
+<!-- Slide 6: Image_Right_Text_Left (Solution) -->
+<div class="slide-container" id="slide6">
+    <h2 class="slide-title">只做一件事：从“想法”到“敲门砖”</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <h3>拒绝“生成诗歌”，专注“解决问题”</h3>
+                <p>我们不追求通用大模型，而是打造一个垂直领域的 AI 工具，将用户散乱的笔记、文档、甚至语音（规划中）转化为专业、得体的求职简历。</p>
+                <ul>
+                    <li><b>离线优先：</b> 核心编辑功能在本地运行，保护隐私，弱网无忧。</li>
+                    <li><b>智能解析：</b> 深度优化的 AI 引擎，能准确提炼混合语言中的关键经历 (STAR)。</li>
+                    <li><b>一键排版：</b> 内置符合本地审美的专业模板，自动美化深肤色照片。</li>
+                </ul>
+            </div>
+            <div>
+                <div class="image-wrapper"><img src="https://images.pexels.com/photos/1786433/pexels-photo-1786433.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="深色模式的简历应用UI" onerror="this.src='https://placehold.co/600x400/0a192f/ccd6f6?text=App+UI'"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 7: Table (Competitive Landscape) -->
+<div class="slide-container" id="slide7">
+    <h2 class="slide-title">竞争格局分析</h2>
+    <div class="content-area">
+        <div class="table-layout">
+            <table>
+                <thead>
+                    <tr>
+                        <th>关键特性</th>
+                        <th>星邻履历智造 (我们)</th>
+                        <th>传统 PC 软件 (Word)</th>
+                        <th>国际 AI 工具 (ChatGPT)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>离线可用性</td>
+                        <td class="highlight-win">高 (本地优先)</td>
+                        <td class="highlight-win">高 (需安装)</td>
+                        <td class="highlight-lose">低 (完全依赖云端)</td>
+                    </tr>
+                    <tr>
+                        <td>硬件门槛</td>
+                        <td class="highlight-win">极低 (轻量化 App)</td>
+                        <td class="highlight-lose">高 (需要 PC)</td>
+                        <td class="highlight-lose">高 (计算密集)</td>
+                    </tr>
+                    <tr>
+                        <td>本地语言理解</td>
+                        <td class="highlight-win">高 (专项优化)</td>
+                        <td class="highlight-lose">低</td>
+                        <td>中 (非垂直领域)</td>
+                    </tr>
+                    <tr>
+                        <td>用户数字门槛</td>
+                        <td class="highlight-win">极低 (引导式)</td>
+                        <td class="highlight-lose">高 (需专业排版技能)</td>
+                        <td>中 (需 Prompt 技能)</td>
+                    </tr>
+                    <tr>
+                        <td>成本</td>
+                        <td class="highlight-win">免费 / Freemium</td>
+                        <td class="highlight-lose">高 (软件付费)</td>
+                        <td class="highlight-lose">高 (订阅费 & 流量费)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 8: Bleed_Image_Right (Why We Win) -->
+<div class="slide-container bleed-image-layout" id="slide8">
+    <div class="content-container">
+        <h2 class="slide-title">我们的护城河：为什么是我们？</h2>
+        <div class="content-area">
+            <div class="bleed-text-side">
+                <ul>
+                    <li><b>深度本地化：</b><br>我们生于传音，最懂新兴市场用户的肤色、语言和使用习惯。</li>
+                    <li><b>轻量化技术栈：</b><a-dum-de-dum-dum style="display: none"></a-dum-de-dum-dum><br>我们的架构专为低端硬件和 2G/3G 网络设计，确保极致的用户体验。</li>
+                    <li><b>传音生态协同：</b><br>可预装于数亿传音手机，触达“首屏”用户，实现最低成本获客。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="image-container">
+        <img
+            class="bleed-image-side"
+            src="https://images.pexels.com/photos/2471234/pexels-photo-2471234.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+            alt="尼日利亚拉各斯的城市天际线"
+            onerror="this.src='https://placehold.co/600x720/0a192f/ccd6f6?text=新兴市场'">
+    </div>
+</div>
+
+<!-- Slide 9: Section_Title -->
+<div class="slide-container" id="slide9">
+    <div class="section-title-layout">
+        <div class="section-number">03</div>
+        <h2>技术架构与市场策略</h2>
+        <p class="section-subtitle">如何实现低成本、高可用的规模化落地。</p>
+    </div>
+</div>
+
+<!-- Slide 10: Two_Column_Tiled_Text (Architecture) -->
+<div class="slide-container" id="slide10">
+    <h2 class="slide-title">成熟的技术架构：分离“构建”与“运行”</h2>
+    <div class="content-area">
+        <div class="two-column tiled">
+            <div>
+                <h3><i class="fa-solid fa-cogs icon"></i> CI/CD 持续集成 (构建态)</h3>
+                <p>在云端 (如 GitHub Actions) 完成内存密集型的 `gatsby build` 和 `pnpm install`。这一步对服务器性能要求高，但与用户无关。</p>
+            </div>
+            <div>
+                <h3><i class="fa-solid fa-server icon"></i> 轻量化生产 (运行态)</h3>
+                <p>1GB 服务器仅负责 Nginx 静态托管和轻量级 Node.js 代理。用户访问的是极致优化的静态文件，确保高可用和低成本。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 11: Timeline (Go-to-Market) -->
+<div class="slide-container" id="slide11">
+    <h2 class="slide-title">市场进入策略 (Go-to-Market)</h2>
+    <div class="content-area">
+        <div class="timeline-layout">
+            <div class="timeline-line"></div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>Q1 2026: 种子用户 & 预装</h3>
+                    <p>上线应用商店，并在传音新机中预装 Beta 版，收集真实反馈。</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>Q2 2026: 口碑传播 & AI 优化</h3>
+                    <p>发起“校园大使”计划，针对性优化混合语言模型。</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>Q3 2026: 生态整合</h3>
+                    <p>接入传音 Hi Translate 翻译引擎，并与本地招聘网站 (Jobberman) API 打通。</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>Q4 2026: 商业化探索</h3>
+                    <p>推出“Pro”模板（\$1）和面向 B 端的企业版服务。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 12: Quote (Testimonial) -->
+<div class="slide-container" id="slide12">
+    <div class="quote-layout">
+        <blockquote>“这太神奇了。我只用手机就把我的课堂笔记变成了一份连教授都说专业的简历。我成功拿到了实习机会。”</blockquote>
+        <cite>— Kofi Mensah, 24岁 (Beta 用户)</cite>
+    </div>
+</div>
+
+<!-- Slide 13: Q&A -->
+<div class="slide-container" id="slide13">
+    <div class="qa-layout">
+        <h2>Q & A</h2>
+        <p>感谢聆听</p>
+    </div>
+</div>
+
+</body>
+</html>
+```
