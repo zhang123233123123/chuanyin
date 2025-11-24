@@ -11,6 +11,7 @@ NODE_VERSION=${NODE_VERSION:-20}
 BRANCH=${BRANCH:-test-branch}
 REPO_URL=${REPO_URL:-https://github.com/zhanghj/resume.git}
 PUBLIC_IP=${PUBLIC_IP:-152.42.172.247}
+PATH_PREFIX=${PATH_PREFIX:-/app}
 
 log() {
   echo -e "[deploy] $1"
@@ -44,7 +45,7 @@ build_app() {
   cd "$PROJECT_DIR"
   corepack enable
   pnpm install --frozen-lockfile
-  pnpm run build
+  GATSBY_PATH_PREFIX="$PATH_PREFIX" XDG_CONFIG_HOME=$PWD/.config pnpm run build
 }
 
 publish_assets() {

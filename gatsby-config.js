@@ -1,5 +1,7 @@
+const pathPrefix = process.env.GATSBY_PATH_PREFIX || '/resume';
+
 module.exports = {
-  pathPrefix: '/resume',
+  pathPrefix,
   siteMetadata: {
     title: '星邻履历智造（StarLink Resume Maker）',
     githubUrl: 'https://github.com/zhanghj/resume.git',
